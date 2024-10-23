@@ -1,0 +1,33 @@
+# Fichiers binaires et objets générés
+*.o
+*.d
+*.a
+*.elf
+*.bin
+*.map
+*.hex
+*.bin
+
+# Build directory
+build/
+
+# Espressif IDF environnements ou fichiers temporaires
+.cache/
+managed_components/
+*.tmp
+*.log
+*.bak
+dependencies.lock
+
+# Fichiers CMake générés
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Fichiers de configuration
+sdkconfig
+sdkconfig.old
+
+.gdb_history
+Session.vim

@@ -1,0 +1,7 @@
+menu "Display Configuration"
+
+config EPD_GDEY042T81
+    bool "GDEY042T81/SSD1683 - (4.2\" 300Hx400W)"
+    default 0
+
+endmenu
