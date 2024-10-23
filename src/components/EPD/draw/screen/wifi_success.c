@@ -33,7 +33,7 @@ static void wifi_valid_network(const char *data)
 {
     static lv_style_t style;
     lv_style_init(&style);
-    lv_style_set_text_font(&style, &lv_font_montserrat_14);
+    lv_style_set_text_font(&style, &lv_font_montserrat_20);
 
     lv_obj_t *title_label;
     title_label = lv_label_create(lv_screen_active());
@@ -49,7 +49,7 @@ static void wifi_valid_network(const char *data)
     lv_obj_align(title_label, LV_ALIGN_CENTER, 0, 0);
 }
 
-void screen_wifi_valid(const char *data)
+void draw_screen_wifi_success(const char *data)
 {
     lv_obj_clean(lv_screen_active());
 

@@ -43,8 +43,7 @@ void start_wifi(void)
         snprintf(wifi_data, sizeof(wifi_data), "WIFI:T:WPA;S:%s;P:%s;;", WIFI_AP_SSID, WIFI_AP_PASS);
         if (lvgl_lock(-1))
         {
-            /* fullscreen_qrcode(wifi_data); */
-            screen_wifi_config(wifi_data);
+            draw_screen_wifi_config(wifi_data);
             lvgl_unlock();
         }
     }

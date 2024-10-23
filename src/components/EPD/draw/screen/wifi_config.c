@@ -26,7 +26,7 @@ static void wifi_config_top_label(void)
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 0);
 }
 
-void screen_wifi_config(const char *data)
+void draw_screen_wifi_config(const char *data)
 {
     wifi_config_top_label();
     fullscreen_qrcode(data);

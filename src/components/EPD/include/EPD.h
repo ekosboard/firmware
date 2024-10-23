@@ -53,8 +53,8 @@ extern "C" {
     ////////////////////////////////////////////////////////////////////////////////
     //  DRAW/SCREEN
     ////////////////////////////////////////////////////////////////////////////////
-    void            screen_wifi_config(const char *data);
-    void            screen_wifi_valid(const char *data);
+    void            draw_screen_wifi_config(const char *data);
+    void            draw_screen_wifi_success(const char *data);
 
 #ifdef __cplusplus
 } /*extern "C"*/

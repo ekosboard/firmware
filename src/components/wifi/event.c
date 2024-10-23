@@ -64,12 +64,17 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         xEventGroupSetBits(s_wifi_event_group, WIFI_STA_CONNECTED_BIT);
 
         /* TODO: affichage seulement pendant la config */
-        /* TODO: aller chercher le ssid */
         if (lvgl_lock(-1))
         {
             epd_interface_t *disp_driver = &gdey042t81_driver;
             disp_driver->clear();
-            screen_wifi_valid("SSID ICI");
+
+            wifi_ap_record_t ap_info;
+            if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
+            {
+                draw_screen_wifi_success((char*)ap_info.ssid);
+            }
+
             lvgl_unlock();
         }
 

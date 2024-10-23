@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-    void    http_server(void);
+    void    http_server(void *pvParameters);
 
 #ifdef __cplusplus
 } /*extern "C"*/

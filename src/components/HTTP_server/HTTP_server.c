@@ -1,5 +1,6 @@
 #include "HTTP_server.h"
 #include "API_system.h"
+#include "freertos/projdefs.h"
 
 static const char *TAG = "HTTP Server";
 
@@ -193,7 +194,7 @@ static void connect_handler(void* arg, esp_event_base_t event_base, int32_t even
     }
 }
 
-void http_server(void)
+void http_server(void *pvParameters)
 {
     static httpd_handle_t server = NULL;
 
@@ -201,6 +202,7 @@ void http_server(void)
 
     while (server)
     {
-        sleep(5);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
+    vTaskDelete(NULL);
 }
