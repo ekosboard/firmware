@@ -1,6 +1,4 @@
 #include "wifi.h"
-#include "EPD.h"
-#include "filesystem_interface.h"
 
 static const char *TAG = "WiFi";
 
@@ -29,7 +27,6 @@ static void init_wifi_config(void)
 void start_wifi(void)
 {
     ESP_LOGI(TAG, "Start WiFi");
-    ESP_ERROR_CHECK(nvs_init_interface());
     init_network_interface();
     init_wifi_config();
     init_wifi_event_group();
@@ -50,6 +47,7 @@ void start_wifi(void)
     else
     {
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+        esp_wifi_set_ps(WIFI_PS_MIN_MODEM);
     }
 
     ESP_ERROR_CHECK(esp_wifi_start());

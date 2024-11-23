@@ -1,0 +1,33 @@
+idf_component_register(
+    SRCS 
+    "UI.c"
+    "init_lvgl.c"
+    "draw/qrcode.c"
+    "draw/btn_bottom_left.c"
+    "draw/btn_bottom_right.c"
+    "draw/screen/wifi_config.c"
+    "draw/screen/wifi_success.c"
+    "draw/widget/sensor_BME680.c"
+    "draw/widget/status_bar.c"
+    "font/roboto_48.c"
+    "font/roboto_64.c"
+    "font/roboto_96.c"
+    "font/roboto_48_bold.c"
+    "font/roboto_64_bold.c"
+    "font/roboto_96_bold.c"
+    "font/symbol_nerdfont.c"
+    "font/symbol_nerdfont_48.c"
+    "lvgl_utils/screen_manager.c"
+    "widget_utils/widget_json.c"
+    "widget_utils/widget_list.c"
+    "widget_utils/widget_list_json.c"
+
+    INCLUDE_DIRS 
+    "include"
+
+    REQUIRES
+    lvgl
+    EPD
+    filesystem_interface
+    json
+)

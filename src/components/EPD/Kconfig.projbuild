@@ -1,4 +1,4 @@
-menu "Display Configuration"
+menu "Smart Paper -- E-Paper Display"
 
 config EPD_GDEY042T81
     bool "GDEY042T81/SSD1683 - (4.2\" 300Hx400W)"

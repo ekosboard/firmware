@@ -2,20 +2,24 @@
 #define WIFI_AP_H
 
 #include <string.h>
-#include "esp_err.h"
-#include "esp_event_base.h"
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_mac.h"
-#include "esp_wifi.h"
+#include "esp_err.h"
 #include "esp_event.h"
+#include "esp_event_base.h"
+#include "esp_wifi.h"
+#include "esp_wifi_types_generic.h"
+#include "esp_netif_sntp.h"
+#include "esp_sntp.h"
+#include "esp_mac.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-#include "EPD.h"
+#include "UI.h"
 #include "filesystem_interface.h"
 
 
@@ -32,6 +36,9 @@
 
 #define MDNS_HOSTNAME               "smart-paper"
 #define MDNS_INSTANCE               "SmartPaper Web Server"
+
+#define STA_CONNECTED               0
+#define STA_DISCONNECTED            1
 
 extern esp_netif_t                  *esp_netif_ap;
 extern esp_netif_t                  *esp_netif_sta;
@@ -69,6 +76,7 @@ extern "C" {
     //  UTILS
     ////////////////////////////////////////////////////////////////////////////////
     void        start_mdns_service(void);
+    esp_err_t   init_sntp(char *timezone);
 
 #ifdef __cplusplus
 } /*extern "C"*/

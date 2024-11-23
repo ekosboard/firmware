@@ -1,4 +1,5 @@
 #include "EPD.h"
+#include "filesystem_interface.h"
 #include "wifi.h"
 
 static const char *TAG_AP = "WiFi event AP";
@@ -27,13 +28,13 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
     {
         wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *) event_data;
         ESP_LOGI(TAG_AP, "Station "MACSTR" joined, AID=%d", MAC2STR(event->mac), event->aid);
-    } 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED) 
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
     {
         wifi_event_ap_stadisconnected_t *event = (wifi_event_ap_stadisconnected_t *) event_data;
         ESP_LOGI(TAG_AP, "Station "MACSTR" left, AID=%d, reason:%d", MAC2STR(event->mac), event->aid, event->reason);
-    } 
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
         if (wifi_init_sta() == ESP_OK)
         {
@@ -53,6 +54,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         {
             s_retry_num = 0;
             xEventGroupSetBits(s_wifi_event_group, WIFI_STA_FAIL_BIT);
+            nvs_setup_state_write_network_status(STA_DISCONNECTED);
         }
         ESP_LOGI(TAG_STA,"connect to the AP fail");
     }
@@ -63,12 +65,13 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         ESP_LOGI(TAG_STA, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
         xEventGroupSetBits(s_wifi_event_group, WIFI_STA_CONNECTED_BIT);
 
+        // Set timezone to Europe/Paris
+        init_sntp("CET-1CEST,M3.5.0,M10.5.0/3");
+        nvs_setup_state_write_network_status(STA_CONNECTED);
+
         /* TODO: affichage seulement pendant la config */
         if (lvgl_lock(-1))
         {
-            epd_interface_t *disp_driver = &gdey042t81_driver;
-            disp_driver->clear();
-
             wifi_ap_record_t ap_info;
             if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
             {

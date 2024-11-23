@@ -1,4 +1,4 @@
-#include "EPD.h"
+#include "UI.h"
 
 void fullscreen_qrcode(const char *data)
 {

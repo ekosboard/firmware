@@ -1,0 +1,15 @@
+menu "Smart Paper -- Widgets"
+
+    config WIDGET_STATUS_BAR
+        bool "Enable Status Bar Widget"
+        default y
+
+    config WIDGET_SENSOR_BME680
+        bool "Enable Sensor BME680 Widget"
+        default y
+
+    config WIDGET_NETWORK_SIGNAL
+        bool "Enable Network Signal Widget"
+        default y
+
+endmenu

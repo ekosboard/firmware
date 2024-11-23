@@ -1,8 +1,26 @@
 #include "HTTP_server.h"
-#include "API_system.h"
-#include "freertos/projdefs.h"
+#include "API_ui.h"
+#include "esp_log.h"
 
 static const char *TAG = "HTTP Server";
+
+// Handler pour gérer les requêtes preflight (CORS)
+static esp_err_t cors_options_handler(httpd_req_t *req)
+{
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, Authorization");
+    httpd_resp_send(req, NULL, 0);
+    return ESP_OK;
+}
+
+static const httpd_uri_t options_uri = {
+    .uri       = "*",
+    .method    = HTTP_OPTIONS,
+    .handler   = cors_options_handler,
+    .user_ctx  = NULL
+};
+
 
 /* An HTTP GET handler */
 static esp_err_t hello_get_handler(httpd_req_t *req)
@@ -142,6 +160,7 @@ static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.uri_match_fn = httpd_uri_match_wildcard;
     config.lru_purge_enable = true;
 
     // Start the httpd server
@@ -152,8 +171,10 @@ static httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &hello);
         httpd_register_uri_handler(server, &ctrl);
+        httpd_register_uri_handler(server, &options_uri);
         register_wifi_credentials_uri(server);
         register_wifi_connect_uri(server);
+        register_widgets(server);
         return server;
     }
 
@@ -197,12 +218,20 @@ static void connect_handler(void* arg, esp_event_base_t event_base, int32_t even
 void http_server(void *pvParameters)
 {
     static httpd_handle_t server = NULL;
+    esp_err_t err;
+
+    err = init_widget_update_queue();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "init_widget_update_queue failed!");
+        vTaskDelete(NULL);
+    }
 
     server = start_webserver();
-
     while (server)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+
     vTaskDelete(NULL);
 }

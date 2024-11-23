@@ -5,6 +5,7 @@ idf_component_register(
     "STA_mode.c"
     "AP_mode.c"
     "event.c"
+    "SNTP.c"
 
     INCLUDE_DIRS 
     "include"
@@ -14,5 +15,5 @@ idf_component_register(
     nvs_flash
     mdns
     filesystem_interface
-    EPD
+    UI
 )

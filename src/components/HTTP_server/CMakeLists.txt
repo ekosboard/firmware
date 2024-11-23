@@ -3,6 +3,10 @@ idf_component_register(
     "HTTP_server.c"
     "api/system/wifi/credentials.c"
     "api/system/wifi/connect.c"
+    "api/ui/widgets.c"
+    "queue/widget_update.c"
+    "utils/json.c"
+    "utils/read_http_request_content.c"
 
     INCLUDE_DIRS 
     "include"
@@ -14,4 +18,5 @@ idf_component_register(
     esp_http_server 
     esp_wifi
     json
+    UI
 )
