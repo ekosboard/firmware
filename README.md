@@ -39,6 +39,7 @@ This repository focuses on the ESP32 firmware that drives the e-paper display an
 
 3. Configure the project:  
     ```bash
+    idf.py set-target esp32s3
     idf.py menuconfig
     ```
    Be sure to set your display and other [configurations](#configuration) to suit your environment.  
@@ -65,102 +66,131 @@ This repository focuses on the ESP32 firmware that drives the e-paper display an
 idf.py menuconfig
 ```
 
-#### Display
+#### 1. Display
 
 ```markdown
 Select your display:
 
-	Main menu -> Display Configuration
+    Main menu -> Display Configuration
 ```
 
-#### LVGL
+#### 2. LVGL
 
 ```markdown
 LVGL configuration:
 
-	Main menu -> Component config -> LVGL configuration
+    Main menu -> Component config -> LVGL configuration
 
 Color depth:
 
-	Color Settings -> Color depth -> 
-		- [x] 1 byte per pixel (for monochrome display)
-		- [ ] 8 RGB232 (for 4 grayscale display)
-		- [ ] 16 RGB565 (for 16 grayscale display)
+    Color Settings -> Color depth -> 
+        - [x] 1 byte per pixel (for monochrome display)
+        - [ ] 8 RGB232 (for 4 grayscale display)
+        - [ ] 16 RGB565 (for 16 grayscale display)
 
 HAL Settings:
 Font Usage:
+
+    Font Usage -> Enable built-in fonts ->
+        - [x] Montserrat 14
+        - [x] Montserrat 20
+        - [x] Montserrat 24
+        - [x] Montserrat 30
+
 Widget Usage:
 Themes:
+
 3rd Party Libraries:
+
+    3rd Party Libraries ->
+        - [x] QR code library
 ```
 
-#### CPU
+#### 3. CPU
 
 ```markdown
 CPU frequency:
 
     Main menu -> Component config -> ESP System Settings ->
         - CPU frequency ->
-		    - [x] 240 MHz
+            - [x] 240 MHz
 ```
-#### PSRAM
+
+#### 4. PSRAM
 
 ```markdown
 PSRAM configuration:
 
-	Main menu -> Component config -> ESP PSRAM ->
-		- [x] Support for external, SPI-connected RAM
-		
-		-> SPI RAM config ->
-			- Mode of SPI RAM ->
-				- [x] Octal
-			- Type of SPIRAM chip in use ->
-				- [x] Auto-detect
-			- [x] Initialize SPI RAM during startup
-			- SPI RAM access method ->
-				- [x] Make RAM allocatable using malloc() as well
-			- [x] Run memory test on SPI RAM initialization
-			- [x] Try to allocate WiFi and LWIP in SPIRAM firstly
-			- [x] Allow .bss segment placed in external memory
-			
+    Main menu -> Component config -> ESP PSRAM ->
+        - [x] Support for external, SPI-connected RAM
+
+        -> SPI RAM config ->
+        - Mode of SPI RAM ->
+            - [x] Octal
+        - Type of SPIRAM chip in use ->
+            - [x] Auto-detect
+        - [x] Initialize SPI RAM during startup
+        - SPI RAM access method ->
+            - [x] Make RAM allocatable using malloc() as well
+        - [x] Run memory test on SPI RAM initialization
+        - [x] Try to allocate WiFi and LWIP in SPIRAM firstly
+        - [x] Allow .bss segment placed in external memory
 ```
 
-#### SPI Flash
+#### 5. SPI Flash
 
 ```markdown
 SPI Flash configuration:
 
-	Main menu -> Serial flasher config ->
-		- [x] Choose flash mode automatically
-		- Flash SPI mode ->
-			- [x] DIO
-		- Flash Sampling Mode ->
-			- [x] STR Mode
-		- Flash SPI speed ->
-			- [x] 80 MHz
-		- Flash size ->
-			- [x] 16 MB
-		- [x] Detect flash size when flashing bootloader
+    Main menu -> Serial flasher config ->
+        - [x] Choose flash mode automatically
+        - Flash SPI mode ->
+            - [x] DIO
+        - Flash Sampling Mode ->
+            - [x] STR Mode
+        - Flash SPI speed ->
+            - [x] 80 MHz
+        - Flash size ->
+            - [x] 16 MB
+        - [x] Detect flash size when flashing bootloader
 ```
 
-#### FreeRTOS
+#### 6. FreeRTOS
 
 ```markdown
 FreeRTOS configuration:
 
-	Main menu -> Component config -> FreeRTOS -> Kernel ->
-		- configTICK_RATE_HZ ->
-			- 1000
+    Main menu -> Component config -> FreeRTOS -> Kernel ->
+        - configTICK_RATE_HZ ->
+            - 1000
+        - configMAX_TASK_NAME_LEN ->
+            - 32
 ```
 
-#### Partition Table
+#### 7. Partition Table
 
 ```markdown
 Partition Table configuration:
 
-	Main menu -> Partition Table -> Partition Table ->
-		- [x] Single factory app (large), no OTA
-		- [ ] Custom partition (coming soon)
+    Main menu -> Partition Table -> Partition Table ->
+        - [x] Custom partition
+        - Custom partition CSV file ->
+            - partitions.csv
+        - Offset of partition table ->
+            - 0x8000
+        - [x] Generate an MD5 checksum for the partition table
+```
+
+#### 8. FAT filesystem
+
+```markdown
+Fat filesystem configuration:
+
+    Main menu -> Component config -> FAT filesystem support ->
+        - Long filename support ->
+            - Long filename buffer in heap
+        - Max long filename length ->
+            - 255
 ```
 
 ## API Reference
