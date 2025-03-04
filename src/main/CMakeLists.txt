@@ -17,3 +17,5 @@ idf_component_register(
     EPD
     UI
 )
+
+littlefs_create_partition_image(widget_fs ../widget_template FLASH_IN_PROJECT)

@@ -4,10 +4,14 @@
 #include "cJSON.h"
 #include "esp_err.h"
 #include "nvs_flash.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #define SETUP_MAGIC_KEY 0xCAFEBABE
+#define READ_FAT true
+#define READ_LFS false
+#define WIDGET_TEMPLATE_INDEX "/widget_template_list.json"
 
 typedef struct {
     int32_t magic_key;
@@ -52,9 +56,17 @@ extern "C" {
     esp_err_t   read_file_fat_fs(const char *path, int len);
 
     ////////////////////////////////////////////////////////////////////////////////
-    //  FAT/JSON
+    //  LFS
     ////////////////////////////////////////////////////////////////////////////////
-    cJSON       *read_json_file(const char *path);
+    esp_err_t   mount_lfs(void);
+    esp_err_t   unmount_lfs(void);
+    esp_err_t   list_files_lfs(void);
+    esp_err_t   update_file_index_json(const char *json_file_path);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    //  JSON UTILS
+    ////////////////////////////////////////////////////////////////////////////////
+    cJSON       *read_json_file(const char *path, bool partition);
 
 #ifdef __cplusplus
 } /*extern "C"*/

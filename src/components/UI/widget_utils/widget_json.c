@@ -97,7 +97,7 @@ void init_widget_from_file(widget_t *widget, const char *json_path)
     cJSON *widget_json = NULL;
     if (check_file_fat_fs(json_path) == ESP_OK) 
     {
-        widget_json = read_json_file(json_path);
+        widget_json = read_json_file(json_path, READ_FAT);
         if (widget_json != NULL)
         {
             update_widget_struct_from_json(widget, widget_json);

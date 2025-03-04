@@ -85,7 +85,7 @@ void init_widget_display_list_from_file(widget_node_t **head, const char *json_p
 
     if (check_file_fat_fs(json_path) == ESP_OK) 
     {
-        cJSON *widget_list_json = read_json_file(json_path);
+        cJSON *widget_list_json = read_json_file(json_path, READ_FAT);
         if (widget_list_json != NULL || !cJSON_IsArray(widget_list_json))
         {
             populate_widget_list_from_json(head, widget_list_json);
