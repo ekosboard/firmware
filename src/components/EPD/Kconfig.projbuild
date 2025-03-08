@@ -1,7 +1,15 @@
 menu "Smart Paper -- E-Paper Display"
 
+choice
+    prompt "Select E-Paper Display"
+    default EPD_GDEY075T7
+
 config EPD_GDEY042T81
-    bool "GDEY042T81/SSD1683 - (4.2\" 300Hx400W)"
-    default 0
+    bool "GDEY042T81/SSD1683 - (4.2\" 400*300)"
+
+config EPD_GDEY075T7
+    bool "GDEY075T7/UC8179 - (7.5\" 800*480)"
+
+endchoice
 
 endmenu

@@ -20,6 +20,14 @@
     #define EPD_ARRAY   GDEY042T81_ARRAY
 #endif
 
+#ifdef CONFIG_EPD_GDEY075T7
+    #include "epd_GDEY075T7.h"
+    #define EPD_DRIVER  (&gdey075t7_driver)
+    #define EPD_WIDTH   GDEY075T7_WIDTH
+    #define EPD_HEIGHT  GDEY075T7_HEIGHT
+    #define EPD_ARRAY   GDEY075T7_ARRAY
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
