@@ -1,6 +1,7 @@
 #include "EPD.h"
 #include "epd_GDEY075T7.h"
 #include "epd_interface.h"
+#include "esp_log.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 #include <stdint.h>
@@ -68,6 +69,7 @@ static void GDEY075T7_init_driver(void)
 {
     init_gpio();
     init_SPI();
+    init_epd_event_group();
 }
 
 static void GDEY075T7_write_cmd(unsigned char command)
@@ -103,6 +105,9 @@ static void GDEY075T7_wait_busy(void)
 
 static void GDEY075T7_sleep(void)
 {
+    GDEY075T7_write_cmd(0x50);
+    GDEY075T7_write_data(0xF7);
+
     GDEY075T7_write_cmd(0x02); // power off
     GDEY075T7_wait_busy();
 
@@ -119,7 +124,6 @@ static void GDEY075T7_update_display(void)
     GDEY075T7_wait_busy();
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Full screen update initialization
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,18 +135,12 @@ static void GDEY075T7_init_display(void)
     gpio_set_level(GDEY075T7_RST, 1);
     vTaskDelay(pdMS_TO_TICKS(10));
 
-    GDEY075T7_write_cmd(0x04); // POWER ON
-    GDEY075T7_wait_busy();
-
-    GDEY075T7_write_cmd(0X00); // PANNEL SETTING
-    GDEY075T7_write_data(0x1f); // KW-3f KWR-2F BWROTP 0f BWOTP 1f
-
     GDEY075T7_write_cmd(0x01); // POWER SETTING
     GDEY075T7_write_data(0x07);
     GDEY075T7_write_data(0x07); // VGH=20V,VGL=-20V
     GDEY075T7_write_data(0x3f); // VDH=15V
     GDEY075T7_write_data(0x3f); // VDL=-15V
-    GDEY075T7_write_data(0x09); // VDHR=4.2V
+    GDEY075T7_write_data(0x03); // VDHR=4.2V
 
     //Enhanced display drive
     GDEY075T7_write_cmd(0x06); //Booster Soft Start
@@ -150,6 +148,13 @@ static void GDEY075T7_init_display(void)
     GDEY075T7_write_data(0x17);
     GDEY075T7_write_data(0x28);
     GDEY075T7_write_data(0x17);
+
+    GDEY075T7_write_cmd(0x04); // POWER ON
+    vTaskDelay(pdMS_TO_TICKS(100));
+    GDEY075T7_wait_busy();
+
+    GDEY075T7_write_cmd(0X00); // PANNEL SETTING
+    GDEY075T7_write_data(0x1f); // KW-3f KWR-2F BWROTP 0f BWOTP 1f
 
     GDEY075T7_write_cmd(0x61); // tres
     GDEY075T7_write_data(0x03); // source 800
@@ -161,7 +166,7 @@ static void GDEY075T7_init_display(void)
     GDEY075T7_write_data(0x00); // disabled
 
     GDEY075T7_write_cmd(0X50); // VCOM AND DATA INTERVAL SETTING
-    GDEY075T7_write_data(0x29); // LUTKW, N2OCP: copy new to old
+    GDEY075T7_write_data(0x29);//29 // LUTKW, N2OCP: copy new to old
     GDEY075T7_write_data(0x07); // CDI 10hsynch (default)
 
     GDEY075T7_write_cmd(0X60); // TCON SETTING
@@ -169,12 +174,7 @@ static void GDEY075T7_init_display(void)
 
     GDEY075T7_write_cmd(0xE3); // PWS
     GDEY075T7_write_data(0x22); // VCOM 2 line period, Source 2 * 660ns
-
-    GDEY075T7_write_cmd(0x04); // POWER ON
-    vTaskDelay(pdMS_TO_TICKS(100));
-    GDEY075T7_wait_busy();
 }
-
 
  /* Display full screen */
 static void GDEY075T7_write_display(const unsigned char *datas)
@@ -307,6 +307,16 @@ void EPD_Dis_PartAll(const unsigned char * datas)
     x_end = x_start + EPD_WIDTH - 1;
     y_end = y_start + EPD_HEIGHT - 1;
 
+    GDEY075T7_write_cmd(0x10); // old data
+    for (uint16_t i = 0; i < EPD_ARRAY; i++)
+    {
+        GDEY075T7_write_data(~datas[i]); // Inversion binaire pour forcer un changement
+    }
+
+    GDEY075T7_write_cmd(0x50);
+    GDEY075T7_write_data(0x21); // N2OCP disabled
+    GDEY075T7_write_data(0x07);
+
     GDEY075T7_write_cmd(0x91); // partial in
     GDEY075T7_write_cmd(0x90); // resolution setting
     GDEY075T7_write_data (x_start / 256);
@@ -327,9 +337,9 @@ void EPD_Dis_PartAll(const unsigned char * datas)
     {
         GDEY075T7_write_data(datas[i]);
     }
+
     GDEY075T7_write_cmd(0x92); // partial out
 }
-
 
 static bool force_full_refresh = false;
 
@@ -352,17 +362,16 @@ static void GDEY075T7_display_image_partial_full(const unsigned char *data, bool
         GDEY075T7_init_fast_display();
         GDEY075T7_write_display(data);
         GDEY075T7_update_display();
-        return;
     }
     else
     {
         GDEY075T7_init_partial_display();
         EPD_Dis_PartAll(data);
         GDEY075T7_update_display();
-        return;
     }
 
     GDEY075T7_sleep();
+    set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
