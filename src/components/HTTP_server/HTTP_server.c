@@ -5,6 +5,7 @@
 #include "esp_log.h"
 
 static const char *TAG = "HTTP Server";
+static httpd_handle_t server = NULL;
 
 // Handler pour gérer les requêtes preflight (CORS)
 static esp_err_t cors_options_handler(httpd_req_t *req)
@@ -25,7 +26,6 @@ static const httpd_uri_t options_uri = {
 
 static httpd_handle_t start_webserver(void)
 {
-    httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.lru_purge_enable = true;
@@ -47,29 +47,6 @@ static httpd_handle_t start_webserver(void)
     return NULL;
 }
 
-static esp_err_t stop_webserver(httpd_handle_t server)
-{
-    // Stop the httpd server
-    return httpd_stop(server);
-}
-
-static void disconnect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
-{
-    httpd_handle_t* server = (httpd_handle_t*) arg;
-    if (*server) 
-    {
-        ESP_LOGI(TAG, "Stopping webserver");
-        if (stop_webserver(*server) == ESP_OK) 
-        {
-            *server = NULL;
-        } 
-        else 
-        {
-            ESP_LOGE(TAG, "Failed to stop http server");
-        }
-    }
-}
-
 static void connect_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     httpd_handle_t* server = (httpd_handle_t*) arg;
@@ -80,9 +57,27 @@ static void connect_handler(void* arg, esp_event_base_t event_base, int32_t even
     }
 }
 
+esp_err_t stop_webserver(void)
+{
+    if (server != NULL) {
+        esp_err_t err = httpd_stop(server);
+        if (err == ESP_OK)
+        {
+            server = NULL;
+        }
+        return err;
+    }
+    return ESP_ERR_INVALID_STATE;
+}
+
+
+httpd_handle_t get_server_handler(void)
+{
+    return server;
+}
+
 void http_server(void *pvParameters)
 {
-    static httpd_handle_t server = NULL;
     esp_err_t err;
 
     err = init_widget_update_queue();
@@ -98,5 +93,6 @@ void http_server(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
+    delete_widget_update_queue();
     vTaskDelete(NULL);
 }
