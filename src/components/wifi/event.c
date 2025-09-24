@@ -1,5 +1,6 @@
 #include "EPD.h"
 #include "filesystem_interface.h"
+#include "freertos/idf_additions.h"
 #include "wifi.h"
 
 static const char *TAG_AP = "WiFi event AP";
@@ -66,18 +67,6 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
 
         // Set timezone to Europe/Paris
         init_sntp("CET-1CEST,M3.5.0,M10.5.0/3");
-
-        /* TODO: affichage seulement pendant la config */
-        if (lvgl_lock(-1))
-        {
-            wifi_ap_record_t ap_info;
-            if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
-            {
-                draw_screen_wifi_success((char*)ap_info.ssid);
-            }
-
-            lvgl_unlock();
-        }
 
         /* TODO a faire a la fermeture de l'app ou deco client */
         /* esp_netif_t *esp_netif_ap = (esp_netif_t *) arg; */
