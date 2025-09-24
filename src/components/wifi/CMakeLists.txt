@@ -6,6 +6,7 @@ idf_component_register(
     "AP_mode.c"
     "event.c"
     "SNTP.c"
+    "scan.c"
 
     INCLUDE_DIRS 
     "include"

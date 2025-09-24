@@ -77,6 +77,7 @@ extern "C" {
     ////////////////////////////////////////////////////////////////////////////////
     void        start_mdns_service(void);
     esp_err_t   init_sntp(char *timezone);
+    esp_err_t   wifi_scan_ap(uint16_t *ap_max, uint16_t *ap_count, wifi_ap_record_t *ap_info);
 
 #ifdef __cplusplus
 } /*extern "C"*/
