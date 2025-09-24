@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "esp_err.h"
 #include "filesystem_interface.h"
 #include "esp_log.h"
 
@@ -32,13 +33,31 @@
 #define SCREEN_ACTION_SWITCH_ONLY            (SCREEN_ACTION_SWITCH)
 #define SCREEN_ACTION_SWITCH_AND_CLEAR       (SCREEN_ACTION_SWITCH | SCREEN_ACTION_CLEAR)
 
-void app_start(void *pvParameters);
-void setup_hardware(void *pvParameters);
-void setup_ui(void *pvParameters);
-void setup_network(void *pvParameters);
+// Bit mask for power manager notif
+#define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
+#define TIMER_MASK       (~WIFI_REQUIRED)  // Masque pour isoler la valeur du timer
 
-void widget_manager_task(void *pvParameters);
-void screen_manager_task(void *pvParameters);
-void notify_screen_manager(uint8_t action, uint8_t screen_id);
+#define DEFAULT_TIMEOUT_MS (10 * 60 * 1000) // 10 min par défaut
+
+typedef enum {
+    SETUP_UI_TASK = 0,
+    SETUP_TIMEOUT_TASK,
+    POWER_MANAGER_TASK,
+    UPDATE_MANAGER_TASK,
+    SETUP_TASK_COUNT // Nombre total de tâches
+} setup_task_index_t;
+
+void        app_start(void *pvParameters);
+esp_err_t   setup_persistent_state(void);
+void        setup_ui_tasks(void *pvParameters);
+void        setup_network(void *pvParameters);
+void        setup_timeout_task(void *pvParameter);
+
+void        widget_manager_task(void *pvParameters);
+void        screen_manager_task(void *pvParameters);
+void        notify_screen_manager(uint8_t action, uint8_t screen_id);
+
+void        power_manager_task(void *pvParameters);
+void        update_manager_task(void *pvParameters);
 
 #endif
