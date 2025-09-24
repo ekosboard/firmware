@@ -13,8 +13,8 @@
 esp_err_t init_sntp(char *timezone)
 {
     esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
-
     esp_netif_sntp_init(&config);
+
     if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) 
     {
         ESP_LOGE("wifi SNTP", "Failed to update system time within 10s timeout");
@@ -32,5 +32,7 @@ esp_err_t init_sntp(char *timezone)
     nvs_setup_state_write_timestamp((int64_t)now);
 
     ESP_LOGI("wifi SNTP", "The current date/time in Paris is: %s", strftime_buf);
+
+    esp_netif_sntp_deinit();
     return ESP_OK;
 }
