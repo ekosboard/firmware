@@ -12,6 +12,10 @@ esp_err_t wifi_dispatcher_handler(httpd_req_t *req)
         {
             return wifi_scan_get_handler(req);
         }
+        else if (strcmp(req->uri, "/api/system/wifi/status") == 0)
+        {
+            return wifi_status_get_handler(req);
+        }
         else 
         {
             httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Endpoint not found");
@@ -46,6 +50,7 @@ esp_err_t wifi_dispatcher_handler(httpd_req_t *req)
     {
         if (strcmp(req->uri, "/api/system/wifi/credentials/delete") == 0)
         {
+            return wifi_credentials_delete_handler(req);
         }
         else
         {

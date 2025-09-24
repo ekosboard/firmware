@@ -1,5 +1,6 @@
 #include "API_system.h"
 #include "HTTP_server.h"
+#include "http_parser.h"
 
 //FIXME: check len of ssid/password
 static const char *TAG = "/api/system/wifi/credentials";
@@ -11,6 +12,8 @@ static const char *TAG = "/api/system/wifi/credentials";
 /* - ESP_FAIL in case of any error during the process. */
 esp_err_t wifi_credentials_post_handler(httpd_req_t *req)
 {
+    ESP_LOGI(TAG, "POST");
+
     char *content = NULL;
     if (read_http_request_content(req, &content) != ESP_OK)
     {
@@ -64,4 +67,30 @@ void register_wifi_credentials_uri(httpd_handle_t server)
 void unregister_wifi_credentials_uri(httpd_handle_t server) 
 {
     httpd_unregister_uri_handler(server, wifi_credentials.uri, HTTP_POST);
+}
+
+
+
+esp_err_t wifi_credentials_delete_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "DELETE");
+    httpd_resp_send(req, NULL, 0);
+    return ESP_OK;
+}
+
+const httpd_uri_t wifi_credentials_delete = {
+    .uri       = "/api/system/wifi/credentials/delete",
+    .method    = HTTP_DELETE,
+    .handler   = wifi_credentials_delete_handler,
+    .user_ctx  = NULL
+};
+
+void register_wifi_credentials_delete_uri(httpd_handle_t server) 
+{
+    httpd_register_uri_handler(server, &wifi_credentials_delete);
+}
+
+void unregister_wifi_credentials_delete_uri(httpd_handle_t server) 
+{
+    httpd_unregister_uri_handler(server, wifi_credentials_delete.uri, HTTP_DELETE);
 }

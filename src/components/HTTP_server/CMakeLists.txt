@@ -5,6 +5,7 @@ idf_component_register(
     "api/system/wifi/credentials.c"
     "api/system/wifi/connect.c"
     "api/system/wifi/scan.c"
+    "api/system/wifi/status.c"
     "api/ui/widgets.c"
     "api/ui/widgets/available.c"
     "api/ui/widgets/{name}.c"
