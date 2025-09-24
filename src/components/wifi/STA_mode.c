@@ -93,11 +93,13 @@ esp_err_t wifi_start_sta(void)
     if (bits & WIFI_STA_CONNECTED_BIT)
     {
         ESP_LOGI(TAG, "Connected to ap SSID:%s password:%s", wifi_config.sta.ssid, wifi_config.sta.password);
+        nvs_setup_state_write_network_status(STA_CONNECTED);
         return ESP_OK;
     }
     else if (bits & WIFI_STA_FAIL_BIT)
     {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s", wifi_config.sta.ssid, wifi_config.sta.password);
+        nvs_setup_state_write_network_status(STA_DISCONNECTED);
         return ESP_FAIL;
     }
     else

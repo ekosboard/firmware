@@ -54,7 +54,6 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         {
             s_retry_num = 0;
             xEventGroupSetBits(s_wifi_event_group, WIFI_STA_FAIL_BIT);
-            nvs_setup_state_write_network_status(STA_DISCONNECTED);
         }
         ESP_LOGI(TAG_STA,"connect to the AP fail");
     }
@@ -67,7 +66,6 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
 
         // Set timezone to Europe/Paris
         init_sntp("CET-1CEST,M3.5.0,M10.5.0/3");
-        nvs_setup_state_write_network_status(STA_CONNECTED);
 
         /* TODO: affichage seulement pendant la config */
         if (lvgl_lock(-1))
