@@ -20,8 +20,9 @@ idf_component_register(
     filesystem_interface
     wifi
     HTTP_server
+    HTTPS_request
     EPD
     UI
 )
 
-littlefs_create_partition_image(widget_fs ../widget_template FLASH_IN_PROJECT)
+littlefs_create_partition_image(littlefs ../widget_template FLASH_IN_PROJECT)

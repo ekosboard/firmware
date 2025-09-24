@@ -2,6 +2,6 @@
 # Name   , Type  , SubType   , Offset    , Size  , Flags
 nvs      ,data   ,nvs        ,0x9000     ,24K    ,
 phy_init ,data   ,phy        ,0xf000     ,4K     ,
-factory  ,app    ,factory    ,0x10000    ,1500K  ,
+factory  ,app    ,factory    ,0x10000    ,2M     ,
 fatfs    ,data   ,fat        ,           ,4M     ,
-widget_fs,data   ,littlefs   ,           ,1M     ,
+littlefs ,data   ,littlefs   ,           ,4M     ,

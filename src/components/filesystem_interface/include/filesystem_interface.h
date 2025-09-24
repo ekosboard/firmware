@@ -12,6 +12,7 @@
 #define READ_FAT true
 #define READ_LFS false
 #define WIDGET_TEMPLATE_INDEX "/widget_template_list.json"
+#define LFS_BASE_PATH "/littlefs"
 
 typedef struct {
     int32_t magic_key;

@@ -18,7 +18,7 @@
 esp_err_t update_file_index_json(const char *json_file_path)
 {
 
-    DIR *d = opendir("/widget_fs");
+    DIR *d = opendir(LFS_BASE_PATH);
     if (d == NULL) 
     {
         return ESP_FAIL;
@@ -46,7 +46,7 @@ esp_err_t update_file_index_json(const char *json_file_path)
     closedir(d);
 
     char full_path[128];
-    snprintf(full_path, sizeof(full_path), "/widget_fs/%s", json_file_path);
+    snprintf(full_path, sizeof(full_path), "%s/%s", LFS_BASE_PATH, json_file_path);
 
     FILE *file = fopen(full_path, "w");
     if (file == NULL)
@@ -71,12 +71,12 @@ esp_err_t update_file_index_json(const char *json_file_path)
     return ESP_OK;
 }
 
-/* List and logs all files founds in "/widget_fs" */
+/* List and logs all files founds in LFS_BASE_PATH */
 esp_err_t list_files_lfs()
 {
-    DIR *dir = opendir("/widget_fs");
+    DIR *dir = opendir(LFS_BASE_PATH);
     if (dir == NULL) {
-        ESP_LOGE("LS LittleFS", "Failed to open directory %s", "/widget_fs");
+        ESP_LOGE("LS LittleFS", "Failed to open directory %s", LFS_BASE_PATH);
         return ESP_FAIL;
     }
 

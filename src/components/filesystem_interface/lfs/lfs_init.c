@@ -4,8 +4,8 @@
 #include "filesystem_interface.h"
 
 static const esp_vfs_littlefs_conf_t conf = {
-    .base_path = "/widget_fs",
-    .partition_label = "widget_fs",
+    .base_path = LFS_BASE_PATH,
+    .partition_label = "littlefs",
     .format_if_mount_failed = true,
     .dont_mount = false,
 };
