@@ -34,7 +34,18 @@ esp_err_t wifi_dispatcher_handler(httpd_req_t *req)
     {
         if (strcmp(req->uri, "/api/system/wifi/connect") == 0)
         {
-            return wifi_connect_get_handler(req);
+            return wifi_connect_put_handler(req);
+        }
+        else
+        {
+            httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Endpoint not found");
+            return ESP_FAIL;
+        }
+    }
+    else if (req->method == HTTP_DELETE)
+    {
+        if (strcmp(req->uri, "/api/system/wifi/credentials/delete") == 0)
+        {
         }
         else
         {

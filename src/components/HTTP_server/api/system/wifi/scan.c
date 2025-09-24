@@ -1,37 +1,52 @@
 #include "API_system.h"
 #include "HTTP_server.h"
+#include "esp_err.h"
+#include "esp_wifi_types_generic.h"
+#include "wifi.h"
 
-static const char *TAG = "api/system/wifi/scan";
+static const char *TAG = "/api/system/wifi/scan";
 
-/* TODO: version de test a remplacer */
 esp_err_t       wifi_scan_get_handler(httpd_req_t *req)
 {
+    ESP_LOGI(TAG, "GET");
+
+    esp_err_t err;
+    uint16_t ap_max = 10;
+    uint16_t ap_count = 0;
+    wifi_ap_record_t ap_info[ap_max];
+    memset(ap_info, 0, sizeof(ap_info));
+
+    err = wifi_scan_ap(&ap_max, &ap_count, ap_info);
+    if (err != ESP_OK)
+    {
+        ESP_LOGI(TAG, "ERREUR: %s", esp_err_to_name(err));
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Scan failed");
+        return err;
+    }
+
+
+    if (ap_count == 0)
+    {
+        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "No AP found");
+        return ESP_OK;
+    }
+
     cJSON *root = cJSON_CreateArray();
+    for (int i = 0; i < ap_count; i++)
+    {
+        cJSON *ap = cJSON_CreateObject();
+        cJSON_AddStringToObject(ap, "ssid", (const char *)ap_info[i].ssid);
+        cJSON_AddNumberToObject(ap, "rssi", ap_info[i].rssi);
+        cJSON_AddNumberToObject(ap, "channel", ap_info[i].primary);
+        cJSON_AddItemToArray(root, ap);
+    }
 
-    // Création des objets SSID et ajout au tableau
-    cJSON *ssid1 = cJSON_CreateObject();
-    cJSON_AddStringToObject(ssid1, "SSID", "ssid_name1");
-    cJSON_AddItemToArray(root, ssid1);
+    char *response_str = cJSON_PrintUnformatted(root);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, response_str, strlen(response_str));
 
-    cJSON *ssid2 = cJSON_CreateObject();
-    cJSON_AddStringToObject(ssid2, "SSID", "ssid_name2");
-    cJSON_AddItemToArray(root, ssid2);
-
-    // Ajout d'un troisième SSID si nécessaire
-    cJSON *ssid3 = cJSON_CreateObject();
-    cJSON_AddStringToObject(ssid3, "SSID", "ssid_name3");
-    cJSON_AddItemToArray(root, ssid3);
-
-    // Convertir le JSON en chaîne de caractères
-    char *json_data = cJSON_Print(root);
-
-    // Envoyer la réponse HTTP
-    httpd_resp_send(req, json_data, strlen(json_data));
-
-    // Libérer la mémoire utilisée par cJSON
-    free(json_data);
+    free(response_str);
     cJSON_Delete(root);
-
     return ESP_OK;
 }
 

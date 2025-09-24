@@ -1,5 +1,6 @@
 #include "API_system.h"
 #include "HTTP_server.h"
+#include "http_parser.h"
 
 static const char *TAG = "api/system/wifi/connect";
 
@@ -7,8 +8,10 @@ static const char *TAG = "api/system/wifi/connect";
 /* @Return Values: */
 /* - ESP_OK if the connection attempt is successful. */
 /* - ESP_FAIL if the connection attempt fails. */
-esp_err_t       wifi_connect_get_handler(httpd_req_t *req)
+esp_err_t       wifi_connect_put_handler(httpd_req_t *req)
 {
+    ESP_LOGI(TAG, "PUT");
+
     esp_err_t err;
     err = wifi_start_sta();
     if (err != ESP_OK)
@@ -22,8 +25,8 @@ esp_err_t       wifi_connect_get_handler(httpd_req_t *req)
 
 const httpd_uri_t wifi_connect = {
     .uri        = "/api/system/wifi/connect",
-    .method     = HTTP_GET,
-    .handler    = wifi_connect_get_handler,
+    .method     = HTTP_PUT,
+    .handler    = wifi_connect_put_handler,
     .user_ctx   = NULL
 };
 
@@ -34,5 +37,5 @@ void            register_wifi_connect_uri(httpd_handle_t server)
 
 void            unregister_wifi_connect_uri(httpd_handle_t server)
 {
-    httpd_unregister_uri_handler(server, wifi_connect.uri, HTTP_GET);
+    httpd_unregister_uri_handler(server, wifi_connect.uri, HTTP_PUT);
 }
