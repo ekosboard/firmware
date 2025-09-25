@@ -7,6 +7,7 @@ idf_component_register(
     "draw/btn_bottom_right.c"
     "draw/screen/wifi_config.c"
     "draw/screen/wifi_success.c"
+    "draw/screen/splash_screen.c"
     "draw/widget/sensor_BME680.c"
     "draw/widget/status_bar.c"
     "font/roboto_48.c"
