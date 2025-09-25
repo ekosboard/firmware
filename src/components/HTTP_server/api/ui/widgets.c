@@ -94,7 +94,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
             .pos_y = pos_y,
             .height = height,
             .width = width,
-            .flag = 0,
+            .flag = widget_info->flag,
         };
 
         //FIXME: Vérifier si la queue est pleine avant d'envoyer

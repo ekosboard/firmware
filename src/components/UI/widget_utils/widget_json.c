@@ -82,7 +82,7 @@ void update_widget_struct_from_json(widget_t *widget, cJSON *widget_json) {
         }
     }
     if (cJSON_IsNumber(flag)) {
-        widget->flag = flag->valueint;
+        widget->flag = (uint32_t)flag->valuedouble;
     }
 }
 
