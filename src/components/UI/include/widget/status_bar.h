@@ -7,6 +7,10 @@
 #define STATUS_BAR_FILE_PATH "status_bar.json"
 
 typedef struct status_bar_s {
+    lv_obj_t    *container_clock;
+    lv_obj_t    *container_date;
+    lv_obj_t    *container_battery;
+
     lv_obj_t    *clock_label;
     lv_obj_t    *date_label;
     lv_obj_t    *battery_label;
@@ -21,6 +25,7 @@ extern "C" {
     esp_err_t   widget_status_bar_draw(lv_obj_t *screen);
     esp_err_t   widget_status_bar_erase(void);
     esp_err_t   widget_status_bar_update(void);
+    esp_err_t   widget_status_bar_update_data(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

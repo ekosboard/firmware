@@ -33,6 +33,9 @@ void init_widget_list(void)
             widget_status_bar_draw,
             widget_status_bar_erase,
             widget_status_bar_update,
+            widget_status_bar_update_data,
+            (1 * 60 * 1000),
+            0,
     };
     init_widget_from_file(&widget_info_list[index++], STATUS_BAR_FILE_PATH);
 #endif
