@@ -17,6 +17,10 @@ idf_component_register(
     "font/roboto_96_bold.c"
     "font/symbol_nerdfont.c"
     "font/symbol_nerdfont_48.c"
+    "font/symbol_nerdfont_14.c"
+    "font/symbol_nerdfont_24.c"
+    "font/symbol_nerdfont_96.c"
+    "img/logo.c"
     "lvgl_utils/screen_manager.c"
     "widget_utils/widget_json.c"
     "widget_utils/widget_list.c"
@@ -30,4 +34,6 @@ idf_component_register(
     EPD
     filesystem_interface
     json
+    HTTPS_request
+    wifi
 )
