@@ -6,6 +6,7 @@
 #include "epd_interface.h"
 #include "filesystem_interface.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 #include "hal/spi_types.h"
@@ -20,7 +21,7 @@
 #define LVGL_TICK_PERIOD_MS     1
 #define LVGL_TASK_MAX_DELAY_MS  150
 #define LVGL_TASK_MIN_DELAY_MS  1
-#define LVGL_TASK_STACK_SIZE    (4 * 1024)
+#define LVGL_TASK_STACK_SIZE    (16 * 1024)
 #define LVGL_TASK_PRIORITY      10
 
 #define MAX_SCREEN              2 //CONFIG_DISPLAY_SCREEN
@@ -64,6 +65,23 @@ extern "C" {
 
     display_t       *get_main_display(void);
     screen_t        *get_active_screen(void);
+
+    /* Waits for the e-paper display to complete its flush cycle.
+     * @Parameters:
+     *   - timeout_ticks: Maximum number of FreeRTOS ticks to wait before timing out.
+     * @Return:
+     *   - ESP_OK: Flush cycle completed successfully.
+     *   - ESP_ERR_TIMEOUT: The operation timed out before the flush cycle finished.
+     * @Details:
+     *   This function first waits until LVGL confirms that the last display flush
+     *   operation has been issued. It then waits for the e-paper driver to signal
+     *   that the flush is physically complete using the EPD_EVENT_FLUSH_COMPLETE
+     *   event. Useful to synchronize application logic with the actual refresh
+     *   state of the e-paper display and avoid screen tearing or premature
+     *   power-down.
+     */
+    esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks);
+
 
     ////////////////////////////////////////////////////////////////////////////////
     //  DRAW

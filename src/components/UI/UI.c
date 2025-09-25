@@ -1,4 +1,5 @@
 #include "UI.h"
+#include "EPD.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "filesystem_interface.h"
@@ -82,4 +83,36 @@ esp_err_t init_ui(void)
     init_display_structure();
 
     return ESP_OK;
+}
+
+esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks)
+{
+    display_t *disp = get_main_display();
+    TickType_t start = xTaskGetTickCount();
+
+    // Attendre que LVGL ait envoyé le dernier flush
+    while (!lv_display_flush_is_last(disp->lv_display))
+    {
+        if ((xTaskGetTickCount() - start) >= timeout_ticks)
+        {
+            return ESP_ERR_TIMEOUT;
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
+    EventBits_t bits = xEventGroupWaitBits(
+        get_epd_event_group(),
+        EPD_EVENT_FLUSH_COMPLETE,
+        pdTRUE,
+        pdFALSE,
+        timeout_ticks
+    );
+
+    if (bits & EPD_EVENT_FLUSH_COMPLETE)
+    {
+        return ESP_OK;
+    }
+
+    return ESP_ERR_TIMEOUT;
 }
