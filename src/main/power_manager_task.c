@@ -6,8 +6,8 @@
 #include "main.h"
 #include "portmacro.h"
 #include "state_manager.h"
+#include "wifi.h"
 #include <stdint.h>
-
 
 /**
  * @brief Manages power state and handles sleep transitions.
@@ -39,11 +39,18 @@ void power_manager_task(void *pvParameters)
             uint32_t timer_value = wakeup_time & TIMER_MASK;
             bool wifi_needed_to_start = (wakeup_time & WIFI_REQUIRED) != 0;
 
-            ESP_LOGI("POWER MANAGER: ", "get notif: %lu\n wifi needed: %d", timer_value, wifi_needed_to_start);
+            ESP_LOGI("POWER MANAGER",
+                    "Get notif: %" PRIu32
+                    " | wifi needed: %d",
+                    timer_value,
+                    wifi_needed_to_start);
 
             if (wifi_needed_to_stop == true)
             {
-                esp_wifi_stop();
+                clean_stop_wifi();
+                xEventGroupClearBits(s_wifi_event_group, WIFI_STA_CONNECTED_BIT | WIFI_STA_FAIL_BIT);
+                //FIXME: utiliser WIFI_EVENT_STA_STOP
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 wifi_needed_to_stop = false;
             }
 
@@ -63,6 +70,7 @@ void power_manager_task(void *pvParameters)
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {
                 ESP_LOGW("POWER MANAGER: ", "awake: GPIO");
+                clean_start_wifi();
                 wifi_needed_to_stop = true;
                 esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
                 esp_event_post_to(state_manager_loop, CONFIG_EVENT, CONFIG_BEGIN_ISR, NULL, 0, portMAX_DELAY);
@@ -72,7 +80,7 @@ void power_manager_task(void *pvParameters)
                 ESP_LOGW("POWER MANAGER: ", "awake: TIMER");
                 if (wifi_needed_to_start == true)
                 {
-                    esp_wifi_start();
+                    clean_start_wifi();
                     wifi_needed_to_stop = true;
                 }
                 xTaskNotifyGive(*update_manager_task_handle);
