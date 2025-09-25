@@ -1,6 +1,8 @@
 idf_component_register(
     SRCS 
     "HTTP_server.c"
+    "api/system/config/complete.c"
+    "api/system/config_dispatcher.c"
     "api/system/wifi_dispatcher.c"
     "api/system/wifi/credentials.c"
     "api/system/wifi/connect.c"

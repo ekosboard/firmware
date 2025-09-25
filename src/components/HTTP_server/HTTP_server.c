@@ -40,6 +40,7 @@ static httpd_handle_t start_webserver(void)
         register_wifi_dispatcher_uri(server);
         register_widgets(server);
         register_widgets_dispatcher_uri(server);
+        register_config_dispatcher_uri(server);
         return server;
     }
 
