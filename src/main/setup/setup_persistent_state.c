@@ -37,7 +37,7 @@ esp_err_t setup_persistent_state(void)
         return ret;
 
     ret = nvs_setup_state_read_all(&setup_state);
-    if (ret == ESP_ERR_NOT_FOUND)
+    if (ret == ESP_ERR_NOT_FOUND || ret == ESP_ERR_NVS_NOT_FOUND)
     {
         setup_state.magic_key = SETUP_MAGIC_KEY;
         setup_state.setup_status = -1;
