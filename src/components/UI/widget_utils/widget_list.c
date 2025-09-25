@@ -3,6 +3,7 @@
 #include "filesystem_interface.h"
 #include "widget.h"
 #include "cJSON.h"
+#include "widget/day_weather.h"
 #include <stdlib.h>
 
 static widget_t widget_info_list[WIDGET_COUNT];
@@ -49,10 +50,32 @@ void init_widget_list(void)
             widget_sensor_BME680_draw,
             widget_sensor_BME680_erase,
             widget_sensor_BME680_update,
+            widget_sensor_BME680_update_data,
+            (3 * 60 * 1000),
+            0,
     };
     init_widget_from_file(&widget_info_list[index++], SENSOR_BME680_FILE_PATH);
 #endif
 
+#ifdef CONFIG_WIDGET_DAY_WEATHER
+    widget_info_list[index] = (widget_t) {
+        WIDGET_TYPE_DAY_WEATHER,
+            NULL,
+            NULL,
+            0,
+            0,
+            150,
+            200,
+            WIFI_REQUIRED,
+            widget_day_weather_draw,
+            widget_day_weather_erase,
+            widget_day_weather_update,
+            widget_day_weather_update_data,
+            (3 * 60 * 1000),
+            0,
+    };
+    init_widget_from_file(&widget_info_list[index++], DAY_WEATHER_FILE_PATH);
+#endif
     unmount_fat_fs();
 
     for (uint8_t i = index; i < WIDGET_COUNT; i++)
@@ -161,6 +184,7 @@ const char *get_widget_type_to_string(widget_type_t type)
     {
         case WIDGET_TYPE_STATUS_BAR: return "status_bar";
         case WIDGET_TYPE_SENSOR_BME680: return "sensor_BME680";
+        case WIDGET_TYPE_DAY_WEATHER: return "day_weather";
         default: return "Unknown Widget";
     }
 }

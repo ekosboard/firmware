@@ -10,6 +10,7 @@ idf_component_register(
     "draw/screen/splash_screen.c"
     "draw/widget/sensor_BME680.c"
     "draw/widget/status_bar.c"
+    "draw/widget/day_weather.c"
     "font/roboto_48.c"
     "font/roboto_64.c"
     "font/roboto_96.c"

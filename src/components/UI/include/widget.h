@@ -10,10 +10,13 @@
 #include "misc/lv_types.h"
 #include "sdkconfig.h"
 
+#define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
+
 #define WIDGET_COUNT ( \
     (CONFIG_WIDGET_STATUS_BAR ? 1 : 0) + \
     (CONFIG_WIDGET_SENSOR_BME680 ? 1 : 0) + \
     (CONFIG_WIDGET_NETWORK_SIGNAL ? 1 : 0) \
+    (CONFIG_WIDGET_DAY_WEATHER ? 1 : 0) \
 )
 
 
@@ -25,9 +28,14 @@
     #include "widget/sensor_BME680.h"
 #endif
 
+#ifdef CONFIG_WIDGET_DAY_WEATHER
+    #include "widget/day_weather.h"
+#endif
+
 typedef enum {
     WIDGET_TYPE_STATUS_BAR,
     WIDGET_TYPE_SENSOR_BME680,
+    WIDGET_TYPE_DAY_WEATHER
 } widget_type_t;
 
 typedef enum { 
@@ -42,12 +50,15 @@ typedef struct widget_s {
     void            *child;
     uint16_t        pos_x;
     uint16_t        pos_y;
-    uint8_t         height;
-    uint8_t         width;
-    uint16_t        flag;
+    uint16_t        height;
+    uint16_t        width;
+    uint32_t        flag;
     esp_err_t       (*draw_function)(lv_obj_t *screen);
     esp_err_t       (*erase_function)(void);
     esp_err_t       (*update_function)(void);
+    esp_err_t       (*update_data_function)(void);
+    uint32_t        update_data_interval_ms;
+    uint32_t        update_data_timestamp;
 } widget_t;
 
 typedef struct widget_update_s {
@@ -55,9 +66,9 @@ typedef struct widget_update_s {
     widget_action_t action;
     uint16_t        pos_x;
     uint16_t        pos_y;
-    uint8_t         width;
-    uint8_t         height;
-    uint16_t        flag;
+    uint16_t        width;
+    uint16_t        height;
+    uint32_t        flag;
 } widget_update_t;
 
 typedef struct widget_node_s {
