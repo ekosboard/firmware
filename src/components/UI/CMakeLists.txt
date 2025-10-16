@@ -29,6 +29,7 @@ idf_component_register(
     "widget_utils/widget_list_json.c"
     "widget_utils/widget_template_loader.c"
     "widget_utils/widget_config_list.c"
+    "widget_utils/widget_template_interval.c"
 
     INCLUDE_DIRS 
     "include"
