@@ -100,6 +100,22 @@ extern "C" {
     bool                check_widget_type_by_id(const char *id, widget_type_t type);
     bool                check_widget_exists_in_display_list(widget_type_t type);
 
+    /**
+     * @brief Initializes a widget instance from its template.
+     *
+     * Loads the specified widget template from LittleFS and ensures
+     * a corresponding instance file exists. If not, it creates one
+     * from the template. The widget structure is then populated with
+     * the instance data.
+     *
+     * @param[in,out] widget Pointer to the widget to initialize.
+     * @param[in] json_path  Template filename or relative path.
+     *
+     * @return
+     * - ESP_OK on success
+     * - ESP_FAIL on read, validation, or creation error
+     */
+    esp_err_t           init_widget_from_template(widget_t *widget, const char *template_path);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  WIDGET UTILS

@@ -1,10 +1,14 @@
 #include "UI.h"
 #include "esp_err.h"
+#include "esp_log.h"
 #include "filesystem_interface.h"
 #include "widget.h"
 #include "cJSON.h"
 #include "widget/day_weather.h"
+#include "widget/sensor_BME680.h"
+#include "widget/status_bar.h"
 #include <stdlib.h>
+#include <string.h>
 
 static widget_t widget_info_list[WIDGET_COUNT];
 static uint8_t size_widget_info_list;
@@ -18,26 +22,21 @@ static uint8_t size_widget_info_list;
 void init_widget_list(void)
 {
     uint8_t index = 0;
-    mount_fat_fs();
+    mount_lfs();
 
 #ifdef CONFIG_WIDGET_STATUS_BAR
     widget_info_list[index] = (widget_t) {
-        WIDGET_TYPE_STATUS_BAR,
-            NULL,
-            NULL,
-            0,
-            0,
-            20,
-            100,
-            0,
-            widget_status_bar_draw,
-            widget_status_bar_erase,
-            widget_status_bar_update,
-            widget_status_bar_update_data,
-            (1 * 60 * 1000),
-            0,
+        .type = WIDGET_TYPE_STATUS_BAR,
+            .lv_obj = NULL,
+            .child = NULL,
+            .draw_function = widget_status_bar_draw,
+            .erase_function = widget_status_bar_erase,
+            .update_function = widget_status_bar_update,
+            .update_data_function = widget_status_bar_update_data,
+            .update_data_timestamp = 0,
+            .config = NULL
     };
-    init_widget_from_file(&widget_info_list[index++], STATUS_BAR_FILE_PATH);
+    init_widget_from_template(&widget_info_list[index++], STATUS_BAR_FILE_PATH);
 #endif
 
 #ifdef CONFIG_WIDGET_SENSOR_BME680
@@ -50,42 +49,37 @@ void init_widget_list(void)
             20,
             100,
             0,
-            widget_sensor_BME680_draw,
+            .draw_function = widget_sensor_BME680_draw,
             widget_sensor_BME680_erase,
             widget_sensor_BME680_update,
             widget_sensor_BME680_update_data,
             (3 * 60 * 1000),
             0,
+            .config = NULL
     };
-    init_widget_from_file(&widget_info_list[index++], SENSOR_BME680_FILE_PATH);
+    init_widget_from_template(&widget_info_list[index++], SENSOR_BME680_FILE_PATH);
 #endif
 
 #ifdef CONFIG_WIDGET_DAY_WEATHER
     widget_info_list[index] = (widget_t) {
-        WIDGET_TYPE_DAY_WEATHER,
-            NULL,
-            NULL,
-            0,
-            0,
-            150,
-            200,
-            WIFI_REQUIRED,
-            widget_day_weather_draw,
-            widget_day_weather_erase,
-            widget_day_weather_update,
-            widget_day_weather_update_data,
-            (3 * 60 * 1000),
-            0,
+        .type =WIDGET_TYPE_DAY_WEATHER,
+            .lv_obj = NULL,
+            .child = NULL,
+            .flag = WIFI_REQUIRED,
+            .draw_function = widget_day_weather_draw,
+            .erase_function = widget_day_weather_erase,
+            .update_function = widget_day_weather_update,
+            .update_data_function = widget_day_weather_update_data,
+            .update_data_timestamp = 0,
+            .config = NULL
     };
-    init_widget_from_file(&widget_info_list[index++], DAY_WEATHER_FILE_PATH);
+    init_widget_from_template(&widget_info_list[index++], DAY_WEATHER_FILE_PATH);
 #endif
-    unmount_fat_fs();
 
+    unmount_lfs();
     for (uint8_t i = index; i < WIDGET_COUNT; i++)
     {
-        widget_info_list[i] = (widget_t) {
-            0
-        };
+        widget_info_list[i] = (widget_t) {0};
     }
 
     size_widget_info_list = index;
