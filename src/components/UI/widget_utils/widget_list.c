@@ -1,9 +1,8 @@
 #include "UI.h"
 #include "esp_err.h"
-#include "esp_log.h"
 #include "filesystem_interface.h"
 #include "widget.h"
-#include "cJSON.h"
+#include "widget_config_list.h"
 #include "widget/day_weather.h"
 #include "widget/sensor_BME680.h"
 #include "widget/status_bar.h"
@@ -161,6 +160,27 @@ esp_err_t update_widget_info(const widget_update_t *update)
             widget_info_list[i].width = update->width;
             widget_info_list[i].height = update->height;
             widget_info_list[i].flag = update->flag;
+            widget_info_list[i].update_data_interval_ms = update->update_data_interval_ms;
+
+            if (update->config)
+            {
+                widget_config_t *new_conf = update->config;
+                while (new_conf)
+                {
+                    widget_config_t *current_conf = widget_config_list_find(widget_info_list[i].config, new_conf->key);
+                    if (current_conf)
+                    {
+                        free(current_conf->value);
+                        current_conf->value = strdup(new_conf->value);
+                    }
+                    else
+                    {
+                        widget_info_list[i].config = widget_config_list_create_node(widget_info_list[i].config, new_conf->key, new_conf->value);
+                    }
+                    new_conf = new_conf->next;
+                }
+                widget_config_list_free(update->config);
+            }
 
             update_widget_json_from_struct(&widget_info_list[i]);
             return ESP_OK;

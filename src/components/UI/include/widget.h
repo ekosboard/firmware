@@ -9,16 +9,16 @@
 #include "misc/lv_color.h"
 #include "misc/lv_types.h"
 #include "sdkconfig.h"
+#include "widget_config_list.h"
 
 #define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
 
 #define WIDGET_COUNT ( \
     (CONFIG_WIDGET_STATUS_BAR ? 1 : 0) + \
     (CONFIG_WIDGET_SENSOR_BME680 ? 1 : 0) + \
-    (CONFIG_WIDGET_NETWORK_SIGNAL ? 1 : 0) \
+    (CONFIG_WIDGET_NETWORK_SIGNAL ? 1 : 0) + \
     (CONFIG_WIDGET_DAY_WEATHER ? 1 : 0) \
 )
-
 
 #ifdef CONFIG_WIDGET_STATUS_BAR
     #include "widget/status_bar.h"
@@ -59,6 +59,7 @@ typedef struct widget_s {
     esp_err_t       (*update_data_function)(void);
     uint32_t        update_data_interval_ms;
     uint32_t        update_data_timestamp;
+    widget_config_t *config;
 } widget_t;
 
 typedef struct widget_update_s {
@@ -69,6 +70,8 @@ typedef struct widget_update_s {
     uint16_t        width;
     uint16_t        height;
     uint32_t        flag;
+    uint32_t        update_data_interval_ms;
+    widget_config_t *config;
 } widget_update_t;
 
 typedef struct widget_node_s {
@@ -97,6 +100,7 @@ extern "C" {
     const char          *get_widget_type_to_string(widget_type_t type);
     esp_err_t           update_widget_info(const widget_update_t *update);
     widget_node_t       *create_widget_display_list_node(widget_node_t *head, widget_t *widget);
+
     bool                check_widget_type_by_id(const char *id, widget_type_t type);
     bool                check_widget_exists_in_display_list(widget_type_t type);
 
@@ -120,12 +124,10 @@ extern "C" {
     ////////////////////////////////////////////////////////////////////////////////
     //  WIDGET UTILS
     ////////////////////////////////////////////////////////////////////////////////
-    void                init_widget_from_file(widget_t *widget, const char *json_path);
     void                init_widget_display_list_from_file(widget_node_t **head, const char *json_path);
-    void                update_widget_struct_from_json(widget_t *widget, cJSON *widget_json);
     void                update_widget_json_from_struct(widget_t *widget);
     esp_err_t           update_widget_display_list_json(widget_node_t *head, uint8_t screen_id);
-
+    void                update_widget_struct_from_template(widget_t *widget, cJSON *widget_json);
 
 
 #ifdef __cplusplus

@@ -1,6 +1,9 @@
 #include "API_ui.h"
+#include "cJSON.h"
 #include "esp_log.h"
 #include "widget.h"
+#include "widget_config_list.h"
+#include "widget_template_interval.h"
 
 static const char *TAG = "api/ui/widgets";
 
@@ -87,6 +90,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
 
         ESP_LOGI("HTTP/Widget", "\nPos_x: %d\n Pos_y: %d", pos_x, pos_y);
         ESP_LOGI("HTTP/Widget", "\nWidth: %d\n Height: %d", width, height);
+        ESP_LOGI("HTTP/Widget", "\nAction: %d", action);
         widget_update_t widget = {
             .type = widget_info->type,
             .action = action,
@@ -95,7 +99,31 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
             .height = height,
             .width = width,
             .flag = widget_info->flag,
+            .update_data_interval_ms = widget_info->update_data_interval_ms,
+            .config = NULL
         };
+
+        // Update interval
+        cJSON *update_interval = cJSON_GetObjectItem(item, "update_interval");
+        if (cJSON_IsString(update_interval))
+        {
+            widget.update_data_interval_ms = widget_template_parse_interval_ms(update_interval->valuestring);
+        }
+
+        // Champs dynamiques: config
+        cJSON *config = cJSON_GetObjectItem(item, "config");
+        if (cJSON_IsObject(config))
+        {
+            cJSON *entry = NULL;
+            cJSON_ArrayForEach(entry, config)
+            {
+                if (cJSON_IsString(entry))
+                {
+                    widget.config = widget_config_list_create_node(widget.config, entry->string, entry->valuestring);
+                    ESP_LOGI("HTTP/Widget", "key: %s\n value: %s", widget.config->key, widget.config->value);
+                }
+            }
+        }
 
         //FIXME: Vérifier si la queue est pleine avant d'envoyer
         //maybe add delay or change queue managment for handle batch widget updates
