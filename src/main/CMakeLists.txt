@@ -25,4 +25,6 @@ idf_component_register(
     UI
 )
 
-littlefs_create_partition_image(littlefs ../widget_template FLASH_IN_PROJECT)
+#littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)
+#idf.py littlefs-flash
+littlefs_create_partition_image(littlefs ../littlefs)
