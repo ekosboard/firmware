@@ -22,7 +22,9 @@ cJSON *read_json_file(const char *path, bool partition)
     }
     else 
     {
-        snprintf(full_path, sizeof(full_path), "/widget_fs/%s", path);
+        /* snprintf(full_path, sizeof(full_path), "//%s", path); */
+        /* snprintf(full_path, sizeof(full_path), "%s/%s", LFS_BASE_PATH, path); */
+        snprintf(full_path, sizeof(full_path), "%s", path);
     }
 
     FILE *file = fopen(full_path, "rb");
