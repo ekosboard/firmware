@@ -8,9 +8,6 @@ idf_component_register(
     "draw/screen/wifi_config.c"
     "draw/screen/wifi_success.c"
     "draw/screen/splash_screen.c"
-    "draw/widget/sensor_BME680.c"
-    "draw/widget/status_bar.c"
-    "draw/widget/day_weather.c"
     "font/roboto_48.c"
     "font/roboto_64.c"
     "font/roboto_96.c"
@@ -24,12 +21,6 @@ idf_component_register(
     "font/symbol_nerdfont_96.c"
     "img/logo.c"
     "lvgl_utils/screen_manager.c"
-    "widget_utils/widget_json.c"
-    "widget_utils/widget_list.c"
-    "widget_utils/widget_list_json.c"
-    "widget_utils/widget_template_loader.c"
-    "widget_utils/widget_config_list.c"
-    "widget_utils/widget_template_interval.c"
 
     INCLUDE_DIRS 
     "include"
@@ -41,4 +32,5 @@ idf_component_register(
     json
     HTTPS_request
     wifi
+    widgets
 )

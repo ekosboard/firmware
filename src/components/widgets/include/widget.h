@@ -9,34 +9,11 @@
 #include "misc/lv_color.h"
 #include "misc/lv_types.h"
 #include "sdkconfig.h"
+#include "widget_autogen.h"
 #include "widget_config_list.h"
+#include "widget_template_interval.h"
 
 #define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
-
-#define WIDGET_COUNT ( \
-    (CONFIG_WIDGET_STATUS_BAR ? 1 : 0) + \
-    (CONFIG_WIDGET_SENSOR_BME680 ? 1 : 0) + \
-    (CONFIG_WIDGET_NETWORK_SIGNAL ? 1 : 0) + \
-    (CONFIG_WIDGET_DAY_WEATHER ? 1 : 0) \
-)
-
-#ifdef CONFIG_WIDGET_STATUS_BAR
-    #include "widget/status_bar.h"
-#endif
-
-#ifdef CONFIG_WIDGET_SENSOR_BME680
-    #include "widget/sensor_BME680.h"
-#endif
-
-#ifdef CONFIG_WIDGET_DAY_WEATHER
-    #include "widget/day_weather.h"
-#endif
-
-typedef enum {
-    WIDGET_TYPE_STATUS_BAR,
-    WIDGET_TYPE_SENSOR_BME680,
-    WIDGET_TYPE_DAY_WEATHER
-} widget_type_t;
 
 typedef enum { 
     WIDGET_ACTION_DRAW,
@@ -85,6 +62,8 @@ typedef struct widget_container_s {
 } widget_container_t;
 
 
+extern widget_t widget_info_list[WIDGET_COUNT];
+extern uint8_t size_widget_info_list;
 
 #ifdef __cplusplus
 extern "C" {
