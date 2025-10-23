@@ -24,7 +24,8 @@ static cJSON *create_widget_json(const widget_t *widget)
 
     // Champs simples
     cJSON_AddNumberToObject(root, "id", widget->type);
-    cJSON_AddNumberToObject(root, "widget_type", widget->type);
+    cJSON_AddStringToObject(root, "widget_type", get_widget_type_to_string(widget->type));
+    /* cJSON_AddNumberToObject(root, "widget_type", widget->type); */
     cJSON_AddNumberToObject(root, "width", widget->width);
     cJSON_AddNumberToObject(root, "height", widget->height);
     cJSON_AddNumberToObject(root, "flag", widget->flag);

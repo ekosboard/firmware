@@ -1,5 +1,6 @@
 #include "widget/day_weather.h"
 #include "HTTPS_request.h"
+#include "cJSON.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "font/lv_font.h"
@@ -109,7 +110,7 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
                     lv_obj_set_pos(day_weather_child.min_temp_label, 0, 0);
                     lv_obj_set_size(day_weather_child.min_temp_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_label_set_text(day_weather_child.min_temp_label, "8°");
-                    lv_obj_set_style_text_font(day_weather_child.min_temp_label, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_font(day_weather_child.min_temp_label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }
 
@@ -141,7 +142,7 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
                     lv_obj_set_pos(day_weather_child.max_temp_label, 0, 0);
                     lv_obj_set_size(day_weather_child.max_temp_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_label_set_text(day_weather_child.max_temp_label, "21°");
-                    lv_obj_set_style_text_font(day_weather_child.max_temp_label, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+                    lv_obj_set_style_text_font(day_weather_child.max_temp_label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }
         }
@@ -159,7 +160,7 @@ esp_err_t   widget_day_weather_draw(lv_obj_t *screen)
 }
 
 
-esp_err_t   widget_day_weather_erase()
+esp_err_t   widget_day_weather_erase(void)
 {
     widget_t *widget = NULL;
     if (get_widget_by_type(WIDGET_TYPE_DAY_WEATHER, &widget) != ESP_OK)
@@ -169,7 +170,7 @@ esp_err_t   widget_day_weather_erase()
     return ESP_OK;
 }
 
-esp_err_t   widget_day_weather_update()
+esp_err_t   widget_day_weather_update(void)
 {
     widget_t *widget = NULL;
     if (get_widget_by_type(WIDGET_TYPE_DAY_WEATHER, &widget) != ESP_OK)
@@ -180,26 +181,126 @@ esp_err_t   widget_day_weather_update()
     return ESP_OK;
 }
 
-static void open_weather_map_request(void);
+static void open_weather_map_request(day_weather_t *child);
+static const char *get_weather_symbol(const char *owm_code);
 
-esp_err_t   widget_day_weather_update_data()
+esp_err_t   widget_day_weather_update_data(void)
 {
     ESP_LOGW(TAG, "UPDATE DATA");
-
-    open_weather_map_request();
+    widget_t *widget = NULL;
+    if (get_widget_by_type(WIDGET_TYPE_DAY_WEATHER, &widget) != ESP_OK)
+        return ESP_FAIL;
+  
+    open_weather_map_request(widget->child);
     return ESP_OK;
 }
 
-static void open_weather_map_request(void)
+static void open_weather_map_request(day_weather_t *child)
 {
+    char *resp = NULL;
+    int status, len;
 
-    char out_buf[1048];
-    int out_status = 0, out_len = 0;
+    esp_err_t err = https_get_dyn(
+            "https://api.openweathermap.org/data/3.0/onecall?lat=50.63&lon=3.05&units=metric&exclude=minutely,hourly,alerts&appid=aeb66237ca8b7ea5c11d8f6c1bbedc87",
+            &resp,
+            &status,
+            &len);
 
-    esp_err_t ret = https_get("https://api.openweathermap.org/data/3.0/onecall?lat=50.63&lon=3.05&units=metric&exclude=minutely,hourly,daily,alerts&appid=aeb66237ca8b7ea5c11d8f6c1bbedc87", out_buf, 2048, &out_status, &out_len);
+    if (err == ESP_OK && resp)
+    {
+        ESP_LOGI(TAG, "HTTP %d, len=%d, body=%s", status, len, resp);
 
-    if (ret == ESP_OK && out_status == 200)
-        ESP_LOGI("APP", "Reçu (%d octets): %s", out_len, out_buf);
+        // Parse JSON
+        cJSON *root = cJSON_Parse(resp);
+        if (!root)
+        {
+            ESP_LOGE("APP", "Erreur parsing JSON");
+            return;
+        }
+        // Extraire "current"
+        const cJSON *current = cJSON_GetObjectItemCaseSensitive(root, "current");
+        if (cJSON_IsObject(current))
+        {
+            const cJSON *temp = cJSON_GetObjectItemCaseSensitive(current, "temp");
+            if (cJSON_IsNumber(temp))
+            {
+                ESP_LOGI("APP", "Temp: %.2f °C", temp->valuedouble);
+                lv_label_set_text_fmt(child->weather_temp_label, "%d°", temp->valueint);
+            }
+
+            // Exemple extraction du tableau weather[0].description
+            const cJSON *weather = cJSON_GetObjectItemCaseSensitive(current, "weather");
+            if (cJSON_IsArray(weather))
+            {
+                const cJSON *first_weather = cJSON_GetArrayItem(weather, 0);
+                const cJSON *icon = cJSON_GetObjectItemCaseSensitive(first_weather, "icon");
+                if (cJSON_IsString(icon))
+                {
+                    ESP_LOGI("APP", "Icon: %s", icon->valuestring);
+                    const char *symbol = get_weather_symbol(icon->valuestring);
+                    lv_label_set_text(child->weather_icon_label, symbol);
+                }
+            }
+        }
+        const cJSON *daily = cJSON_GetObjectItemCaseSensitive(root, "daily");
+        if (cJSON_IsArray(daily))
+        {
+            const cJSON *today = cJSON_GetArrayItem(daily, 0);
+            if (cJSON_IsObject(today))
+            {
+                const cJSON *temp = cJSON_GetObjectItemCaseSensitive(today, "temp");
+                if (cJSON_IsObject(temp))
+                {
+                    const cJSON *min = cJSON_GetObjectItemCaseSensitive(temp, "min");
+                    const cJSON *max = cJSON_GetObjectItemCaseSensitive(temp, "max");
+                    if (cJSON_IsNumber(min))
+                    {
+                        ESP_LOGI("APP", "Min: %.2f °", min->valuedouble);
+                        lv_label_set_text_fmt(child->min_temp_label, "%d°", min->valueint);
+                    }
+                    if (cJSON_IsNumber(max))
+                    {
+                        ESP_LOGI("APP", "Max: %.2f °", max->valuedouble);
+                        lv_label_set_text_fmt(child->max_temp_label, "%d°", max->valueint);
+                    }
+                }
+            }
+        }
+        cJSON_Delete(root);
+    }
     else
-        ESP_LOGE("APP", "Erreur HTTPS: err=%d, status=%d", ret, out_status);
+    {
+        ESP_LOGE("TAG", "Erreur HTTPS: err=%d, status=%d", err, status);
+    }
+
+    if (resp != NULL)
+        free(resp);
 }
+
+typedef struct weather_icon_map_s {
+    const char *owm_icon;   // code renvoyé par OpenWeatherMap
+    const char *symbol;     // symbole LVGL
+} weather_icon_map_t;
+
+static const weather_icon_map_t weather_icon_map[] = {
+    { "01d", SYMBOL_WEATHER_SUNNY },
+    { "02d", SYMBOL_WEATHER_FEW_CLOUDS },
+    { "03d", SYMBOL_WEATHER_SCATTERED_CLOUDS },
+    { "04d", SYMBOL_WEATHER_BROKEN_CLOUDS },
+    { "09d", SYMBOL_WEATHER_SHOWER_RAIN },
+    { "10d", SYMBOL_WEATHER_RAIN },
+    { "11d", SYMBOL_WEATHER_THUNDERSTORM },
+    { "13d", SYMBOL_WEATHER_SNOW },
+    { "50d", SYMBOL_WEATHER_MIST },
+};
+
+static const char *get_weather_symbol(const char *owm_code)
+{
+    for (size_t i = 0; i < sizeof(weather_icon_map)/sizeof(weather_icon_map[0]); i++) {
+        if (strcmp(owm_code, weather_icon_map[i].owm_icon) == 0) {
+            return weather_icon_map[i].symbol;
+        }
+    }
+    return SYMBOL_WEATHER_FEW_CLOUDS;
+}
+

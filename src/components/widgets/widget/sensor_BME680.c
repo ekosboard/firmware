@@ -1,3 +1,4 @@
+#include "widget/sensor_BME680.h"
 #include "UI.h"
 #include "core/lv_obj.h"
 #include "core/lv_obj_pos.h"
@@ -5,6 +6,7 @@
 #include "core/lv_obj_tree.h"
 #include "display/lv_display.h"
 #include "esp_err.h"
+#include "esp_log.h"
 #include "font/lv_symbol_def.h"
 #include "misc/lv_area.h"
 #include "misc/lv_text.h"
@@ -66,7 +68,8 @@ static void widget_sensor_BME680(lv_obj_t *screen, widget_t *widget)
     widget->lv_obj = lv_obj_create(screen);
     widget->child = &sensor_BME680_child;
 
-    lv_obj_set_size(widget->lv_obj, lv_pct(widget->width), lv_pct(widget->height));
+    /* lv_obj_set_size(widget->lv_obj, lv_pct(widget->width), lv_pct(widget->height)); */
+    lv_obj_set_size(widget->lv_obj, widget->width, widget->height);
     lv_obj_set_pos(widget->lv_obj, widget->pos_x, widget->pos_y);
     lv_obj_set_style_margin_all(widget->lv_obj, 0, 0);
     lv_obj_set_style_pad_all(widget->lv_obj, 5, 0);
@@ -107,7 +110,13 @@ esp_err_t widget_sensor_BME680_update()
     if (get_widget_by_type(WIDGET_TYPE_SENSOR_BME680, &widget) != ESP_OK)
         return ESP_FAIL;
 
-    lv_obj_set_size(widget->lv_obj, lv_pct(widget->width), lv_pct(widget->height));
+    lv_obj_set_size(widget->lv_obj, widget->width, widget->height);
     lv_obj_set_pos(widget->lv_obj, widget->pos_x, widget->pos_y);
+    return ESP_OK;
+}
+
+esp_err_t   widget_sensor_BME680_update_data()
+{
+    ESP_LOGW("SENSOR_BME680", "UPDATE DATA");
     return ESP_OK;
 }

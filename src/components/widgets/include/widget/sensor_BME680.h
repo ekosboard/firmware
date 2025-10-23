@@ -19,6 +19,7 @@ extern "C" {
     esp_err_t   widget_sensor_BME680_draw(lv_obj_t *screen);
     esp_err_t   widget_sensor_BME680_erase(void);
     esp_err_t   widget_sensor_BME680_update(void);
+    esp_err_t   widget_sensor_BME680_update_data(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

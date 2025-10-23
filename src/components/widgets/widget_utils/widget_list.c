@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static widget_t widget_info_list[WIDGET_COUNT];
-static uint8_t size_widget_info_list;
+/* static widget_t widget_info_list[WIDGET_COUNT]; */
+/* static uint8_t size_widget_info_list; */
 
 
 /* Initializes the widget information list with predefined widgets */
@@ -18,71 +18,71 @@ static uint8_t size_widget_info_list;
 /*     - None */
 /* @Return: */
 /*     - None */
-void init_widget_list(void)
-{
-    uint8_t index = 0;
-    mount_lfs();
+/* void init_widget_list(void) */
+/* { */
+/*     uint8_t index = 0; */
+/*     mount_lfs(); */
 
-#ifdef CONFIG_WIDGET_STATUS_BAR
-    widget_info_list[index] = (widget_t) {
-        .type = WIDGET_TYPE_STATUS_BAR,
-            .lv_obj = NULL,
-            .child = NULL,
-            .draw_function = widget_status_bar_draw,
-            .erase_function = widget_status_bar_erase,
-            .update_function = widget_status_bar_update,
-            .update_data_function = widget_status_bar_update_data,
-            .update_data_timestamp = 0,
-            .config = NULL
-    };
-    init_widget_from_template(&widget_info_list[index++], STATUS_BAR_FILE_PATH);
-#endif
+/* #ifdef CONFIG_WIDGET_STATUS_BAR */
+/*     widget_info_list[index] = (widget_t) { */
+/*         .type = WIDGET_TYPE_STATUS_BAR, */
+/*             .lv_obj = NULL, */
+/*             .child = NULL, */
+/*             .draw_function = widget_status_bar_draw, */
+/*             .erase_function = widget_status_bar_erase, */
+/*             .update_function = widget_status_bar_update, */
+/*             .update_data_function = widget_status_bar_update_data, */
+/*             .update_data_timestamp = 0, */
+/*             .config = NULL */
+/*     }; */
+/*     init_widget_from_template(&widget_info_list[index++], STATUS_BAR_FILE_PATH); */
+/* #endif */
 
-#ifdef CONFIG_WIDGET_SENSOR_BME680
-    widget_info_list[index] = (widget_t) {
-        WIDGET_TYPE_SENSOR_BME680,
-            NULL,
-            NULL,
-            0,
-            100,
-            20,
-            100,
-            0,
-            .draw_function = widget_sensor_BME680_draw,
-            widget_sensor_BME680_erase,
-            widget_sensor_BME680_update,
-            widget_sensor_BME680_update_data,
-            (3 * 60 * 1000),
-            0,
-            .config = NULL
-    };
-    init_widget_from_template(&widget_info_list[index++], SENSOR_BME680_FILE_PATH);
-#endif
+/* #ifdef CONFIG_WIDGET_SENSOR_BME680 */
+/*     widget_info_list[index] = (widget_t) { */
+/*         WIDGET_TYPE_SENSOR_BME680, */
+/*             NULL, */
+/*             NULL, */
+/*             0, */
+/*             100, */
+/*             20, */
+/*             100, */
+/*             0, */
+/*             .draw_function = widget_sensor_BME680_draw, */
+/*             widget_sensor_BME680_erase, */
+/*             widget_sensor_BME680_update, */
+/*             widget_sensor_BME680_update_data, */
+/*             (3 * 60 * 1000), */
+/*             0, */
+/*             .config = NULL */
+/*     }; */
+/*     init_widget_from_template(&widget_info_list[index++], SENSOR_BME680_FILE_PATH); */
+/* #endif */
 
-#ifdef CONFIG_WIDGET_DAY_WEATHER
-    widget_info_list[index] = (widget_t) {
-        .type =WIDGET_TYPE_DAY_WEATHER,
-            .lv_obj = NULL,
-            .child = NULL,
-            .flag = WIFI_REQUIRED,
-            .draw_function = widget_day_weather_draw,
-            .erase_function = widget_day_weather_erase,
-            .update_function = widget_day_weather_update,
-            .update_data_function = widget_day_weather_update_data,
-            .update_data_timestamp = 0,
-            .config = NULL
-    };
-    init_widget_from_template(&widget_info_list[index++], DAY_WEATHER_FILE_PATH);
-#endif
+/* #ifdef CONFIG_WIDGET_DAY_WEATHER */
+/*     widget_info_list[index] = (widget_t) { */
+/*         .type =WIDGET_TYPE_DAY_WEATHER, */
+/*             .lv_obj = NULL, */
+/*             .child = NULL, */
+/*             .flag = WIFI_REQUIRED, */
+/*             .draw_function = widget_day_weather_draw, */
+/*             .erase_function = widget_day_weather_erase, */
+/*             .update_function = widget_day_weather_update, */
+/*             .update_data_function = widget_day_weather_update_data, */
+/*             .update_data_timestamp = 0, */
+/*             .config = NULL */
+/*     }; */
+/*     init_widget_from_template(&widget_info_list[index++], DAY_WEATHER_FILE_PATH); */
+/* #endif */
 
-    unmount_lfs();
-    for (uint8_t i = index; i < WIDGET_COUNT; i++)
-    {
-        widget_info_list[i] = (widget_t) {0};
-    }
+/*     unmount_lfs(); */
+/*     for (uint8_t i = index; i < WIDGET_COUNT; i++) */
+/*     { */
+/*         widget_info_list[i] = (widget_t) {0}; */
+/*     } */
 
-    size_widget_info_list = index;
-}
+/*     size_widget_info_list = index; */
+/* } */
 
 
 /* Retrieves the widget information list */
@@ -195,16 +195,16 @@ esp_err_t update_widget_info(const widget_update_t *update)
 /*     - type: Type of the widget (widget_type_t) to convert to string. */
 /* @Return: */
 /*     - const char*: String representing the widget type. */
-const char *get_widget_type_to_string(widget_type_t type)
-{
-    switch (type)
-    {
-        case WIDGET_TYPE_STATUS_BAR: return "status_bar";
-        case WIDGET_TYPE_SENSOR_BME680: return "sensor_BME680";
-        case WIDGET_TYPE_DAY_WEATHER: return "day_weather";
-        default: return "Unknown Widget";
-    }
-}
+/* const char *get_widget_type_to_string(widget_type_t type) */
+/* { */
+/*     switch (type) */
+/*     { */
+/*         case WIDGET_TYPE_STATUS_BAR: return "status_bar"; */
+/*         case WIDGET_TYPE_SENSOR_BME680: return "sensor_BME680"; */
+/*         case WIDGET_TYPE_DAY_WEATHER: return "day_weather"; */
+/*         default: return "Unknown Widget"; */
+/*     } */
+/* } */
 
 /* Adds a new widget node to the beginning of the widget node list */
 /* @Parameters: */
