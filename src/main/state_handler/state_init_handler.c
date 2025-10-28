@@ -9,6 +9,11 @@
 #include "state_manager.h"
 #include "wifi.h"
 #include <stdbool.h>
+#include "setup_i2c_bus.h"
+
+#ifdef CONFIG_USE_GT911
+#include "gt911.h"
+#endif
 
 /* This function handles the initialization state of the system.
  * It is triggered by events posted to the state_manager_loop
@@ -35,10 +40,14 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
         case INIT_SETUP_HW:
             if (setup_persistent_state() == ESP_OK)
             {
-                esp_event_post_to(state_manager_loop,
-                        INIT_EVENT,
-                        INIT_SETUP_UI,
-                        NULL,
+#ifdef CONFIG_USE_GT911
+                gpio_install_isr_service(0);
+                if (setup_i2c_bus() == ESP_OK && gt911_init(get_i2c_bus()) == ESP_OK)
+#endif
+                    esp_event_post_to(state_manager_loop,
+                            INIT_EVENT,
+                            INIT_SETUP_UI,
+                            NULL,
                         0,
                         portMAX_DELAY
                         );

@@ -14,11 +14,16 @@
 #include "misc/lv_style_gen.h"
 #include "misc/lv_types.h"
 #include "osal/lv_os.h"
+#include "portmacro.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef CONFIG_USE_GT911
+#include "gt911.h"
+#endif
 
 const static char *TAG = "INIT_LVGL";
 static SemaphoreHandle_t lvgl_mux = NULL;
@@ -149,6 +154,40 @@ void lvgl_unlock(void)
     xSemaphoreGiveRecursive(lvgl_mux);
 }
 
+
+#ifdef CONFIG_USE_GT911
+static void gt911_lvgl_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
+{
+    gt911_t *gt911 = gt911_get();
+
+    portENTER_CRITICAL(&gt911->lock);
+    uint8_t points = gt911->data.points;
+    uint16_t x = gt911->data.coords[0].x;
+    uint16_t y = gt911->data.coords[0].y;
+    gt911->data.points = 0;
+    portEXIT_CRITICAL(&gt911->lock);
+
+    if (points > 0)
+    {
+        data->state = LV_INDEV_STATE_PRESSED;
+        data->point.x = x;
+        data->point.y = y;
+        ESP_LOGI("LVGL", "Touch: %d point(s) at X=%d, Y=%d", points, x, y);
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
+void lv_port_indev_init(void)
+{
+    lv_indev_t * indev = lv_indev_create();
+    lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(indev, gt911_lvgl_read_cb);
+}
+#endif
+
 /* Initializes LVGL, sets up the display driver for a monochrome screen, */
 /*      and allocates necessary resources such as a tick timer, a mutex, and a dedicated */
 /*      task for rendering. */
@@ -165,6 +204,10 @@ esp_err_t  init_lvgl(display_t *display)
     lv_init();
     init_driver_monochrome(display);
     lv_display_set_antialiasing(display->lv_display, true);
+#ifdef CONFIG_USE_GT911
+    lv_port_indev_init();
+#endif
+
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     const esp_timer_create_args_t lvgl_tick_timer_args = {

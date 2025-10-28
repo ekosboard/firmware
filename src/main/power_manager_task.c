@@ -9,6 +9,10 @@
 #include "wifi.h"
 #include <stdint.h>
 
+#ifdef CONFIG_USE_GT911
+#include "gt911.h"
+#endif
+
 /**
  * @brief Manages power state and handles sleep transitions.
  * @param pvParameters Pointer to the task parameters, expected to be a TaskHandle_t* for update_manager_task.
@@ -45,6 +49,10 @@ void power_manager_task(void *pvParameters)
                     timer_value,
                     wifi_needed_to_start);
 
+#ifdef CONFIG_USE_GT911
+            gt911_enter_sleep(gt911_get());
+#endif
+
             if (wifi_needed_to_stop == true)
             {
                 clean_stop_wifi();
@@ -69,6 +77,9 @@ void power_manager_task(void *pvParameters)
 
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {
+#ifdef CONFIG_USE_GT911
+                gt911_exit_sleep(gt911_get());
+#endif
                 ESP_LOGW("POWER MANAGER: ", "awake: GPIO");
                 clean_start_wifi();
                 wifi_needed_to_stop = true;
