@@ -5,6 +5,7 @@ idf_component_register(
     "screen_manager_task.c"
     "power_manager_task.c"
     "update_manager_task.c"
+    "setup/setup_i2c_bus.c"
     "setup/setup_persistent_state.c"
     "setup/setup_ui_tasks.c"
     "setup/state_manager.c"
@@ -23,6 +24,7 @@ idf_component_register(
     HTTPS_request
     EPD
     UI
+    driver
 )
 
 #littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)
