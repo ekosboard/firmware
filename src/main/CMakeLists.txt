@@ -25,6 +25,7 @@ idf_component_register(
     EPD
     UI
     driver
+    touch_gt911
 )
 
 #littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)
