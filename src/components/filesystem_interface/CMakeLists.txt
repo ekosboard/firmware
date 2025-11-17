@@ -6,6 +6,7 @@ idf_component_register(
     "nvs/nvs_init.c"
     "nvs/nvs_wifi.c"
     "nvs/nvs_setup_state.c"
+    "nvs/nvs_device_info.c"
     "lfs/lfs_init.c"
     "lfs/lfs_utils.c"
 
