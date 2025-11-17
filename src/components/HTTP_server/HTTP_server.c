@@ -3,6 +3,10 @@
 #include "API_ui.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
+#include "portmacro.h"
+#include "wifi_switch.h"
 
 static const char *TAG = "HTTP Server";
 static httpd_handle_t server = NULL;
@@ -88,11 +92,33 @@ void http_server(void *pvParameters)
         vTaskDelete(NULL);
     }
 
+    err = init_wifi_switch_queue();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "init_wifi_switch_queue failed!");
+        vTaskDelete(NULL);
+    }
+
+    BaseType_t ret = xTaskCreate(wifi_switch_task,
+            "wifi_switch",
+            4096,
+            NULL,
+            3,
+            wifi_swtich_task_get_handle());
+    if (ret != pdPASS)
+    {
+        ESP_LOGE(TAG, "Failed to create wifi switch task");
+        delete_wifi_switch_queue();
+    }
+
     server = start_webserver();
     while (server)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+
+    vTaskDelete(*wifi_swtich_task_get_handle());
+    delete_wifi_switch_queue();
 
     delete_widget_update_queue();
     vTaskDelete(NULL);

@@ -7,6 +7,8 @@ idf_component_register(
     "event.c"
     "SNTP.c"
     "scan.c"
+    "wifi_switch_task.c"
+    "queue/wifi_switch_queue.c"
 
     INCLUDE_DIRS 
     "include"

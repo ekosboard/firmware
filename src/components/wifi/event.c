@@ -2,6 +2,7 @@
 #include "filesystem_interface.h"
 #include "freertos/idf_additions.h"
 #include "wifi.h"
+#include "wifi_switch.h"
 
 static const char *TAG_AP = "WiFi event AP";
 static const char *TAG_STA = "WiFi event STA";
@@ -45,6 +46,13 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
+        if (check_wifi_is_switching() == true)
+        {
+            ESP_LOGI(TAG_STA, "Switching WiFi: skip auto-reconnect");
+            s_retry_num = 0;
+            return;
+        }
+
         if (s_retry_num < WIFI_STA_MAX_RETRY)
         {
             esp_wifi_connect();

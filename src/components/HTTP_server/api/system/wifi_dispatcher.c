@@ -28,6 +28,10 @@ esp_err_t wifi_dispatcher_handler(httpd_req_t *req)
         {
             return wifi_credentials_post_handler(req);
         }
+        else if (strcmp(req->uri, "/api/system/wifi/switch") == 0)
+        {
+            return wifi_switch_post_handler(req);
+        }
         else
         {
             httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Endpoint not found");

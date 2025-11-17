@@ -46,6 +46,7 @@ extern "C" {
     void            unregister_wifi_dispatcher_uri(httpd_handle_t server);
     esp_err_t       wifi_dispatcher_handler(httpd_req_t *req);
 
+    esp_err_t       wifi_switch_post_handler(httpd_req_t *req);
     ////////////////////////////////////////////////////////////////////////////////
     //
     //  /api/system/wifi/credentials

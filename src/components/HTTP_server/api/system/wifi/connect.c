@@ -2,7 +2,7 @@
 #include "HTTP_server.h"
 #include "http_parser.h"
 
-static const char *TAG = "api/system/wifi/connect";
+static const char *TAG = "/api/system/wifi/connect";
 
 /* Handles an HTTP GET request to start the Wi-Fi connection process in Station mode (STA). */
 /* @Return Values: */
@@ -10,7 +10,7 @@ static const char *TAG = "api/system/wifi/connect";
 /* - ESP_FAIL if the connection attempt fails. */
 esp_err_t       wifi_connect_put_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "PUT");
+    ESP_LOGV(TAG, "PUT");
 
     esp_err_t err;
     err = wifi_start_sta();
