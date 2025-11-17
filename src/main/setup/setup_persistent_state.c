@@ -1,3 +1,4 @@
+#include "device_info.h"
 #include "esp_err.h"
 #include "main.h"
 
@@ -49,5 +50,18 @@ esp_err_t setup_persistent_state(void)
         nvs_setup_state_write_magic_key();
     }
 
+    device_info_t device_info;
+    device_info_load(&device_info);
+    // Si serial encore vide -> générer automatiquement
+    if (strcmp(device_info.serial, "UNINITIALIZED") == 0)
+    {
+        uint8_t mac[6];
+        esp_read_mac(mac, ESP_MAC_WIFI_STA);
+        snprintf(device_info.serial, sizeof(device_info.serial),
+                 "S3-%02X%02X%02X%02X%02X%02X",
+                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+        device_info_save(&device_info);
+    }
     return ESP_OK;
 }
