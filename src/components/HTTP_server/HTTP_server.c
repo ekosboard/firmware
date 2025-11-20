@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
+#include "ota_context.h"
 #include "portmacro.h"
 #include "wifi_switch.h"
 
@@ -45,6 +46,7 @@ static httpd_handle_t start_webserver(void)
         register_widgets(server);
         register_widgets_dispatcher_uri(server);
         register_config_dispatcher_uri(server);
+        register_ota_dispatcher_uri(server);
         return server;
     }
 

@@ -5,6 +5,7 @@
 #include "filesystem_interface.h"
 #include "freertos/projdefs.h"
 #include "main.h"
+#include "ota_context.h"
 #include "portmacro.h"
 #include "state_manager.h"
 #include "wifi.h"
@@ -34,6 +35,8 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
                     0,
                     portMAX_DELAY
                     );
+
+            ota_context_init();
             break;
 
 

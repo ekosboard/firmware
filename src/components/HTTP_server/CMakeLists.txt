@@ -7,6 +7,13 @@ idf_component_register(
     "api/system/config/ping.c"
     "api/system/config/diagnostic.c"
     "api/system/config/reboot.c"
+    "api/system/ota_dispatcher.c"
+    "api/system/ota/ota_commit.c"
+    "api/system/ota/ota_info.c"
+    "api/system/ota/ota_reboot.c"
+    "api/system/ota/ota_start.c"
+    "api/system/ota/ota_status.c"
+    "api/system/ota/ota_upload.c"
     "api/system/wifi_dispatcher.c"
     "api/system/wifi/credentials.c"
     "api/system/wifi/connect.c"
@@ -32,4 +39,5 @@ idf_component_register(
     esp_wifi
     json
     UI
+    ota
 )

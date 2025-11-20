@@ -31,6 +31,22 @@ extern "C" {
     esp_err_t       diagnostic_get_handler(httpd_req_t *req);
     esp_err_t       reboot_post_handler(httpd_req_t *req);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    //  /api/system/ota/*
+    //
+    ////////////////////////////////////////////////////////////////////////////////
+    extern const    httpd_uri_t ota_dispatcher;
+    void            register_ota_dispatcher_uri(httpd_handle_t server);
+    void            unregister_ota_dispatcher_uri(httpd_handle_t server);
+    esp_err_t       ota_dispatcher_handler(httpd_req_t *req);
+
+    esp_err_t       ota_info_get_handler(httpd_req_t *req);
+    esp_err_t       ota_start_post_handler(httpd_req_t *req);
+    esp_err_t       ota_upload_post_handler(httpd_req_t *req);
+    esp_err_t       ota_status_get_handler(httpd_req_t *req);
+    esp_err_t       ota_commit_post_handler(httpd_req_t *req);
+    esp_err_t       ota_reboot_post_handler(httpd_req_t *req);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  WIFI
