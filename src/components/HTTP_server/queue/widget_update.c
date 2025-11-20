@@ -26,6 +26,7 @@ esp_err_t init_widget_update_queue(void)
 void delete_widget_update_queue(void)
 {
     vQueueDelete(widget_update_queue);
+    widget_update_queue = NULL;
 }
 
 /* Push a widget update to the queue. */

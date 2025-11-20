@@ -13,7 +13,9 @@ esp_err_t get_available_widgets_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    cJSON *available_widgets_json = read_json_file(WIDGET_TEMPLATE_INDEX, READ_LFS);
+    char full_path[128];
+    snprintf(full_path, sizeof(full_path),"%s/%s", LFS_BASE_PATH, WIDGET_TEMPLATE_INDEX);
+    cJSON *available_widgets_json = read_json_file(full_path, READ_LFS);
 
     err = unmount_lfs();
     if (err != ESP_OK)

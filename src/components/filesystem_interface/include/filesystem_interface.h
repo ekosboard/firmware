@@ -11,7 +11,7 @@
 #define SETUP_MAGIC_KEY 0xCAFEBABE
 #define READ_FAT true
 #define READ_LFS false
-#define WIDGET_TEMPLATE_INDEX "/widget_template_list.json"
+#define WIDGET_TEMPLATE_INDEX "widget_template_list.json"
 #define LFS_BASE_PATH       "/littlefs"
 #define LFS_TEMPLATE_DIR    "template"
 #define LFS_INSTANCE_DIR    "instance"

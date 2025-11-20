@@ -16,7 +16,11 @@ esp_err_t get_widget_template_handler(httpd_req_t *req)
 
     char name[128];
     sscanf(req->uri, "/api/ui/widgets/%127s", name);
-    cJSON *widget_template_json = read_json_file(name, READ_LFS);
+
+    char full_path[256];
+    snprintf(full_path, sizeof(full_path),"%s/%s/%s", LFS_BASE_PATH, LFS_TEMPLATE_DIR, name);
+
+    cJSON *widget_template_json = read_json_file(full_path, READ_LFS);
     if (widget_template_json == NULL) {
         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Widget not found");
         unmount_lfs();
