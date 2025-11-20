@@ -48,7 +48,9 @@ esp_err_t wifi_credentials_post_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    httpd_resp_send(req, NULL, 0);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, "{\"status\":\"ok\"}");
+
     return ESP_OK;
 }
 

@@ -34,7 +34,9 @@ esp_err_t wifi_switch_post_handler(httpd_req_t *req)
     cJSON_Delete(root);
 
     httpd_resp_set_status(req, "202 Accepted");
-    httpd_resp_send(req, NULL, 0);
+    /* httpd_resp_send(req, NULL, 0); */
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, "{\"status\":\"switching\"}");
 
     push_wifi_switch_queue(req_data);
 

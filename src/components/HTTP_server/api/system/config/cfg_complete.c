@@ -3,7 +3,6 @@
 
 static const char *TAG = "api/system/config/complete";
 
-/* Stub for /system/config/complete */
 esp_err_t config_complete_post_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Received request: POST /system/config/complete");
@@ -27,7 +26,6 @@ esp_err_t config_complete_post_handler(httpd_req_t *req)
 
     char *resp_str = cJSON_PrintUnformatted(resp_json);
     cJSON_Delete(resp_json);
-
     if (!resp_str)
     {
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to encode JSON");

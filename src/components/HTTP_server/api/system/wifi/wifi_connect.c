@@ -1,5 +1,7 @@
 #include "API_system.h"
 #include "HTTP_server.h"
+#include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
 #include "http_parser.h"
 
 static const char *TAG = "/api/system/wifi/connect";
@@ -12,14 +14,18 @@ esp_err_t       wifi_connect_put_handler(httpd_req_t *req)
 {
     ESP_LOGV(TAG, "PUT");
 
-    esp_err_t err;
-    err = wifi_start_sta();
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, "{\"status\":\"connecting\"}");
+
+    vTaskDelay(pdMS_TO_TICKS(200));
+
+    esp_err_t err = wifi_start_sta();
     if (err != ESP_OK)
     {
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, NULL);
         return ESP_FAIL;
     }
-    httpd_resp_send(req, NULL, 0);
+
     return ESP_OK;
 }
 

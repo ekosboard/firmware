@@ -4,11 +4,13 @@
 
 static const char *TAG = "api/system/wifi/status";
 
+//TODO!
 esp_err_t       wifi_status_get_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET");
 
-    httpd_resp_send(req, NULL, 0);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, "{\"status\":\"ok\"}");
     return ESP_OK;
 }
 
