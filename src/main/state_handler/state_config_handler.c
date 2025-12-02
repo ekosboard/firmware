@@ -1,4 +1,5 @@
 #include "HTTP_server.h"
+#include "config_timeout_ctx.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "freertos/idf_additions.h"
@@ -20,6 +21,7 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
                     NULL
                     );
 
+            config_timeout_ctx_set_timeout(DEFAULT_TIMEOUT_MS);
             xTaskNotify(setup_task_handle[SETUP_TIMEOUT_TASK], DEFAULT_TIMEOUT_MS, eSetValueWithOverwrite);
             //FIXME: long timeout ici! maybe infinite!
             break;
@@ -39,6 +41,7 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
                     NULL
                     );
 
+            config_timeout_ctx_set_timeout(DEFAULT_TIMEOUT_MS);
             xTaskNotify(setup_task_handle[SETUP_TIMEOUT_TASK], DEFAULT_TIMEOUT_MS, eSetValueWithOverwrite);
             break;
 

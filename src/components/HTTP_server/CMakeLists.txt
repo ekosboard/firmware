@@ -7,6 +7,7 @@ idf_component_register(
     "api/system/config/cfg_ping.c"
     "api/system/config/cfg_diagnostic.c"
     "api/system/config/cfg_reboot.c"
+    "api/system/config/cfg_timeout.c"
     "api/system/ota_dispatcher.c"
     "api/system/ota/ota_commit.c"
     "api/system/ota/ota_info.c"
@@ -27,6 +28,7 @@ idf_component_register(
     "queue/widget_update.c"
     "utils/json.c"
     "utils/read_http_request_content.c"
+    "utils/config_timeout_ctx.c"
 
     INCLUDE_DIRS 
     "include"

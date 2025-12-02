@@ -1,4 +1,8 @@
 #include "state_manager.h"
+#include "config_timeout_ctx.h"
+#include "freertos/idf_additions.h"
+#include "main.h"
+#include <stdlib.h>
 
 
 esp_event_loop_handle_t state_manager_loop;
@@ -9,6 +13,7 @@ ESP_EVENT_DEFINE_BASE(IDLE_EVENT);
 
 void state_manager_init(TaskHandle_t *setup_task_handle)
 {
+    config_timeout_ctx_init(setup_task_handle[SETUP_TIMEOUT_TASK]);
     esp_event_loop_args_t state_manager_args = {
         .queue_size = 4,
         .task_name = "state_manager_loop",
