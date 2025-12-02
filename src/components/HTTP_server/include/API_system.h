@@ -29,6 +29,8 @@ extern "C" {
     esp_err_t       device_info_patch_handler(httpd_req_t *req);
     esp_err_t       ping_get_handler(httpd_req_t *req);
     esp_err_t       diagnostic_get_handler(httpd_req_t *req);
+    esp_err_t       config_timeout_get_handler(httpd_req_t *req);
+    esp_err_t       config_timeout_post_handler(httpd_req_t *req);
     esp_err_t       reboot_post_handler(httpd_req_t *req);
 
     ////////////////////////////////////////////////////////////////////////////////

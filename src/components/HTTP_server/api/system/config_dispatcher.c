@@ -19,6 +19,10 @@ esp_err_t config_dispatcher_handler(httpd_req_t *req)
         {
             return diagnostic_get_handler(req);
         }
+        else if (strcmp(req->uri, "/api/system/config/timeout") == 0)
+        {
+            return config_timeout_get_handler(req);
+        }
         else
         {
             httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Endpoint not found");
@@ -34,6 +38,10 @@ esp_err_t config_dispatcher_handler(httpd_req_t *req)
         else if (strcmp(req->uri, "/api/system/config/reboot") == 0)
         {
             return reboot_post_handler(req);
+        }
+        else if (strcmp(req->uri, "/api/system/config/timeout/extend") == 0)
+        {
+            return config_timeout_post_handler(req);
         }
         else
         {
