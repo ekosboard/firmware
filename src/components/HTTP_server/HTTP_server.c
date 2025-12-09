@@ -85,22 +85,6 @@ httpd_handle_t get_server_handler(void)
 
 void http_server(void *pvParameters)
 {
-    esp_err_t err;
-
-    err = init_widget_update_queue();
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "init_widget_update_queue failed!");
-        vTaskDelete(NULL);
-    }
-
-    err = init_wifi_switch_queue();
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "init_wifi_switch_queue failed!");
-        vTaskDelete(NULL);
-    }
-
     BaseType_t ret = xTaskCreate(wifi_switch_task,
             "wifi_switch",
             4096,
@@ -110,7 +94,6 @@ void http_server(void *pvParameters)
     if (ret != pdPASS)
     {
         ESP_LOGE(TAG, "Failed to create wifi switch task");
-        delete_wifi_switch_queue();
     }
 
     server = start_webserver();
@@ -120,8 +103,5 @@ void http_server(void *pvParameters)
     }
 
     vTaskDelete(*wifi_swtich_task_get_handle());
-    delete_wifi_switch_queue();
-
-    delete_widget_update_queue();
     vTaskDelete(NULL);
 }

@@ -1,8 +1,12 @@
 #include "EPD.h"
+#include "HTTP_server.h"
 #include "UI.h"
+#include "esp_err.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_wifi.h"
 #include "filesystem_interface.h"
+#include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 #include "main.h"
 #include "ota_context.h"
@@ -11,6 +15,7 @@
 #include "wifi.h"
 #include <stdbool.h>
 #include "setup_i2c_bus.h"
+#include "wifi_switch.h"
 
 #ifdef CONFIG_USE_GT911
 #include "gt911.h"
@@ -84,6 +89,17 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
         case INIT_SETUP_NET:
             //FIXME: gestion erreur
             init_wifi();
+
+            if (init_wifi_switch_queue() != ESP_OK)
+            {
+                ESP_LOGE("INIT_SETUP_NET", "init_wifi_switch_queue failed!");
+            }
+
+            if (init_widget_update_queue() != ESP_OK)
+            {
+                ESP_LOGE("INIT_SETUP_NET", "init_widget_update_queue failed!");
+            }
+
             esp_event_post_to(state_manager_loop,
                     INIT_EVENT,
                     INIT_WIFI_CHECK,
