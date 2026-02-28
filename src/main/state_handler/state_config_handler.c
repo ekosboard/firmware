@@ -1,10 +1,16 @@
 #include "HTTP_server.h"
+#include "EPD.h"
+#include "UI.h"
 #include "config_timeout_ctx.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
+#include "input_manager.h"
 #include "main.h"
 #include "state_manager.h"
+#include "wifi.h"
+#include "screen_manager.h"
 
 void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data)
 {
@@ -43,6 +49,7 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
 
             config_timeout_ctx_set_timeout(DEFAULT_TIMEOUT_MS);
             xTaskNotify(setup_task_handle[SETUP_TIMEOUT_TASK], DEFAULT_TIMEOUT_MS, eSetValueWithOverwrite);
+            resume_input_manager_task();
             break;
 
         case CONFIG_EXIT:
@@ -61,6 +68,7 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
                     );
 
 
+            suspend_input_manager_task();
             xTaskNotifyGive(setup_task_handle[UPDATE_MANAGER_TASK]);
             break;
 
