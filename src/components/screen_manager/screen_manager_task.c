@@ -1,5 +1,6 @@
+#include "esp_log.h"
+#include "screen_manager.h"
 #include "UI.h"
-#include "main.h"
 #include <stdint.h>
 
 /* Task to manage screen updates and actions on the main display */
@@ -34,7 +35,13 @@ void screen_manager_task(void *pvParameters)
             screen_id = (uint8_t)(notif_value & SCREEN_ID_MASK);
             action = (uint8_t)((notif_value & SCREEN_ACTION_MASK) >> 8);
 
-            display->active_screen = screen_id;
+            if (set_active_screen(screen_id) != ESP_OK)
+            {
+                ESP_LOGE("SCREEN_MANAGER_TASK", "Set active screen failed");
+                continue;
+            }
+
+            ESP_LOGI("SCREEN_MANAGER_TASK", "Screen id: %d", screen_id);
             screen = get_active_screen();
 
             switch (action)
@@ -61,6 +68,11 @@ void screen_manager_task(void *pvParameters)
 
                 case SCREEN_ACTION_SWITCH_AND_CLEAR:
                     lvgl_switch_screen(screen, display->display_driver->clear);
+                    break;
+
+                case SCREEN_ACTION_FORCE_REFRESH:
+                    lvgl_force_refresh_screen(screen, display->display_driver->clear);
+                    /* lvgl_force_refresh_screen(screen, NULL); */
                     break;
 
                 default:

@@ -1,8 +1,8 @@
 idf_component_register(
     SRCS 
     "main.c"
+    "input_manager_task.c"
     "widget_manager_task.c"
-    "screen_manager_task.c"
     "power_manager_task.c"
     "update_manager_task.c"
     "setup/setup_i2c_bus.c"
@@ -26,6 +26,7 @@ idf_component_register(
     UI
     driver
     touch_gt911
+    screen_manager
 )
 
 #littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)

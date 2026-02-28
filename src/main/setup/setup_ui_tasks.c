@@ -1,4 +1,5 @@
 #include "main.h"
+#include "screen_manager.h"
 
 /* Handles UI-related tasks based on notifications */
 /* @Parameters: */
@@ -17,7 +18,7 @@ void setup_ui_tasks(void *pvParameters)
             if (nvs_setup_state_read_screen_id() != -1)
             {
                 xTaskCreate(widget_manager_task, "widget_manager_task", 4096, NULL, 2, NULL);
-                xTaskCreate(screen_manager_task, "screen_manager_task", 4096, NULL, 2, NULL);
+                xTaskCreate(screen_manager_task, "screen_manager_task", (4096 * 2), NULL, 2, NULL);
             }
         }
     }

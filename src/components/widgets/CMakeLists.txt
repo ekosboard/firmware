@@ -20,6 +20,7 @@ idf_component_register(
         lvgl
         filesystem_interface
         json
+        screen_manager
 )
 
 # --------------------------------------------------------------------
