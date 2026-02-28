@@ -22,7 +22,7 @@ OUTPUT_DIR = COMPONENT_DIR
 # Fichiers de sortie
 HEADER_PATH = os.path.join(OUTPUT_DIR, "include", "widget_autogen.h")
 SOURCE_PATH = os.path.join(OUTPUT_DIR, "widget_autogen.c")
-KCONFIG_PATH = os.path.join(OUTPUT_DIR, "Kconfig.widgets")
+KCONFIG_PATH = os.path.join(OUTPUT_DIR, "Kconfig.projbuild")
 
 print("=== DEBUG PATHS ===")
 print("Current working directory :", os.getcwd())

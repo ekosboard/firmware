@@ -1,0 +1,36 @@
+{
+    "id": 2,
+    "widget_type": "day_weather",
+    "label": "Day Weather",
+    "iconType": "\ue304",
+    "width": 250,
+    "height": 200,
+    "position": {
+        "x": 20,
+        "y": 100
+    },
+    "update_interval": "6h",
+    "flag": 2147483648,
+    "config": {
+        "exclude": "minutely,hourly,alert",
+        "apikey": "",
+        "lat": "",
+        "lon": "",
+        "units": ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 5
+    },
+    "elements": [
+        {
+            "label": "weather_icon",
+            "element_type": "icon",
+            "mock_data": "\ue304"
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+menu "Smart Paper -- Widgets"
+
+    config WIDGET_STATUS_BAR
+        bool "Enable Status Bar Widget"
+        default y
+
+    config WIDGET_DAY_WEATHER
+        bool "Enable Day Weather Widget"
+        default y
+
+    config WIDGET_FOOBAR
+        bool "Enable Foobar Widget"
+        default y
+
+    config WIDGET_SIMPLE_DATE
+        bool "Enable Simple Date Widget"
+        default y
+
+    config WIDGET_REMINDER
+        bool "Enable Reminder Widget"
+        default y
+
+    config WIDGET_STOCK_CHART
+        bool "Enable Stock Chart Widget"
+        default y
+
+    config WIDGET_SEEDBOX_MONITORING
+        bool "Enable Seedbox Monitoring Widget"
+        default y
+
+    config WIDGET_SIDE_BAR
+        bool "Enable Side Bar Widget"
+        default y
+
+endmenu

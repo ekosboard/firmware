@@ -3,9 +3,6 @@
 #include "filesystem_interface.h"
 #include "widget.h"
 #include "widget_config_list.h"
-#include "widget/day_weather.h"
-#include "widget/sensor_BME680.h"
-#include "widget/status_bar.h"
 #include <stdlib.h>
 #include <string.h>
 
