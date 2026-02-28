@@ -1,0 +1,18 @@
+{
+    "battery_empty":{
+        "icon": "",
+        "codepoint":"U+F244"
+    },
+    "battery_quarter":{
+        "icon": "",
+        "codepoint":"U+F243"
+    },
+    "battery_half":{
+        "icon": "",
+        "codepoint":"U+F242"
+    },
+    "battery_full":{
+        "icon": "",
+        "codepoint":"U+F240"
+    }
+}
