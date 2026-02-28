@@ -1,3 +1,4 @@
+#include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
 #include "esp_wifi.h"
@@ -5,6 +6,7 @@
 #include "freertos/projdefs.h"
 #include "main.h"
 #include "portmacro.h"
+#include "soc/gpio_num.h"
 #include "state_manager.h"
 #include "wifi.h"
 #include <stdint.h>
@@ -12,6 +14,50 @@
 #ifdef CONFIG_USE_GT911
 #include "gt911.h"
 #endif
+
+static void enable_gpio_wakeup()
+{
+    gpio_config_t io_conf = {
+        .pin_bit_mask = ((1ULL << GPIO_NUM_3) | (1ULL << GPIO_NUM_4)),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_LOW_LEVEL
+    };
+    gpio_config(&io_conf);
+    gpio_wakeup_enable(GPIO_NUM_3, GPIO_INTR_LOW_LEVEL);
+    gpio_wakeup_enable(GPIO_NUM_4, GPIO_INTR_LOW_LEVEL);
+    esp_sleep_enable_gpio_wakeup();
+}
+
+static void disable_gpio_wakeup()
+{
+    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+
+    gpio_wakeup_disable(GPIO_NUM_3);
+    gpio_wakeup_disable(GPIO_NUM_4);
+
+    gpio_intr_disable(GPIO_NUM_3);
+    gpio_intr_disable(GPIO_NUM_4);
+
+    gpio_set_intr_type(GPIO_NUM_3, GPIO_INTR_DISABLE);
+    gpio_set_intr_type(GPIO_NUM_4, GPIO_INTR_DISABLE);
+
+    while (gpio_get_level(GPIO_NUM_3) == 0 || \
+            gpio_get_level(GPIO_NUM_4) == 0)
+    {
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = ((1ULL << GPIO_NUM_3) | (1ULL << GPIO_NUM_4)),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf);
+}
 
 /**
  * @brief Manages power state and handles sleep transitions.
@@ -65,8 +111,9 @@ void power_manager_task(void *pvParameters)
             // Programmer le sleep
             ESP_LOGW("POWER MANAGER: ", "sleep start");
             esp_sleep_enable_timer_wakeup(timer_value * 1000ULL);
-            esp_light_sleep_start();
+            enable_gpio_wakeup();
 
+            esp_light_sleep_start();
             while (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
             {
                 __asm__("nop");
@@ -74,6 +121,7 @@ void power_manager_task(void *pvParameters)
 
             esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
             ESP_LOGW("POWER MANAGER", "Wakeup reason: %d", wakeup_reason);
+            disable_gpio_wakeup();
 
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {

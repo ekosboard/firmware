@@ -244,6 +244,14 @@ static esp_err_t init_input_event_queue(void)
 esp_err_t init_input_manager_task(void)
 {
     ESP_LOGI("INIT_INPUT_MANAGER_TASK", "Start init");
+    gpio_config_t io_conf = {
+        .pin_bit_mask = ((1ULL << SWITCH_1_GPIO) | (1ULL << SWITCH_2_GPIO)),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf);
 
     if (init_input_event_queue() != ESP_OK)
         ESP_LOGE("INIT_INPUT_MANAGER_TASK", "Error init input queue");
