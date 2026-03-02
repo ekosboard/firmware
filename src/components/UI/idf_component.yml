@@ -2,4 +2,4 @@
 dependencies:
   ## Required IDF version
   idf: ">=5.1.4"
-  lvgl/lvgl: "^9"
+  lvgl/lvgl: "9.2.2"
