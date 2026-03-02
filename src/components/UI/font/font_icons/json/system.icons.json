@@ -1,0 +1,187 @@
+{
+    "triangle_up":{
+        "icon":"󱨊",
+        "codepoint":"U+F1A0A"
+    },
+    "triangle_down":{
+        "icon":"󱨉",
+        "codepoint":"U+F1A09"
+    },
+    "arrow_up":{
+        "icon": "󰁝",
+        "codepoint":"U+F005D"
+    },
+    "arrow_down":{
+        "icon": "󰁅",
+        "codepoint":"U+F0045"
+    },
+    "arrow_left":{
+        "icon": "󰁍",
+        "codepoint":"U+F004D"
+    },
+    "arrow_right":{
+        "icon": "󰁔",
+        "codepoint":"U+F0054"
+    },
+    "arrow_switch_fa":{
+        "icon": "",
+        "codepoint":"U+F0EC"
+    },
+    "arrow_switch_oct":{
+        "icon": "",
+        "codepoint":"U+F443"
+    },
+    "arrow_swap":{
+        "icon": "",
+        "codepoint":"U+EBCB"
+    },
+    "check":{
+        "icon": "󰄬",
+        "codepoint":"U+F012C"
+    },
+    "close":{
+        "icon": "󰅖",
+        "codepoint":"U+F0156"
+    },
+    "sync":{
+        "icon": "󰓦",
+        "codepoint":"U+F04E6"
+    },
+    "info":{
+        "icon": "󰋽",
+        "codepoint":"U+F02FD"
+    },
+    "refresh":{
+        "icon":"󰑐",
+        "codepoint":"U+F0450"
+    },
+    "cloud_download":{
+        "icon":"",
+        "codepoint":"U+EAC2"
+    },
+    "cloud_download_md":{
+        "icon":"󰅢",
+        "codepoint":"U+F0162"
+    },
+    "gear":{
+        "icon": "",
+        "codepoint": "U+F013"
+    },
+    "sleep":{
+        "icon":"󰒲",
+        "codepoint":"U+F04B2"
+    },
+    "chart_line":{
+        "icon": "󰄪",
+        "codepoint": "U+F012A"
+    },
+    "pin":{
+        "icon":"󰐃",
+        "codepoint":"U+F0403"
+    },
+    "bell":{
+        "icon":"󰂚",
+        "codepoint":"U+F009A"
+    },
+    "sd_card":{
+        "icon":"󰟜",
+        "codepoint":"U+F07DC"
+    },
+    "qrcode":{
+        "icon":"󰐲",
+        "codepoint":"U+F0432"
+    },
+    "server_fa":{
+        "icon":"",
+        "codepoint":"U+F233"
+    },
+    "server_md":{
+        "icon":"󰒋",
+        "codepoint":"U+F048B"
+    },
+    "finance":{
+        "icon":"󰠟",
+        "codepoint":"U+F081F"
+    },
+    "download_fa":{
+        "icon":"",
+        "codepoint":"U+F019"
+    },
+    "download_md":{
+        "icon":"󰇚",
+        "codepoint":"U+F01DA"
+    },
+    "download_oct":{
+        "icon":"",
+        "codepoint":"U+F409"
+    },
+    "layout":{
+        "icon":"",
+        "codepoint":"U+EBEB"
+    },
+    "view_dashboard":{
+        "icon":"󰕮",
+        "codepoint":"U+F056E"
+    },
+    "view_dashboard_outline":{
+        "icon":"󰨝",
+        "codepoint":"U+F0A1D"
+    },
+    "view_dashboard_edit":{
+        "icon":"󱥇",
+        "codepoint":"U+F1947"
+    },
+    "view_dashboard_edit_outline":{
+        "icon":"󱥈",
+        "codepoint":"U+F1948"
+    },
+    "view_dashboard_variant":{
+        "icon":"󰡃",
+        "codepoint":"U+F0843"
+    },
+    "view_dashboard_variant_outline":{
+        "icon":"󱒉",
+        "codepoint":"U+F1489"
+    },
+    "view_quilt":{
+        "icon":"󰕴",
+        "codepoint":"U+F0574"
+    },
+    "view_compact":{
+        "icon":"󰹫",
+        "codepoint":"U+F0E6B"
+    },
+    "view_grid":{
+        "icon":"󰕰",
+        "codepoint":"U+F0570"
+    },
+    "view_grid_outline":{
+        "icon":"󱇙",
+        "codepoint":"U+F11D9"
+    },
+    "view_grid_plus":{
+        "icon":"󰾍",
+        "codepoint":"U+F0F8D"
+    },
+    "view_grid_plus_outline":{
+        "icon":"󱇚",
+        "codepoint":"U+F11DA"
+    },
+    "view_split_vertical":{
+        "icon":"󰯌",
+        "codepoint":"U+F0BCC"
+    },
+    "layers":{
+        "icon":"󰌨",
+        "codepoint":"U+F0328"
+    },
+    "layers_plus":{
+        "icon":"󰹍",
+        "codepoint":"U+F0E4D"
+    },
+    "layers_minus":{
+        "icon":"󰹌",
+        "codepoint":"U+F0E4C"
+    }
+
+}

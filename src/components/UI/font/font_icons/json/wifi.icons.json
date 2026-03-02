@@ -1,0 +1,18 @@
+{
+    "wifi":{
+        "icon":"󰖩",
+        "codepoint":"U+F05A9"
+    },
+    "wifi_off":{
+        "icon":"󰖪",
+        "codepoint":"U+F05AA"
+    },
+    "wifi_alert":{
+        "icon":"󱚵",
+        "codepoint":"U+F16B5"
+    },
+    "wifi_check":{
+        "icon":"󱚽",
+        "codepoint":"U+F16BD"
+    }
+}

@@ -1,0 +1,9 @@
+menu "Smart Paper -- Touch Controller"
+
+config USE_GT911
+    bool "Enable GT911 touch controller"
+    default y
+    help
+        Enable support for the GT911 capacitive touch controller.
+
+endmenu

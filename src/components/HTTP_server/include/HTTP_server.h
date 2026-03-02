@@ -38,22 +38,25 @@ extern "C" {
     ////////////////////////////////////////////////////////////////////////////////
     //  HTTP_SERVER MAIN
     ////////////////////////////////////////////////////////////////////////////////
-    void    http_server(void *pvParameters);
+    void            http_server(void *pvParameters);
+    esp_err_t       stop_webserver(void);
+    httpd_handle_t  get_server_handler(void);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  QUEUE
     ////////////////////////////////////////////////////////////////////////////////
-    esp_err_t init_widget_update_queue(void);
-    esp_err_t push_widget_update_queue(widget_update_t *widget);
-    esp_err_t pop_widget_update_queue(widget_update_t *widget);
+    esp_err_t   init_widget_update_queue(void);
+    void        delete_widget_update_queue(void);
+    esp_err_t   push_widget_update_queue(widget_update_t *widget);
+    esp_err_t   pop_widget_update_queue(widget_update_t *widget);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  UTILS
     ////////////////////////////////////////////////////////////////////////////////
-    esp_err_t get_json_object_item(cJSON *json, const char *key, cJSON **item);
-    esp_err_t get_json_string_item(cJSON *json, const char *key, cJSON **item, const char **string_value);
-    esp_err_t get_json_number_item(cJSON *json, const char *key, cJSON **item, int *number_value);
-    esp_err_t read_http_request_content(httpd_req_t *req, char **content);
+    esp_err_t   get_json_object_item(cJSON *json, const char *key, cJSON **item);
+    esp_err_t   get_json_string_item(cJSON *json, const char *key, cJSON **item, const char **string_value);
+    esp_err_t   get_json_number_item(cJSON *json, const char *key, cJSON **item, int *number_value);
+    esp_err_t   read_http_request_content(httpd_req_t *req, char **content);
 
 #ifdef __cplusplus
 } /*extern "C"*/

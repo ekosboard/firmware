@@ -1,6 +1,8 @@
 #include "EPD.h"
 #include "filesystem_interface.h"
+#include "freertos/idf_additions.h"
 #include "wifi.h"
+#include "wifi_switch.h"
 
 static const char *TAG_AP = "WiFi event AP";
 static const char *TAG_STA = "WiFi event STA";
@@ -44,6 +46,13 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
+        if (check_wifi_is_switching() == true)
+        {
+            ESP_LOGI(TAG_STA, "Switching WiFi: skip auto-reconnect");
+            s_retry_num = 0;
+            return;
+        }
+
         if (s_retry_num < WIFI_STA_MAX_RETRY)
         {
             esp_wifi_connect();
@@ -54,7 +63,6 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         {
             s_retry_num = 0;
             xEventGroupSetBits(s_wifi_event_group, WIFI_STA_FAIL_BIT);
-            nvs_setup_state_write_network_status(STA_DISCONNECTED);
         }
         ESP_LOGI(TAG_STA,"connect to the AP fail");
     }
@@ -67,19 +75,6 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
 
         // Set timezone to Europe/Paris
         init_sntp("CET-1CEST,M3.5.0,M10.5.0/3");
-        nvs_setup_state_write_network_status(STA_CONNECTED);
-
-        /* TODO: affichage seulement pendant la config */
-        if (lvgl_lock(-1))
-        {
-            wifi_ap_record_t ap_info;
-            if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
-            {
-                draw_screen_wifi_success((char*)ap_info.ssid);
-            }
-
-            lvgl_unlock();
-        }
 
         /* TODO a faire a la fermeture de l'app ou deco client */
         /* esp_netif_t *esp_netif_ap = (esp_netif_t *) arg; */

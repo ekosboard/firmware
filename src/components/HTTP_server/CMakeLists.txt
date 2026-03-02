@@ -1,12 +1,34 @@
 idf_component_register(
     SRCS 
     "HTTP_server.c"
-    "api/system/wifi/credentials.c"
-    "api/system/wifi/connect.c"
+    "api/system/config_dispatcher.c"
+    "api/system/config/cfg_complete.c"
+    "api/system/config/cfg_device_info.c"
+    "api/system/config/cfg_ping.c"
+    "api/system/config/cfg_diagnostic.c"
+    "api/system/config/cfg_reboot.c"
+    "api/system/config/cfg_timeout.c"
+    "api/system/ota_dispatcher.c"
+    "api/system/ota/ota_commit.c"
+    "api/system/ota/ota_info.c"
+    "api/system/ota/ota_reboot.c"
+    "api/system/ota/ota_start.c"
+    "api/system/ota/ota_status.c"
+    "api/system/ota/ota_upload.c"
+    "api/system/wifi_dispatcher.c"
+    "api/system/wifi/wifi_credentials.c"
+    "api/system/wifi/wifi_connect.c"
+    "api/system/wifi/wifi_scan.c"
+    "api/system/wifi/wifi_status.c"
+    "api/system/wifi/wifi_switch.c"
     "api/ui/widgets.c"
+    "api/ui/widgets/available.c"
+    "api/ui/widgets/{name}.c"
+    "api/ui/widgets/widgets_dispatcher.c"
     "queue/widget_update.c"
     "utils/json.c"
     "utils/read_http_request_content.c"
+    "utils/config_timeout_ctx.c"
 
     INCLUDE_DIRS 
     "include"
@@ -19,4 +41,5 @@ idf_component_register(
     esp_wifi
     json
     UI
+    ota
 )

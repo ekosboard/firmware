@@ -1,46 +1,54 @@
 #include "main.h"
+#include "esp_event.h"
+#include "freertos/idf_additions.h"
+#include "portmacro.h"
+#include "state_manager.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 
-/* Main application task responsible for orchestrating setup tasks */
-/* @Parameters: */
-/*     - pvParameters: Pointer to the task parameters, not used in this implementation. */
-/* @Behavior: */
-/*     - Creates tasks for hardware, UI, and network setup. */
-/*     - Sends an initial notification to the "setup_hardware" task. */
-/*     - Monitors setup progress and writes the setup status to NVS upon completion. */
-/*     - Notifies the screen manager to draw the active screen once setup is finished. */
-/* @Return: */
-/*     - None */
-void app_start(void *pvParameters)
-{
-    xTaskCreate(setup_hardware, "setup_hardware", 4096, NULL, 2, NULL);
-    xTaskCreate(setup_ui, "setup_ui", 4096, NULL, 2, NULL);
-    xTaskCreate(setup_network, "setup_network", 4096, NULL, 2, NULL);
 
-    TaskHandle_t setup_hardware_handle = xTaskGetHandle("setup_hardware");
-    if (setup_hardware_handle != NULL)
-        xTaskNotifyGive(setup_hardware_handle);
 
-    while (42)
-    {
-        if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != 0)
-        {
-            ESP_LOGI("APP_START", "NOTIF");
-            nvs_setup_state_write_setup_status(0);
-
-            //Create a task awaiting for notif
-            vTaskDelay(pdMS_TO_TICKS(15000));
-            setup_state_t setup_state;
-            nvs_setup_state_read_all(&setup_state);
-            if (setup_state.setup_status != -1)
-            {
-                display_t *display = get_main_display();
-                notify_screen_manager(SCREEN_ACTION_DRAW_WITH_DRIVER, display->active_screen);
-            }
-        }
-    }
-}
+static TaskHandle_t setup_task_handle[SETUP_TASK_COUNT];
 
 void app_main(void)
 {
-    xTaskCreate(app_start, "app_start", 4096, NULL, 2, NULL);
+
+    xTaskCreate(power_manager_task,
+            "power_manager_task",
+            4096,
+            &setup_task_handle[UPDATE_MANAGER_TASK],
+            3,
+            &setup_task_handle[POWER_MANAGER_TASK]);
+
+    xTaskCreate(update_manager_task,
+            "update_manager_task",
+            (4096 * 2),
+            &setup_task_handle[POWER_MANAGER_TASK],
+            3,
+            &setup_task_handle[UPDATE_MANAGER_TASK]);
+
+    xTaskCreate(setup_ui_tasks,
+            "setup_ui",
+            4096,
+            NULL,
+            2,
+            &setup_task_handle[SETUP_UI_TASK]);
+
+    xTaskCreate(setup_timeout_task,
+            "setup_timeout",
+            4096,
+            NULL,
+            2,
+            &setup_task_handle[SETUP_TIMEOUT_TASK]);
+
+    state_manager_init(setup_task_handle);
+    esp_event_post_to(state_manager_loop,
+            INIT_EVENT,
+            INIT_BEGIN,
+            NULL,
+            0,
+            portMAX_DELAY);
+
 }

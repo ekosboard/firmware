@@ -4,41 +4,41 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "esp_err.h"
 #include "filesystem_interface.h"
 #include "esp_log.h"
 
 #include "wifi.h"
 #include "HTTP_server.h"
+#include "HTTPS_request.h"
 #include "UI.h"
 #include "EPD.h"
 #include "filesystem_interface.h"
 
-// Bit masks for screen actions
-#define SCREEN_ID_MASK          0x000000FF
-#define SCREEN_ACTION_MASK      0x0000FF00
+// Bit mask for power manager notif
+#define TIMER_MASK       (~WIFI_REQUIRED)  // Masque pour isoler la valeur du timer
 
-// Action value
-#define SCREEN_ACTION_NONE                   0x00
-#define SCREEN_ACTION_CLEAR                  0x01
-#define SCREEN_ACTION_CLEAR_DRIVER           0x02
-#define SCREEN_ACTION_DRAW                   0x04
-#define SCREEN_ACTION_SWITCH                 0x08
+// Default timeout value for setup_timeout_task
+#define DEFAULT_TIMEOUT_MS (60 * 60 * 1000) // 60 min par défaut
 
-// Composite actions
-#define SCREEN_ACTION_CLEAR_ONLY             (SCREEN_ACTION_CLEAR)
-#define SCREEN_ACTION_CLEAR_WITH_DRIVER      (SCREEN_ACTION_CLEAR | SCREEN_ACTION_CLEAR_DRIVER)
-#define SCREEN_ACTION_DRAW_ONLY              (SCREEN_ACTION_DRAW)
-#define SCREEN_ACTION_DRAW_WITH_DRIVER       (SCREEN_ACTION_DRAW | SCREEN_ACTION_CLEAR_DRIVER)
-#define SCREEN_ACTION_SWITCH_ONLY            (SCREEN_ACTION_SWITCH)
-#define SCREEN_ACTION_SWITCH_AND_CLEAR       (SCREEN_ACTION_SWITCH | SCREEN_ACTION_CLEAR)
+typedef enum {
+    SETUP_UI_TASK = 0,
+    SETUP_TIMEOUT_TASK,
+    POWER_MANAGER_TASK,
+    UPDATE_MANAGER_TASK,
+    SETUP_TASK_COUNT // Nombre total de tâches
+} setup_task_index_t;
 
-void app_start(void *pvParameters);
-void setup_hardware(void *pvParameters);
-void setup_ui(void *pvParameters);
-void setup_network(void *pvParameters);
+void        app_start(void *pvParameters);
+esp_err_t   setup_persistent_state(void);
+void        setup_ui_tasks(void *pvParameters);
+void        setup_network(void *pvParameters);
+void        setup_timeout_task(void *pvParameter);
 
-void widget_manager_task(void *pvParameters);
-void screen_manager_task(void *pvParameters);
-void notify_screen_manager(uint8_t action, uint8_t screen_id);
+void        widget_manager_task(void *pvParameters);
+void        notify_screen_manager(uint8_t action, uint8_t screen_id);
+
+void        power_manager_task(void *pvParameters);
+void        update_manager_task(void *pvParameters);
 
 #endif

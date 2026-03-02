@@ -1,8 +1,10 @@
 #include "HTTP_server.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 #include "portmacro.h"
+#include "widget.h"
 
 static QueueHandle_t widget_update_queue;
 
@@ -18,6 +20,13 @@ esp_err_t init_widget_update_queue(void)
         return ESP_FAIL;
 
     return ESP_OK;
+}
+
+/* Delete the widget update queue. */
+void delete_widget_update_queue(void)
+{
+    vQueueDelete(widget_update_queue);
+    widget_update_queue = NULL;
 }
 
 /* Push a widget update to the queue. */

@@ -1,0 +1,33 @@
+{
+    "id": 8,
+    "widget_type": "seedbox_monitoring",
+    "label": "Seedbox monitoring",
+    "iconType": "\udb81\udc8b",
+    "width": 400,
+    "height": 200,
+    "position": {
+        "x": 200,
+        "y": 0
+    },
+    "update_interval": "6h",
+    "flag": 2147483648,
+    "config": {
+        "api_key": "",
+        "units": ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 8
+    },
+    "elements": [
+        {
+            "label": "title_label",
+            "element_type": "icon",
+            "mock_data": "\udb81\udc8b"
+        }
+    ]
+}

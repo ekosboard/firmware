@@ -31,3 +31,13 @@ sdkconfig.old
 
 .gdb_history
 Session.vim
+
+# Widgets autogen
+src/components/widgets/include/widget_autogen.h
+src/components/widgets/widget_autogen.c
+src/components/widgets/Kconfig.widgets
+
+# Fonts/icon autogen
+src/components/UI/font/scripts/generated
+src/components/UI/font/scripts/icons.lock.json
+src/components/UI/font/scripts/icons.symbols.txt

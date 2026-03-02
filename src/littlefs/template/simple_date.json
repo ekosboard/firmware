@@ -1,0 +1,32 @@
+{
+    "id": 4,
+    "widget_type": "simple_date",
+    "label": "Simple Date",
+    "iconType": "\udb80\udcf6",
+    "width": 250,
+    "height": 200,
+    "position": {
+        "x": 10,
+        "y": 10
+    },
+    "update_interval": "1d",
+    "flag": 0,
+    "config": {
+        "units": ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 5
+    },
+    "elements": [
+        {
+            "label": "day_of_week_label",
+            "element_type": "icon",
+            "mock_data": "\udb80\udcf6"
+        }
+    ]
+}

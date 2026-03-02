@@ -7,20 +7,41 @@ idf_component_register(
     "draw/btn_bottom_right.c"
     "draw/screen/wifi_config.c"
     "draw/screen/wifi_success.c"
-    "draw/widget/sensor_BME680.c"
-    "draw/widget/status_bar.c"
-    "font/roboto_48.c"
-    "font/roboto_64.c"
-    "font/roboto_96.c"
-    "font/roboto_48_bold.c"
-    "font/roboto_64_bold.c"
-    "font/roboto_96_bold.c"
-    "font/symbol_nerdfont.c"
-    "font/symbol_nerdfont_48.c"
+    "draw/screen/splash_screen.c"
+    "font/font_C/roboto_bold_14.c"
+    "font/font_C/roboto_bold_16.c"
+    "font/font_C/roboto_bold_18.c"
+    "font/font_C/roboto_bold_22.c"
+    "font/font_C/roboto_bold_24.c"
+    "font/font_C/roboto_bold_28.c"
+    "font/font_C/roboto_bold_32.c"
+    "font/font_C/roboto_bold_48.c"
+    "font/font_C/roboto_bold_64.c"
+    "font/font_C/roboto_bold_96.c"
+    "font/font_C/roboto_bold_128.c"
+    "font/font_C/roboto_reg_14.c"
+    "font/font_C/roboto_reg_16.c"
+    "font/font_C/roboto_reg_18.c"
+    "font/font_C/roboto_reg_22.c"
+    "font/font_C/roboto_reg_24.c"
+    "font/font_C/roboto_reg_28.c"
+    "font/font_C/roboto_reg_32.c"
+    "font/font_C/roboto_reg_48.c"
+    "font/font_C/roboto_reg_64.c"
+    "font/font_C/roboto_reg_96.c"
+    "font/font_C/roboto_reg_128.c"
+    "font/font_icons/symbol_nerdfont_16.c"
+    "font/font_icons/symbol_nerdfont_18.c"
+    "font/font_icons/symbol_nerdfont_22.c"
+    "font/font_icons/symbol_nerdfont_24.c"
+    "font/font_icons/symbol_nerdfont_28.c"
+    "font/font_icons/symbol_nerdfont_32.c"
+    "font/font_icons/symbol_nerdfont_48.c"
+    "font/font_icons/symbol_nerdfont_64.c"
+    "font/font_icons/symbol_nerdfont_96.c"
+    "font/font_icons/symbol_nerdfont_128.c"
+    "img/logo.c"
     "lvgl_utils/screen_manager.c"
-    "widget_utils/widget_json.c"
-    "widget_utils/widget_list.c"
-    "widget_utils/widget_list_json.c"
 
     INCLUDE_DIRS 
     "include"
@@ -28,6 +49,10 @@ idf_component_register(
     REQUIRES
     lvgl
     EPD
+    touch_gt911
     filesystem_interface
     json
+    HTTPS_request
+    wifi
+    widgets
 )

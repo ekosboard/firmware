@@ -1,0 +1,32 @@
+{
+    "id": 9,
+    "widget_type": "side_bar",
+    "label": "Side bar",
+    "iconType": "\uebeb",
+    "width": 64,
+    "height": 454,
+    "position": {
+        "x": 728,
+        "y": 8
+    },
+    "update_interval": "1d",
+    "flag": 0,
+    "config": {
+        "units": ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 5
+    },
+    "elements": [
+        {
+            "label": "status_icon",
+            "element_type": "icon",
+            "mock_data": "\uebeb"
+        }
+    ]
+}

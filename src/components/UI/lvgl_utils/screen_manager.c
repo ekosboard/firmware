@@ -1,5 +1,6 @@
 #include "UI.h"
 #include "display/lv_display.h"
+#include <time.h>
 
 /* Clears all elements from the specified LVGL screen object. */
 /* @Parameters: */
@@ -38,6 +39,11 @@ void lvgl_draw_screen(screen_t *screen, void (*clear)(void))
 
     if (lvgl_lock(-1))
     {
+        if (clear != NULL)
+        {
+            clear();
+        }
+
         while (head != NULL)
         {
             if (head->widget->lv_obj == NULL)
@@ -46,11 +52,31 @@ void lvgl_draw_screen(screen_t *screen, void (*clear)(void))
             }
             head = head->next;
         }
+
+        /* if (clear != NULL) */
+        /* { */
+        /*     clear(); */
+        /* } */
+        lv_screen_load(screen->lv_screen);
+        lvgl_unlock();
+    }
+}
+
+void lvgl_force_refresh_screen(screen_t *screen, void (*clear)(void))
+{
+    if (lvgl_lock(-1))
+    {
         if (clear != NULL)
         {
             clear();
         }
-        lv_screen_load(screen->lv_screen);
+
+        if (screen != NULL)
+        {
+            lv_obj_invalidate(screen->lv_screen);
+            lv_refr_now(NULL);
+        }
+
         lvgl_unlock();
     }
 }

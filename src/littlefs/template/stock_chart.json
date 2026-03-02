@@ -1,0 +1,36 @@
+{
+    "id": 7,
+    "widget_type": "stock_chart",
+    "label": "Stock chart",
+    "iconType": "\uf201",
+    "width": 400,
+    "height": 200,
+    "position": {
+        "x": 200,
+        "y": 0
+    },
+    "update_interval": "1d",
+    "flag": 2147483648,
+    "config": {
+        "function":     "GOLD_SILVER_HISTORY",
+        "symbol":       "XAU",
+        "interval":     "daily",
+        "apikey":       "",
+        "units":        ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 5
+    },
+    "elements": [
+        {
+            "label": "row_checkbox",
+            "element_type": "icon",
+            "mock_data": "\uf201"
+        }
+    ]
+}

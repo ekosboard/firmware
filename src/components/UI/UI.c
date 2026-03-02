@@ -1,8 +1,12 @@
 #include "UI.h"
+#include "EPD.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "filesystem_interface.h"
+#include "freertos/idf_additions.h"
+#include "freertos/projdefs.h"
 #include "widget.h"
+#include <stdint.h>
 #include <stdio.h>
 
 static display_t display;
@@ -65,6 +69,22 @@ screen_t *get_active_screen(void)
     return &display->screen[display->active_screen];
 }
 
+esp_err_t set_active_screen(uint8_t screen_id)
+{
+    display_t *display = get_main_display();
+    if (screen_id == display->active_screen)
+        return ESP_OK;
+
+    if (screen_id >= MAX_SCREEN)
+        return ESP_FAIL;
+
+    if (nvs_setup_state_write_screen_id(screen_id) != ESP_OK)
+        return ESP_FAIL;
+
+    display->active_screen = screen_id;
+    return ESP_OK;
+}
+
 /* Initializes the user interface by setting up the display and widget lists */
 /* @Parameters: None */
 /* @Return:
@@ -82,4 +102,37 @@ esp_err_t init_ui(void)
     init_display_structure();
 
     return ESP_OK;
+}
+
+esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks)
+{
+    display_t *disp = get_main_display();
+    TickType_t start = xTaskGetTickCount();
+
+    // Attendre que LVGL ait envoyé le dernier flush
+    while (!lv_display_flush_is_last(disp->lv_display))
+    {
+        if ((xTaskGetTickCount() - start) >= timeout_ticks)
+        {
+            return ESP_ERR_TIMEOUT;
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
+    EventBits_t bits = xEventGroupWaitBits(
+        get_epd_event_group(),
+        EPD_EVENT_FLUSH_COMPLETE,
+        pdTRUE,
+        pdTRUE,
+        timeout_ticks
+    );
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    if (bits & EPD_EVENT_FLUSH_COMPLETE)
+    {
+        return ESP_OK;
+    }
+
+    return ESP_ERR_TIMEOUT;
 }
