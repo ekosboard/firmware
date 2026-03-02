@@ -23,8 +23,8 @@
 #include "filesystem_interface.h"
 
 
-#define WIFI_AP_SSID                "SmartPaper"
-#define WIFI_AP_PASS                "smartpaper"
+#define WIFI_AP_SSID                "EKOS-Connect"
+#define WIFI_AP_PASS                "123456789"
 #define WIFI_AP_CHANNEL             1
 #define WIFI_AP_MAX_STA_CONN        4
 
@@ -34,8 +34,8 @@
 #define WIFI_STA_FAIL_BIT           BIT1
 #define WIFI_STA_MAX_RETRY          5
 
-#define MDNS_HOSTNAME               "smart-paper"
-#define MDNS_INSTANCE               "SmartPaper Web Server"
+#define MDNS_HOSTNAME               "ekos"
+#define MDNS_INSTANCE               "EKOS Web Server"
 
 #define STA_CONNECTED               0
 #define STA_DISCONNECTED            1

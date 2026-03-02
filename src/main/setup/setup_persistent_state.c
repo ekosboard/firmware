@@ -61,6 +61,10 @@ esp_err_t setup_persistent_state(void)
                  "S3-%02X%02X%02X%02X%02X%02X",
                  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
+        snprintf(device_info.device_name, sizeof(device_info.device_name),
+                 "EKOS-%02X%02X%02X%02X%02X%02X",
+                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
         device_info_save(&device_info);
     }
     return ESP_OK;

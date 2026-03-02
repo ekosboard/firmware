@@ -5,6 +5,7 @@
 /* #include "epd_interface.h" */
 #include "display/lv_display.h"
 #include "display/lv_display_private.h"
+#include "esp_attr.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "misc/lv_area.h"
@@ -30,7 +31,7 @@ static SemaphoreHandle_t lvgl_mux = NULL;
 
 static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
-    static uint8_t dst_buffer[(GDEY042T81_ARRAY * 2)];
+    EXT_RAM_BSS_ATTR static uint8_t dst_buffer[(GDEY075T7_ARRAY * 2)];
 
     size_t packed_index = 0;
     for (size_t y = 0; y < EPD_HEIGHT; y++) 
@@ -109,7 +110,7 @@ static void init_driver_grayscale(display_t *display)
     lv_display_set_color_format(display->lv_display, LV_COLOR_FORMAT_L8);
     lv_display_set_user_data(display->lv_display, display->display_driver);
 
-    static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT)];
+    EXT_RAM_BSS_ATTR static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT)];
     lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT), LV_DISPLAY_RENDER_MODE_FULL);
 }
 
@@ -126,8 +127,9 @@ static void init_driver_monochrome(display_t *display)
     lv_display_set_color_format(display->lv_display, LV_COLOR_FORMAT_I1);
     lv_display_set_user_data(display->lv_display, display->display_driver);
 
-    static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT / 8) + 8];
-    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT);
+    EXT_RAM_BSS_ATTR static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT / 8) + 8];
+    /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT); */
+    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL);
 }
 
 /* @Brief Locks access to LVGL to prevent concurrent calls to LVGL functions. */
@@ -203,7 +205,8 @@ esp_err_t  init_lvgl(display_t *display)
 
     lv_init();
     init_driver_monochrome(display);
-    lv_display_set_antialiasing(display->lv_display, true);
+    /* init_driver_grayscale(display); */
+    lv_display_set_antialiasing(display->lv_display, false);
 #ifdef CONFIG_USE_GT911
     lv_port_indev_init();
 #endif

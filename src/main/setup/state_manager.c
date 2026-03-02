@@ -18,7 +18,7 @@ void state_manager_init(TaskHandle_t *setup_task_handle)
         .queue_size = 4,
         .task_name = "state_manager_loop",
         .task_priority = 10,
-        .task_stack_size = 4096,
+        .task_stack_size = (4096 * 2),
         .task_core_id = 0
     };
 

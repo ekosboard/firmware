@@ -19,7 +19,7 @@ static void GDEY075T7_display_image_partial_full(const unsigned char *data, bool
 
 epd_interface_t gdey075t7_driver = {
     .init = GDEY075T7_init_driver,
-    .clear = GDEY075T7_clear_partial,
+    .clear = GDEY075T7_clear_fast,
     .display_image = GDEY075T7_display_image,
     .display_image_fast = GDEY075T7_display_image_fast,
     .display_image_grayscale = GDEY075T7_display_image_grayscale,
@@ -165,9 +165,13 @@ static void GDEY075T7_init_display(void)
     GDEY075T7_write_cmd(0X15); // DUSPI
     GDEY075T7_write_data(0x00); // disabled
 
-    GDEY075T7_write_cmd(0X50); // VCOM AND DATA INTERVAL SETTING
-    GDEY075T7_write_data(0x29);//29 // LUTKW, N2OCP: copy new to old
-    GDEY075T7_write_data(0x07); // CDI 10hsynch (default)
+    GDEY075T7_write_cmd(0X50);     //VCOM AND DATA INTERVAL SETTING
+    GDEY075T7_write_data(0x10);
+    GDEY075T7_write_data(0x07);
+
+    /* GDEY075T7_write_cmd(0X50); // VCOM AND DATA INTERVAL SETTING */
+    /* GDEY075T7_write_data(0x29);//29 // LUTKW, N2OCP: copy new to old */
+    /* GDEY075T7_write_data(0x07); // CDI 10hsynch (default) */
 
     GDEY075T7_write_cmd(0X60); // TCON SETTING
     GDEY075T7_write_data(0x22); // S2G G2S, 12 (default)
@@ -221,6 +225,7 @@ static void GDEY075T7_display_image(const unsigned char *data)
     GDEY075T7_init_display();
     GDEY075T7_write_display(data);
     GDEY075T7_update_display();
+    vTaskDelay(pdMS_TO_TICKS(3000));
     GDEY075T7_sleep();
 }
 
@@ -241,6 +246,7 @@ static void GDEY075T7_clear_fast(void)
     GDEY075T7_init_fast_display();
     GDEY075T7_write_clear();
     GDEY075T7_update_display();
+    vTaskDelay(pdMS_TO_TICKS(1500));
     GDEY075T7_sleep();
 }
 
@@ -250,6 +256,7 @@ static void GDEY075T7_display_image_fast(const unsigned char *data)
     GDEY075T7_init_fast_display();
     GDEY075T7_write_display(data);
     GDEY075T7_update_display();
+    vTaskDelay(pdMS_TO_TICKS(1500));
     GDEY075T7_sleep();
 }
 

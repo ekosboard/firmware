@@ -15,10 +15,12 @@
 void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data)
 {
     TaskHandle_t *setup_task_handle = (TaskHandle_t*)handler_arg;
+    display_t *display = get_main_display();
 
     switch (id)
     {
         case CONFIG_BEGIN:
+            ESP_LOGI("CONFIG_BEGIN", "");
             xTaskCreate(http_server,
                     "http_server",
                     4096,
@@ -29,16 +31,40 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
 
             config_timeout_ctx_set_timeout(DEFAULT_TIMEOUT_MS);
             xTaskNotify(setup_task_handle[SETUP_TIMEOUT_TASK], DEFAULT_TIMEOUT_MS, eSetValueWithOverwrite);
-            //FIXME: long timeout ici! maybe infinite!
+
+            EventBits_t wifi_event_bits = xEventGroupWaitBits(
+                    s_wifi_event_group,
+                    WIFI_STA_CONNECTED_BIT | WIFI_STA_FAIL_BIT,
+                    pdFALSE,
+                    pdFALSE,
+                    portMAX_DELAY);
+
+            if (wifi_event_bits & WIFI_STA_CONNECTED_BIT)
+            {
+                if (lvgl_lock(-1))
+                {
+                    wifi_ap_record_t ap_info;
+                    if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
+                    {
+                        draw_screen_wifi_success((char*)ap_info.ssid);
+                    }
+                    lvgl_unlock();
+                }
+            }
             break;
 
         case CONFIG_SAVE:
             break;
 
         case CONFIG_BEGIN_ISR:
-            ESP_LOGI("CONFIG", "ISR");
+            ESP_LOGI("CONFIG_BEGIN_ISR", "");
+            xEventGroupWaitBits(
+                    s_wifi_event_group,
+                    WIFI_STA_CONNECTED_BIT,
+                    pdFALSE,
+                    pdTRUE,
+                    pdMS_TO_TICKS(10000));
 
-            ESP_ERROR_CHECK(esp_wifi_start());
             xTaskCreate(http_server,
                     "http_server",
                     4096,
@@ -53,23 +79,22 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
             break;
 
         case CONFIG_EXIT:
+            ESP_LOGI("CONFIG_EXIT", "ENTER");
             if (get_server_handler() != NULL) 
             {
                 stop_webserver();
+                ESP_LOGI("CONFIG_EXIT", "Stop webserver");
             }
 
-            display_t *display = get_main_display();
-            notify_screen_manager(SCREEN_ACTION_DRAW_WITH_DRIVER, display->active_screen);
-            xEventGroupWaitBits(get_epd_event_group(),
-                    EPD_EVENT_FLUSH_COMPLETE,
-                    pdTRUE,
-                    pdFALSE,
-                    portMAX_DELAY
-                    );
-
+            notify_screen_manager(SCREEN_ACTION_DRAW_ONLY, display->active_screen);
+            epd_wait_flush_complete(pdMS_TO_TICKS(5000));
+            notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
+            epd_wait_flush_complete(pdMS_TO_TICKS(5000));
 
             suspend_input_manager_task();
             xTaskNotifyGive(setup_task_handle[UPDATE_MANAGER_TASK]);
+
+            ESP_LOGI("CONFIG_EXIT", "EXIT");
             break;
 
         default:

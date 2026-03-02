@@ -1,6 +1,7 @@
 #ifndef UI_COMPONENT_H
 #define UI_COMPONENT_H
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include "epd_interface.h"
@@ -24,7 +25,7 @@
 #define LVGL_TASK_STACK_SIZE    (16 * 1024)
 #define LVGL_TASK_PRIORITY      10
 
-#define MAX_SCREEN              2 //CONFIG_DISPLAY_SCREEN
+#define MAX_SCREEN              3 //CONFIG_DISPLAY_SCREEN
 #define LAYOUT_TYPE             3 //config un enum pour representer un layout
 
 #define WIDGET_INDEX_PATH_BASE  "widget_index_screen_"
@@ -62,9 +63,11 @@ extern "C" {
     void            lvgl_clear_screen(screen_t *screen, void (*clear)(void));
     void            lvgl_draw_screen(screen_t *screen, void (*clear)(void));
     void            lvgl_switch_screen(screen_t *screen, void (*clear)(void));
+    void            lvgl_force_refresh_screen(screen_t *screen, void (*clear)(void));
 
     display_t       *get_main_display(void);
     screen_t        *get_active_screen(void);
+    esp_err_t       set_active_screen(uint8_t screen_id);
 
     /* Waits for the e-paper display to complete its flush cycle.
      * @Parameters:

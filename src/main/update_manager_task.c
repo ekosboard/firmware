@@ -125,7 +125,11 @@ void update_manager_task(void *pvParameters)
                 wifi_required_next_update = false;
             }
 
-            epd_wait_flush_complete(pdMS_TO_TICKS(10000));
+            esp_err_t err = epd_wait_flush_complete(pdMS_TO_TICKS(5000));
+            if (err != ESP_OK)
+            {
+                vTaskDelay(pdMS_TO_TICKS(5000));
+            }
 
             ESP_LOGI("UPDATE MANAGER",
                     "Send notif: %" PRIu32 
