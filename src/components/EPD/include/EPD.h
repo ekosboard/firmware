@@ -31,6 +31,14 @@
     #define EPD_ARRAY   GDEY075T7_ARRAY
 #endif
 
+#ifdef CONFIG_EPD_WS073F
+    #include "epd_WS073F.h"
+    #define EPD_DRIVER  (&ws073f_driver)
+    #define EPD_WIDTH   WS073F_WIDTH
+    #define EPD_HEIGHT  WS073F_HEIGHT
+    #define EPD_ARRAY   WS073F_ARRAY
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

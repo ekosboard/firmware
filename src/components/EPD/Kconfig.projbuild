@@ -10,6 +10,9 @@ config EPD_GDEY042T81
 config EPD_GDEY075T7
     bool "GDEY075T7/UC8179 - (7.5\" 800*480)"
 
+config EPD_WS073F
+    bool "WS073F - (7.3\" 800*480) - 7 colors"
+
 endchoice
 
 endmenu

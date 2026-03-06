@@ -3,6 +3,7 @@ idf_component_register(
     "EPD.c"
     "driver/epd_GDEY042T81.c"
     "driver/epd_GDEY075T7.c"
+    "driver/epd_WS073F.c"
 
     INCLUDE_DIRS 
     "include"
