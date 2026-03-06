@@ -29,6 +29,16 @@
 const static char *TAG = "INIT_LVGL";
 static SemaphoreHandle_t lvgl_mux = NULL;
 
+#ifdef CONFIG_EPD_WS073F
+static void disp_flush_7color(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
+{
+    epd_interface_t *disp_driver = (epd_interface_t*)display->user_data;
+    disp_driver->display_image(px_map);
+    lv_disp_flush_ready(display);
+}
+#endif
+
+#ifdef CONFIG_EPD_GDEY075T7
 static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
     EXT_RAM_BSS_ATTR static uint8_t dst_buffer[(GDEY075T7_ARRAY * 2)];
@@ -68,8 +78,10 @@ static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, 
         disp_driver->display_image_partial((px_map + 8), true);
     disp_driver->display_image_partial((px_map + 8), false);
     /* disp_driver->display_image_fast((px_map + 8)); */
+    /* disp_driver->display_image((px_map + 8)); */
     lv_disp_flush_ready(display);
 }
+#endif
 
 static void increase_lvgl_tick(void *arg)
 {
@@ -97,6 +109,26 @@ static void lvgl_port_task(void *arg)
     }
 }
 
+#ifdef CONFIG_EPD_WS073F
+static void init_driver_epaper_7color(display_t *display)
+{
+    display->lv_display = lv_display_create(EPD_WIDTH, EPD_HEIGHT);
+    display->display_driver = EPD_DRIVER;
+
+    display->display_driver->init();
+
+    ESP_LOGI(TAG, "Initialize LVGL library");
+    lv_display_set_resolution(display->lv_display, EPD_WIDTH, EPD_HEIGHT);
+    lv_display_set_flush_cb(display->lv_display, disp_flush_7color);
+    lv_display_set_color_format(display->lv_display, LV_COLOR_FORMAT_I4);
+    lv_display_set_user_data(display->lv_display, display->display_driver);
+
+    EXT_RAM_BSS_ATTR static uint8_t buf_1[EPD_ARRAY];
+    lv_display_set_buffers(display->lv_display,buf_1,NULL,EPD_ARRAY,LV_DISPLAY_RENDER_MODE_FULL);
+}
+#endif
+
+#ifdef CONFIG_EPD_GDEY075T7
 static void init_driver_grayscale(display_t *display)
 {
     display->lv_display = lv_display_create(EPD_WIDTH, EPD_HEIGHT);
@@ -131,6 +163,9 @@ static void init_driver_monochrome(display_t *display)
     /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT); */
     lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL);
 }
+#endif
+
+
 
 /* @Brief Locks access to LVGL to prevent concurrent calls to LVGL functions. */
 /* This function attempts to acquire a recursive mutex that ensures only one task can access LVGL at a time. */
@@ -204,13 +239,20 @@ esp_err_t  init_lvgl(display_t *display)
     esp_err_t err;
 
     lv_init();
+
+#ifdef CONFIG_EPD_GDEY075T7
     init_driver_monochrome(display);
     /* init_driver_grayscale(display); */
+#endif
+
+#ifdef CONFIG_EPD_WS073F
+    init_driver_epaper_7color(display);
+#endif
+
     lv_display_set_antialiasing(display->lv_display, false);
 #ifdef CONFIG_USE_GT911
     lv_port_indev_init();
 #endif
-
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     const esp_timer_create_args_t lvgl_tick_timer_args = {
