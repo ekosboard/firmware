@@ -182,6 +182,29 @@
     "layers_minus":{
         "icon":"󰹌",
         "codepoint":"U+F0E4C"
+    },
+    "led_off":{
+        "icon":"󰌫",
+        "codepoint":"U+F032B"
+    },
+    "led_outline":{
+        "icon":"󰌭",
+        "codepoint":"U+F032D"
+    },
+    "email_md":{
+        "icon":"󰇮",
+        "codepoint":"U+F01EE"
+    },
+    "email_outline_md":{
+        "icon":"󰇰",
+        "codepoint":"U+F01F0"
+    },
+    "duck_md":{
+        "icon":"󰇥",
+        "codepoint":"U+F01E5"
+    },
+    "note_edit_outline": {
+        "icon":"󱞂",
+        "codepoint":"U+F1782"
     }
-
 }

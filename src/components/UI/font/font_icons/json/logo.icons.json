@@ -1,0 +1,30 @@
+{
+    "github_md":{
+        "icon":"󰊤",
+        "codepoint":"U+F02A4"
+    },
+    "github_cod":{
+        "icon":"",
+        "codepoint":"U+EA84"
+    },
+    "github_alt_cod":{
+        "icon":"",
+        "codepoint":"U+EB00"
+    },
+    "gitlab_fa":{
+        "icon":"",
+        "codepoint":"U+E7EB"
+    },
+    "gitlab_outline":{
+        "icon":"󰮠",
+        "codepoint":"U+F0BA0"
+    },
+    "slack":{
+        "icon":"󰒱",
+        "codepoint":"U+F04B1"
+    },
+    "discord":{
+        "icon":"",
+        "codepoint":"U+F1FF"
+    }
+}
