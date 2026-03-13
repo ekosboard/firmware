@@ -7,6 +7,30 @@
         "icon":"󱨉",
         "codepoint":"U+F1A09"
     },
+    "play_md":{
+        "icon":"󰐊",
+        "codepoint":"U+F040A"
+    },
+    "play_outline_md":{
+        "icon":"󰼛",
+        "codepoint":"U+F0F1B"
+    },
+    "play_cod":{
+        "icon":"",
+        "codepoint":"U+EB2C"
+    },
+    "stop_md":{
+        "icon":"󰓛",
+        "codepoint":"U+F04DB"
+    },
+    "stop_circle_md":{
+        "icon":"󰙦",
+        "codepoint":"U+F0666"
+    },
+    "stop_circle_outline_md":{
+        "icon":"󰙧",
+        "codepoint":"U+F0667"
+    },
     "arrow_up":{
         "icon": "󰁝",
         "codepoint":"U+F005D"

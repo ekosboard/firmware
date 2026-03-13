@@ -1,0 +1,10 @@
+{
+    "molecule":{
+        "icon":"󰮬",
+        "codepoint":"U+F0BAC"
+    },
+    "co2":{
+        "icon":"󰟤",
+        "codepoint":"U+F07E4"
+    }
+}

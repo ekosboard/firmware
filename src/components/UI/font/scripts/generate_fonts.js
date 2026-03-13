@@ -22,6 +22,17 @@ function hexToDecimal(str) {
     return parseInt(str.trim(), 16);
 }
 
+function patchInclude(filePath) {
+    let content = fs.readFileSync(filePath, "utf8");
+
+    content = content.replace(
+        /#ifdef LV_LVGL_H_INCLUDE_SIMPLE[\s\S]*?#endif/g,
+        '#include "UI.h"'
+    );
+
+    fs.writeFileSync(filePath, content);
+}
+
 // ------------------------------------------------------------
 // Load & parse symbols
 // ------------------------------------------------------------
@@ -70,6 +81,7 @@ npx lv_font_conv \
 
     console.log(`🛠️  Generating ${outFile}`);
     execSync(cmd, { stdio: "inherit" });
+    patchInclude(outPath);
 }
 
 console.log("✅ All fonts generated successfully");

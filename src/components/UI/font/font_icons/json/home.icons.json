@@ -46,5 +46,9 @@
     "thermometer_low_md":{
         "icon":"󱃃",
         "codepoint":"U+F10C3"
+    },
+    "air_filter":{
+        "icon":"󰵃",
+        "codepoint":"U+F0D43"
     }
 }
