@@ -20,6 +20,8 @@ epd_interface_t gdey042t81_driver = {
     .display_image_fast = GDEY042T81_display_image_fast,
     .display_image_grayscale = GDEY042T81_display_image_grayscale,
     .display_image_partial = GDEY042T81_display_image_partial_full,
+    .display_image_area = NULL,
+    .set_basemap = NULL,
     .sleep = GDEY042T81_sleep
 };
 
