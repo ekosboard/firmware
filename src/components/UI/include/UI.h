@@ -32,6 +32,7 @@
 #define WIDGET_INDEX_PATH_EXT   ".json"
 #define WIDGET_INDEX_PATH_LEN   30
 
+#define FULL_REFRESH_EVERY      50
 
 typedef struct screen_s {
     uint8_t             id;

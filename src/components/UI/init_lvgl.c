@@ -1,8 +1,6 @@
 #include "EPD.h"
 #include "UI.h"
 #include "core/lv_obj_style.h"
-#include "epd_GDEY042T81.h"
-/* #include "epd_interface.h" */
 #include "display/lv_display.h"
 #include "display/lv_display_private.h"
 #include "esp_attr.h"
@@ -16,6 +14,7 @@
 #include "misc/lv_types.h"
 #include "osal/lv_os.h"
 #include "portmacro.h"
+#include "screen_manager.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -61,20 +60,39 @@ static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, u
 
 static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
-    static uint8_t i = 0;
-
     epd_interface_t *disp_driver = (epd_interface_t*)display->user_data;
-    if (i++ == 0)
-        disp_driver->display_image_partial((px_map + 8), true);
-    disp_driver->display_image_partial((px_map + 8), false);
-    /* disp_driver->display_image_fast((px_map + 8)); */
-    lv_disp_flush_ready(display);
-}
+    static uint8_t first_refresh = 0;
+    static uint8_t count_refresh = 0;
+    const uint8_t *fb = px_map + 8;  // skip header LVGL
 
-static void increase_lvgl_tick(void *arg)
-{
-    /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(LVGL_TICK_PERIOD_MS);
+    uint32_t x = area->x1;
+    uint32_t y = area->y1;
+    uint32_t w = area->x2 - area->x1 + 1;
+    uint32_t h = area->y2 - area->y1 + 1;
+
+    if (first_refresh == 0)
+    {
+        ESP_LOGW(TAG, "disp_flush_monochrome FIRST RENDER");
+        disp_driver->clear();
+        first_refresh++;
+    }
+
+    if (count_refresh >= FULL_REFRESH_EVERY)
+    {
+        //TODO: clear count refresh if manuel clear is trigger
+        ESP_LOGW(TAG, "disp_flush_monochrome FULL_REFRESH_EVERY: %d", count_refresh);
+        display_t *display = get_main_display();
+        notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
+        count_refresh = 0;
+    }
+    else
+    {
+        ESP_LOGE(TAG, "disp_flush_monochrome PARTIAL: %d", count_refresh);
+        disp_driver->display_image_area(fb, x, y, w, h);
+        count_refresh++;
+    }
+
+    lv_disp_flush_ready(display);
 }
 
 static void lvgl_port_task(void *arg)
@@ -128,8 +146,8 @@ static void init_driver_monochrome(display_t *display)
     lv_display_set_user_data(display->lv_display, display->display_driver);
 
     EXT_RAM_BSS_ATTR static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT / 8) + 8];
-    /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT); */
-    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL);
+    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT);
+    /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL); */
 }
 
 /* @Brief Locks access to LVGL to prevent concurrent calls to LVGL functions. */

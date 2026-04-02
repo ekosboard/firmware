@@ -12,6 +12,10 @@
 #include "wifi.h"
 #include "screen_manager.h"
 
+#ifdef CONFIG_USE_GT911
+#include "gt911.h"
+#endif
+
 void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, void* event_data)
 {
     TaskHandle_t *setup_task_handle = (TaskHandle_t*)handler_arg;
@@ -76,6 +80,9 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
             config_timeout_ctx_set_timeout(DEFAULT_TIMEOUT_MS);
             xTaskNotify(setup_task_handle[SETUP_TIMEOUT_TASK], DEFAULT_TIMEOUT_MS, eSetValueWithOverwrite);
             resume_input_manager_task();
+#ifdef CONFIG_USE_GT911
+            gt911_exit_sleep(gt911_get());
+#endif
             break;
 
         case CONFIG_EXIT:
@@ -90,10 +97,14 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
             epd_wait_flush_complete(pdMS_TO_TICKS(5000));
             notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
             epd_wait_flush_complete(pdMS_TO_TICKS(5000));
+            vTaskDelay(pdMS_TO_TICKS(7000)); //XXX: DO NOT MODIFY OR DELETE!
 
             suspend_input_manager_task();
-            xTaskNotifyGive(setup_task_handle[UPDATE_MANAGER_TASK]);
+#ifdef CONFIG_USE_GT911
+            gt911_enter_sleep(gt911_get());
+#endif
 
+            xTaskNotifyGive(setup_task_handle[UPDATE_MANAGER_TASK]);
             ESP_LOGI("CONFIG_EXIT", "EXIT");
             break;
 

@@ -11,9 +11,6 @@
 #include "wifi.h"
 #include <stdint.h>
 
-#ifdef CONFIG_USE_GT911
-#include "gt911.h"
-#endif
 
 static void enable_gpio_wakeup()
 {
@@ -98,10 +95,6 @@ void power_manager_task(void *pvParameters)
             if (lvgl_tick_stop() != ESP_OK)
                 ESP_LOGE("POWER MANAGER", "LVGL timer stop errorr");
 
-#ifdef CONFIG_USE_GT911
-            gt911_enter_sleep(gt911_get());
-#endif
-
             if (wifi_needed_to_stop == true)
             {
                 clean_stop_wifi();
@@ -131,9 +124,6 @@ void power_manager_task(void *pvParameters)
 
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {
-#ifdef CONFIG_USE_GT911
-                gt911_exit_sleep(gt911_get());
-#endif
                 ESP_LOGW("POWER MANAGER: ", "awake: GPIO");
                 clean_start_wifi();
                 wifi_needed_to_stop = true;

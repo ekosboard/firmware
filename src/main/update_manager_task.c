@@ -42,6 +42,7 @@ void update_manager_task(void *pvParameters)
     uint64_t time_until_next_update;
     screen_t *screen = NULL;
     widget_node_t *current = NULL;
+    display_t *display = get_main_display();
 
     while (42)
     {
@@ -130,6 +131,8 @@ void update_manager_task(void *pvParameters)
             {
                 vTaskDelay(pdMS_TO_TICKS(5000));
             }
+
+            display->display_driver->sleep();
 
             ESP_LOGI("UPDATE MANAGER",
                     "Send notif: %" PRIu32 
