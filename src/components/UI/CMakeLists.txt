@@ -2,6 +2,7 @@ idf_component_register(
     SRCS 
     "UI.c"
     "init_lvgl.c"
+    "lvgl_tick.c"
     "draw/qrcode.c"
     "draw/btn_bottom_left.c"
     "draw/btn_bottom_right.c"
