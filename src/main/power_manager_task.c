@@ -1,9 +1,9 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
-#include "esp_wifi.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
+#include "lvgl_tick.h"
 #include "main.h"
 #include "portmacro.h"
 #include "soc/gpio_num.h"
@@ -95,6 +95,9 @@ void power_manager_task(void *pvParameters)
                     timer_value,
                     wifi_needed_to_start);
 
+            if (lvgl_tick_stop() != ESP_OK)
+                ESP_LOGE("POWER MANAGER", "LVGL timer stop errorr");
+
 #ifdef CONFIG_USE_GT911
             gt911_enter_sleep(gt911_get());
 #endif
@@ -122,6 +125,9 @@ void power_manager_task(void *pvParameters)
             esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
             ESP_LOGW("POWER MANAGER", "Wakeup reason: %d", wakeup_reason);
             disable_gpio_wakeup();
+
+            if (lvgl_tick_start() != ESP_OK)
+                ESP_LOGE("POWER MANAGER", "LVGL timer start errorr");
 
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {

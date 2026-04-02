@@ -7,7 +7,7 @@
 #include "display/lv_display_private.h"
 #include "esp_attr.h"
 #include "esp_log.h"
-#include "esp_timer.h"
+#include "lvgl_tick.h"
 #include "misc/lv_area.h"
 #include "misc/lv_color.h"
 #include "misc/lv_palette.h"
@@ -213,17 +213,9 @@ esp_err_t  init_lvgl(display_t *display)
 
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
-    const esp_timer_create_args_t lvgl_tick_timer_args = {
-        .callback = &increase_lvgl_tick,
-        .name = "lvgl_tick"
-    };
-    esp_timer_handle_t lvgl_tick_timer = NULL;
+    ESP_ERROR_CHECK(lvgl_tick_init());
 
-    err = esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-    if (err != ESP_OK)
-        return ESP_FAIL;
-
-    err = esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000);
+    err = lvgl_tick_start();
     if (err != ESP_OK)
         return ESP_FAIL;
 
