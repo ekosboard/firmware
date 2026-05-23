@@ -140,7 +140,7 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
                         wifi_ap_record_t ap_info;
                         if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
                         {
-                            draw_screen_wifi_success((char*)ap_info.ssid);
+                            splash_screen_set_wifi_state((char*)ap_info.ssid);
                         }
                         lvgl_unlock();
                     }

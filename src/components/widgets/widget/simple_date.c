@@ -85,7 +85,7 @@ static void widget_simple_date(lv_obj_t *screen, widget_t *widget)
             simple_date_child.day_of_week_label = lv_label_create(widget->lv_obj);
             lv_obj_set_pos(simple_date_child.day_of_week_label, 0, 0);
             lv_obj_set_size(simple_date_child.day_of_week_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_label_set_text(simple_date_child.day_of_week_label, "Monday");
+            lv_label_set_text(simple_date_child.day_of_week_label, "Sunday");
             lv_obj_set_style_text_font(simple_date_child.day_of_week_label, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
         }
         {
@@ -93,7 +93,7 @@ static void widget_simple_date(lv_obj_t *screen, widget_t *widget)
             simple_date_child.day_of_month_label = lv_label_create(widget->lv_obj);
             lv_obj_set_pos(simple_date_child.day_of_month_label, 0, 0);
             lv_obj_set_size(simple_date_child.day_of_month_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_label_set_text(simple_date_child.day_of_month_label, "18");
+            lv_label_set_text(simple_date_child.day_of_month_label, "01");
             lv_obj_set_style_text_font(simple_date_child.day_of_month_label, &roboto_bold_96, LV_PART_MAIN | LV_STATE_DEFAULT);
         }
     }

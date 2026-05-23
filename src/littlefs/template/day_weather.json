@@ -9,7 +9,7 @@
         "x": 20,
         "y": 100
     },
-    "update_interval": "6h",
+    "update_interval": "1h",
     "flag": 2147483648,
     "config": {
         "exclude": "minutely,hourly,alert",

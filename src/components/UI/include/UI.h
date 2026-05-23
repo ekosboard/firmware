@@ -101,6 +101,7 @@ extern "C" {
     void            draw_screen_wifi_config(const char *data);
     void            draw_screen_wifi_success(const char *data);
     void            draw_splash_screen(void);
+    void            splash_screen_set_wifi_state(const char *ssid);
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -28,6 +28,7 @@ static void wifi_config_top_label(void)
 
 void draw_screen_wifi_config(const char *data)
 {
+    lv_obj_clean(lv_screen_active());
     wifi_config_top_label();
     fullscreen_qrcode(data);
     btn_bottom_left("GET THE APP");
