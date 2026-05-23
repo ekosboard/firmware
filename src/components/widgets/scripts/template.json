@@ -1,0 +1,19 @@
+{
+    "id": 0,
+    "widget_type": "{{NAME}}",
+    "label": "{{NAME_CAPITALIZED}}",
+    "iconType": "",
+    "width": 250,
+    "height": 200,
+    "position": {
+        "x": 0,
+        "y": 0
+    },
+    "update_interval": "6h",
+    "flag": 0,
+    "config": {},
+    "layout": {
+        "display": "flex"
+    },
+    "elements": []
+}
