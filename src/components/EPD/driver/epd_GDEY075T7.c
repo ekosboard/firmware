@@ -308,7 +308,6 @@ static void GDEY075T7_display_image_fast(const unsigned char *data)
     GDEY075T7_write_display(data);
     GDEY075T7_update_display();
     GDEY075T7_sleep();
-    set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
     vTaskDelay(pdMS_TO_TICKS(1500));
 }
 
@@ -445,17 +444,26 @@ static void GDEY075T7_display_image_partial_full(const unsigned char *data, bool
 
     GDEY075T7_sleep();
     vTaskDelay(pdMS_TO_TICKS(500));
-    set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
 }
 
 static void GDEY075T7_set_ram_basemap(const unsigned char *data)
 {
+    const uint8_t *fb = data + 8; // skip header LVGL comme dans flush
+
     GDEY075T7_init_display();
-    GDEY075T7_set_basemap(data);
-    GDEY075T7_update_display();
-    GDEY075T7_sleep();
-    set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
-    vTaskDelay(pdMS_TO_TICKS(500));
+
+    // OLD data = ce qui était affiché
+    GDEY075T7_write_cmd(0x10);
+    for (int i = 0; i < EPD_ARRAY; i++)
+        GDEY075T7_write_data(fb[i]);
+
+    // NEW data = identique
+    GDEY075T7_write_cmd(0x13);
+    for (int i = 0; i < EPD_ARRAY; i++)
+        GDEY075T7_write_data(fb[i]);
+
+    // Pas d'update_display — on restaure juste la RAM
+    ESP_LOGI("EPD", "Basemap restored after wakeup");
 }
 
 static void GDEY075T7_display_image_area(const unsigned char *data,
@@ -468,7 +476,6 @@ static void GDEY075T7_display_image_area(const unsigned char *data,
     GDEY075T7_update_display();
     GDEY075T7_write_cmd(0x92);
     vTaskDelay(pdMS_TO_TICKS(300));
-    set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -93,11 +93,13 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
                 ESP_LOGI("CONFIG_EXIT", "Stop webserver");
             }
 
+            xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
             notify_screen_manager(SCREEN_ACTION_DRAW_ONLY, display->active_screen);
             epd_wait_flush_complete(pdMS_TO_TICKS(5000));
+
+            xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
             notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
-            epd_wait_flush_complete(pdMS_TO_TICKS(5000));
-            vTaskDelay(pdMS_TO_TICKS(7000)); //XXX: DO NOT MODIFY OR DELETE!
+            epd_wait_flush_complete(pdMS_TO_TICKS(12000));
 
             suspend_input_manager_task();
 #ifdef CONFIG_USE_GT911

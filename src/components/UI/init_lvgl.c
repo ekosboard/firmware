@@ -27,6 +27,12 @@
 
 const static char *TAG = "INIT_LVGL";
 static SemaphoreHandle_t lvgl_mux = NULL;
+EXT_RAM_BSS_ATTR static uint8_t epd_basemap[EPD_WIDTH * EPD_HEIGHT / 8 + 8];
+
+uint8_t *epd_get_basemap(void)
+{
+    return epd_basemap;
+}
 
 static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
@@ -70,6 +76,9 @@ static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, 
     uint32_t w = area->x2 - area->x1 + 1;
     uint32_t h = area->y2 - area->y1 + 1;
 
+    bool is_last = lv_display_flush_is_last(display); // capture AVANT lv_disp_flush_ready
+
+
     if (first_refresh == 0)
     {
         ESP_LOGW(TAG, "disp_flush_monochrome FIRST RENDER");
@@ -87,12 +96,19 @@ static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, 
     }
     else
     {
-        ESP_LOGE(TAG, "disp_flush_monochrome PARTIAL: %d", count_refresh);
+        ESP_LOGD(TAG, "disp_flush_monochrome PARTIAL: %d", count_refresh);
         disp_driver->display_image_area(fb, x, y, w, h);
         count_refresh++;
     }
 
     lv_disp_flush_ready(display);
+
+    if (is_last)
+    {
+        memcpy(epd_basemap, px_map, EPD_WIDTH * EPD_HEIGHT / 8 + 8);
+        set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
+        ESP_LOGD(TAG, "disp_flush_monochrome LAST FLUSH");
+    }
 }
 
 static void lvgl_port_task(void *arg)

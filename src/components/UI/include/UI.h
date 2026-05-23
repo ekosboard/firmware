@@ -86,6 +86,7 @@ extern "C" {
      */
     esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks);
 
+    uint8_t     *epd_get_basemap(void);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  DRAW

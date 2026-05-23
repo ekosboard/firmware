@@ -126,7 +126,8 @@ void update_manager_task(void *pvParameters)
                 wifi_required_next_update = false;
             }
 
-            esp_err_t err = epd_wait_flush_complete(pdMS_TO_TICKS(5000));
+            xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
+            esp_err_t err = epd_wait_flush_complete(pdMS_TO_TICKS(10000));
             if (err != ESP_OK)
             {
                 vTaskDelay(pdMS_TO_TICKS(5000));

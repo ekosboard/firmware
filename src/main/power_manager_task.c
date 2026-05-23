@@ -1,3 +1,4 @@
+#include "UI.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
@@ -78,6 +79,7 @@ void power_manager_task(void *pvParameters)
     TaskHandle_t *update_manager_task_handle = (TaskHandle_t*)pvParameters;
     uint32_t wakeup_time;
     static bool wifi_needed_to_stop = true;
+    display_t *display = get_main_display();
 
     while (42)
     {
@@ -121,6 +123,8 @@ void power_manager_task(void *pvParameters)
 
             if (lvgl_tick_start() != ESP_OK)
                 ESP_LOGE("POWER MANAGER", "LVGL timer start errorr");
+
+            display->display_driver->set_basemap(epd_get_basemap());
 
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {
