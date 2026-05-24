@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "esp_timer.h"
+#include "screen_manager.h"
 #include "widget.h"
 
 #define MERGE_THRESHOLD_MS 5000  // Regroupe les updates ayant moins de 1s d'écart
@@ -126,11 +127,24 @@ void update_manager_task(void *pvParameters)
                 wifi_required_next_update = false;
             }
 
+
+            // Attendre la fin du flush EPD
             xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
             esp_err_t err = epd_wait_flush_complete(pdMS_TO_TICKS(10000));
             if (err != ESP_OK)
             {
+                ESP_LOGW("UPDATE MANAGER", "Flush timeout — continuing");
                 vTaskDelay(pdMS_TO_TICKS(5000));
+            }
+
+            // Full refresh périodique
+            if (epd_full_refresh_needed())
+            {
+                ESP_LOGI("UPDATE MANAGER", "Triggering periodic full refresh");
+                notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
+                err = epd_wait_flush_complete(pdMS_TO_TICKS(15000));
+                if (err != ESP_OK)
+                    ESP_LOGE("UPDATE MANAGER", "Full refresh flush timeout");
             }
 
             display->display_driver->sleep();

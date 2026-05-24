@@ -103,24 +103,3 @@ esp_err_t init_ui(void)
 
     return ESP_OK;
 }
-
-esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks)
-{
-    xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
-    EventBits_t bits = xEventGroupWaitBits(
-            get_epd_event_group(),
-            EPD_EVENT_FLUSH_COMPLETE,
-            pdTRUE,
-            pdTRUE,
-            timeout_ticks);
-
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    if (bits & EPD_EVENT_FLUSH_COMPLETE)
-    {
-        ESP_LOGD("EPD", "epd_wait_flush_complete");
-        return ESP_OK;
-    }
-
-    ESP_LOGD("EPD", "epd_wait_flush_complete TIMEOUT");
-    return ESP_ERR_TIMEOUT;
-}

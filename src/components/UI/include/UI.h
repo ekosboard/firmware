@@ -32,8 +32,6 @@
 #define WIDGET_INDEX_PATH_EXT   ".json"
 #define WIDGET_INDEX_PATH_LEN   30
 
-#define FULL_REFRESH_EVERY      50
-
 typedef struct screen_s {
     uint8_t             id;
     lv_obj_t            *lv_screen;
@@ -70,23 +68,8 @@ extern "C" {
     screen_t        *get_active_screen(void);
     esp_err_t       set_active_screen(uint8_t screen_id);
 
-    /* Waits for the e-paper display to complete its flush cycle.
-     * @Parameters:
-     *   - timeout_ticks: Maximum number of FreeRTOS ticks to wait before timing out.
-     * @Return:
-     *   - ESP_OK: Flush cycle completed successfully.
-     *   - ESP_ERR_TIMEOUT: The operation timed out before the flush cycle finished.
-     * @Details:
-     *   This function first waits until LVGL confirms that the last display flush
-     *   operation has been issued. It then waits for the e-paper driver to signal
-     *   that the flush is physically complete using the EPD_EVENT_FLUSH_COMPLETE
-     *   event. Useful to synchronize application logic with the actual refresh
-     *   state of the e-paper display and avoid screen tearing or premature
-     *   power-down.
-     */
-    esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks);
 
-    uint8_t     *epd_get_basemap(void);
+    uint8_t         *epd_get_basemap(void);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  DRAW

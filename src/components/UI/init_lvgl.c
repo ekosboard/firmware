@@ -1,6 +1,5 @@
 #include "EPD.h"
 #include "UI.h"
-#include "core/lv_obj_style.h"
 #include "display/lv_display.h"
 #include "display/lv_display_private.h"
 #include "esp_attr.h"
@@ -8,14 +7,8 @@
 #include "lvgl_tick.h"
 #include "misc/lv_area.h"
 #include "misc/lv_color.h"
-#include "misc/lv_palette.h"
-#include "misc/lv_style.h"
-#include "misc/lv_style_gen.h"
 #include "misc/lv_types.h"
-#include "osal/lv_os.h"
 #include "portmacro.h"
-#include "screen_manager.h"
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -68,7 +61,6 @@ static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, 
 {
     epd_interface_t *disp_driver = (epd_interface_t*)display->user_data;
     static uint8_t first_refresh = 0;
-    static uint8_t count_refresh = 0;
     const uint8_t *fb = px_map + 8;  // skip header LVGL
 
     uint32_t x = area->x1;
@@ -86,28 +78,14 @@ static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, 
         first_refresh++;
     }
 
-    if (count_refresh >= FULL_REFRESH_EVERY)
-    {
-        //TODO: clear count refresh if manuel clear is trigger
-        ESP_LOGW(TAG, "disp_flush_monochrome FULL_REFRESH_EVERY: %d", count_refresh);
-        display_t *display = get_main_display();
-        notify_screen_manager(SCREEN_ACTION_FORCE_REFRESH, display->active_screen);
-        count_refresh = 0;
-    }
-    else
-    {
-        ESP_LOGD(TAG, "disp_flush_monochrome PARTIAL: %d", count_refresh);
-        disp_driver->display_image_area(fb, x, y, w, h);
-        count_refresh++;
-    }
-
+    disp_driver->display_image_area(fb, x, y, w, h);
     lv_disp_flush_ready(display);
 
     if (is_last)
     {
         memcpy(epd_basemap, px_map, EPD_WIDTH * EPD_HEIGHT / 8 + 8);
         set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
-        ESP_LOGD(TAG, "disp_flush_monochrome LAST FLUSH");
+        ESP_LOGW(TAG, "disp_flush_monochrome LAST FLUSH");
     }
 }
 

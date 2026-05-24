@@ -1,3 +1,4 @@
+#include "EPD.h"
 #include "UI.h"
 #include "display/lv_display.h"
 #include <time.h>
@@ -64,6 +65,8 @@ void lvgl_draw_screen(screen_t *screen, void (*clear)(void))
 
 void lvgl_force_refresh_screen(screen_t *screen, void (*clear)(void))
 {
+    epd_reset_refresh_counter();
+
     if (lvgl_lock(-1))
     {
         if (clear != NULL)
