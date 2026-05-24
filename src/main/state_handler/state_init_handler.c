@@ -19,6 +19,7 @@
 #include "setup_i2c_bus.h"
 #include "screen_manager.h"
 #include "wifi_switch.h"
+#include "provider_manager.h"
 
 #ifdef CONFIG_USE_GT911
 #include "gt911.h"
@@ -54,6 +55,9 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
                 gpio_install_isr_service(0);
                 if (setup_i2c_bus() == ESP_OK && gt911_init(get_i2c_bus()) == ESP_OK)
 #endif
+                    // Init des data providers - non bloquant, les erreurs sont log
+                    provider_manager_init();
+
                     esp_event_post_to(state_manager_loop,
                             INIT_EVENT,
                             INIT_SETUP_UI,

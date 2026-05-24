@@ -21,6 +21,7 @@ idf_component_register(
         filesystem_interface
         json
         screen_manager
+        data_providers
 )
 
 # --------------------------------------------------------------------

@@ -1,0 +1,25 @@
+{
+    "id": 6,
+    "widget_type": "battery_display",
+    "label": "Battery",
+    "iconType": "",
+    "width": 150,
+    "height": 100,
+    "position": {
+        "x": 0,
+        "y": 0
+    },
+    "update_interval": "5m",
+    "flag": 0,
+    "config": {
+        "data_source": "battery",
+        "data_key": "battery_pct"
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "center",
+        "cross_axis_alignment": "center"
+    },
+    "elements": []
+}
