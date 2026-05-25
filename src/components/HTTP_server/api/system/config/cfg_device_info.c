@@ -1,3 +1,4 @@
+#include "data_provider.h"
 #include "device_info.h"
 #include "HTTP_server.h"
 #include "cJSON.h"
@@ -5,6 +6,8 @@
 #include "esp_timer.h"
 #include "esp_netif.h"
 #include "esp_log.h"
+#include "provider_manager.h"
+#include <stdint.h>
 #include <string.h>
 
 static const char *TAG = "/api/system/config/device_info";
@@ -23,6 +26,23 @@ static void get_local_ip(char *buffer, size_t len)
     {
         strncpy(buffer, "0.0.0.0", len);
     }
+}
+
+static int8_t get_battery_pct()
+{
+    float pct = 0.0f;
+    const provider_data_t *data = NULL;
+
+    esp_err_t err = provider_get("battery", &data);
+
+    if (err != ESP_OK || data == NULL)
+        return -1;
+
+    if (data->status != PROVIDER_STATUS_OK)
+        return -1;
+
+    provider_data_get_float(data, "battery_pct",     &pct);
+    return (int8_t)pct;
 }
 
 esp_err_t device_info_get_handler(httpd_req_t *req)
@@ -47,7 +67,7 @@ esp_err_t device_info_get_handler(httpd_req_t *req)
 
     cJSON_AddStringToObject(root, "ip", ip);
     cJSON_AddNumberToObject(root, "uptime", uptime_s);
-    cJSON_AddNumberToObject(root, "battery", 100); // placeholder
+    cJSON_AddNumberToObject(root, "battery", get_battery_pct());
 
     /* cJSON_AddNumberToObject(root, "screen_width", lv_disp_get_hor_res(NULL)); */
     /* cJSON_AddNumberToObject(root, "screen_height", lv_disp_get_ver_res(NULL)); */
