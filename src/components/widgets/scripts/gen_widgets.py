@@ -203,6 +203,8 @@ with open(SOURCE_PATH, "w") as source:
         source.write(f"        .update_function = {struct_name}_update,\n")
         source.write(f"        .update_data_function = {struct_name}_update_data,\n")
         source.write(f"        .update_data_timestamp = 0,\n")
+        source.write(f"        .update_schedule_start = 0,\n")
+        source.write(f"        .update_schedule_end = WIDGET_SCHEDULE_DISABLED,\n")
         source.write(f"        .config = NULL\n")
         source.write(f"    }};\n")
         source.write(f"    init_widget_from_template(&widget_info_list[index++], {filepath_macro});\n")

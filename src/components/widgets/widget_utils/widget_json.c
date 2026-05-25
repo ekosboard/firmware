@@ -6,6 +6,7 @@
 #include "widget.h"
 #include "widget_config_list.h"
 #include "widget_template_interval.h"
+#include "widget_schedule.h"
 #include <stdlib.h>
 
 /* Creates a JSON object representing a widget's properties */
@@ -33,6 +34,20 @@ static cJSON *create_widget_json(const widget_t *widget)
     char interval_str[32];
     widget_template_format_interval_ms(widget->update_data_interval_ms, interval_str, sizeof(interval_str));
     cJSON_AddStringToObject(root, "update_interval", interval_str);
+
+    // Update time range (optional)
+    if (widget->update_schedule_end != WIDGET_SCHEDULE_DISABLED)
+    {
+        cJSON *schedule = cJSON_AddObjectToObject(root, "update_schedule");
+        if (schedule)
+        {
+            char time_buf[6];
+            widget_schedule_format_time(widget->update_schedule_start, time_buf, sizeof(time_buf));
+            cJSON_AddStringToObject(schedule, "start", time_buf);
+            widget_schedule_format_time(widget->update_schedule_end, time_buf, sizeof(time_buf));
+            cJSON_AddStringToObject(schedule, "end", time_buf);
+        }
+    }
 
     // Position (x, y)
     cJSON *pos = cJSON_AddObjectToObject(root, "position");
@@ -99,6 +114,29 @@ void update_widget_struct_from_template(widget_t *widget, cJSON *widget_json)
     if (cJSON_IsNumber(flag))
         widget->flag = (uint32_t)flag->valuedouble;
 
+    // Update time range (optional)
+    // Missing or invalid → WIDGET_SCHEDULE_DISABLED
+    widget->update_schedule_start = 0;
+    widget->update_schedule_end = WIDGET_SCHEDULE_DISABLED;
+
+    cJSON *schedule = cJSON_GetObjectItem(widget_json, "update_schedule");
+    if (cJSON_IsObject(schedule))
+    {
+        cJSON *start = cJSON_GetObjectItem(schedule, "start");
+        cJSON *end   = cJSON_GetObjectItem(schedule, "end");
+
+        if (cJSON_IsString(start) && cJSON_IsString(end))
+        {
+            uint16_t s = 0, e = 0;
+            if (widget_schedule_parse_time(start->valuestring, &s) == ESP_OK &&
+                    widget_schedule_parse_time(end->valuestring,   &e) == ESP_OK)
+            {
+                widget->update_schedule_start = s;
+                widget->update_schedule_end   = e;
+            }
+        }
+    }
+
     // Champs dynamiques: config
     cJSON *config = cJSON_GetObjectItem(widget_json, "config");
     if (cJSON_IsObject(config))
@@ -109,8 +147,8 @@ void update_widget_struct_from_template(widget_t *widget, cJSON *widget_json)
             if (cJSON_IsString(entry))
             {
                 widget->config = widget_config_list_create_node(widget->config,
-                                                          entry->string,
-                                                          entry->valuestring);
+                        entry->string,
+                        entry->valuestring);
             }
         }
     }

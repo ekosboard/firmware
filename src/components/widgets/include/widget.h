@@ -12,6 +12,7 @@
 #include "widget_autogen.h"
 #include "widget_config_list.h"
 #include "widget_template_interval.h"
+#include "widget_schedule.h"
 
 #define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
 
@@ -37,6 +38,10 @@ typedef struct widget_s {
     uint32_t        update_data_interval_ms;
     uint32_t        update_data_timestamp;
     widget_config_t *config;
+    // Update time range (minutes since midnight)
+    // update_schedule_end == 0 (WIDGET_SCHEDULE_DISABLED)
+    uint16_t        update_schedule_start;  // ex: 360 = 06:00
+    uint16_t        update_schedule_end;    // ex: 480 = 08:00
 } widget_t;
 
 typedef struct widget_update_s {
@@ -49,6 +54,8 @@ typedef struct widget_update_s {
     uint32_t        flag;
     uint32_t        update_data_interval_ms;
     widget_config_t *config;
+    uint16_t        update_schedule_start;
+    uint16_t        update_schedule_end;
 } widget_update_t;
 
 typedef struct widget_node_s {

@@ -10,6 +10,7 @@
         "y": 0
     },
     "update_interval": "6h",
+    "update_schedule": { "start": "00:00", "end": "00:00" },
     "flag": 0,
     "config": {},
     "layout": {

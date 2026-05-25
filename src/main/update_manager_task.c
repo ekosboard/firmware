@@ -11,6 +11,7 @@
 #include "esp_timer.h"
 #include "screen_manager.h"
 #include "widget.h"
+#include "widget_schedule.h"
 
 #define MERGE_THRESHOLD_MS 5000  // Regroupe les updates ayant moins de 1s d'écart
 
@@ -39,7 +40,6 @@ void update_manager_task(void *pvParameters)
     bool wifi_required_next_update = false;
     uint32_t next_update_delay = UINT32_MAX;
     uint64_t current_time;
-    uint64_t elapsed_time;
     uint64_t time_until_next_update;
     screen_t *screen = NULL;
     widget_node_t *current = NULL;
@@ -52,7 +52,7 @@ void update_manager_task(void *pvParameters)
             ESP_LOGI("UPDATE MANAGER", "GET NOTIF");
 
             next_update_delay = UINT32_MAX;
-            current_time = esp_timer_get_time() / 1000; // Convertir en millisecondes
+            current_time = esp_timer_get_time() / 1000;
             screen = get_active_screen();
             current = screen->widget_display_list;
 
@@ -60,22 +60,31 @@ void update_manager_task(void *pvParameters)
             {
                 widget_t *widget = current->widget;
 
-                if (widget->update_data_timestamp == 0)
+                bool interval_expired = (widget->update_data_timestamp == 0) ||
+                    ((current_time - widget->update_data_timestamp) >= widget->update_data_interval_ms);
+
+                if (interval_expired)
                 {
-                    do_update(widget, &wifi_required_for_update);
-                    widget->update_data_timestamp = current_time;
-                    time_until_next_update = widget->update_data_interval_ms;
-                }
-                else
-                {
-                    elapsed_time = current_time - widget->update_data_timestamp;
-                    if (elapsed_time >= widget->update_data_interval_ms)
+                    if (widget_schedule_is_in_window(widget))
                     {
+                        // Interval expiré + dans la fenêtre → update normale
                         do_update(widget, &wifi_required_for_update);
                         widget->update_data_timestamp = current_time;
                     }
-                    time_until_next_update = (widget->update_data_timestamp + widget->update_data_interval_ms) - current_time;
+                    else
+                    {
+                        // Interval expiré mais hors fenêtre → on ne touche pas
+                        // au timestamp pour ne pas décaler l'interval interne.
+                        // Le prochain réveil sera calculé sur l'ouverture de fenêtre.
+                        ESP_LOGW("UPDATE MANAGER", "Widget %s out of schedule window — skipping",
+                                get_widget_type_to_string(widget->type));
+                    }
                 }
+
+                // Calcul du prochain réveil — délégué à widget_schedule qui combine
+                // interval ET contrainte horaire. Toujours calculé, même hors fenêtre,
+                // pour que le power_manager se réveille au bon moment.
+                time_until_next_update = widget_schedule_ms_until_next_update(widget, current_time);
 
                 ESP_LOGI("UPDATE MANAGER",
                         "Current time: %" PRIu64
@@ -89,30 +98,29 @@ void update_manager_task(void *pvParameters)
                         widget->update_data_interval_ms,
                         time_until_next_update);
 
-                if (time_until_next_update < MERGE_THRESHOLD_MS && !(widget->flag & WIFI_REQUIRED))
+                // Merge : uniquement si dans la fenêtre ET pas WIFI_REQUIRED
+                if (time_until_next_update < MERGE_THRESHOLD_MS &&
+                        !(widget->flag & WIFI_REQUIRED) &&
+                        widget_schedule_is_in_window(widget))
                 {
-                    ESP_LOGI("UPDATE MANAGER", "Merging update for widget scheduled in %"PRIu64" ms", time_until_next_update);
+                    ESP_LOGI("UPDATE MANAGER", "Merging update for widget scheduled in %" PRIu64 " ms",
+                            time_until_next_update);
                     if (lvgl_lock(-1))
                     {
                         widget->update_data_function();
                         lvgl_unlock();
                     }
                     widget->update_data_timestamp = current_time;
-                    time_until_next_update = widget->update_data_interval_ms;
+                    // Recalcul après merge pour que next_update_delay soit correct
+                    time_until_next_update = widget_schedule_ms_until_next_update(widget, current_time);
                 }
 
                 if (time_until_next_update < next_update_delay)
                 {
-                    next_update_delay = time_until_next_update;
-                    if (widget->flag & WIFI_REQUIRED)
-                    {
-                        wifi_required_next_update = true;
-                    }
-                    else
-                    {
-                        wifi_required_next_update = false;
-                    }
+                    next_update_delay = (uint32_t)time_until_next_update;
+                    wifi_required_next_update = (widget->flag & WIFI_REQUIRED) != 0;
                 }
+
                 current = current->next;
             }
 
@@ -127,8 +135,7 @@ void update_manager_task(void *pvParameters)
                 wifi_required_next_update = false;
             }
 
-
-            // Attendre la fin du flush EPD
+            // Attendre la fin du flush EPD (signalé par disp_flush_monochrome is_last)
             xEventGroupClearBits(get_epd_event_group(), EPD_EVENT_FLUSH_COMPLETE);
             esp_err_t err = epd_wait_flush_complete(pdMS_TO_TICKS(10000));
             if (err != ESP_OK)
@@ -150,7 +157,7 @@ void update_manager_task(void *pvParameters)
             display->display_driver->sleep();
 
             ESP_LOGI("UPDATE MANAGER",
-                    "Send notif: %" PRIu32 
+                    "Send notif: %" PRIu32
                     " | wifi asked: %d",
                     next_update_delay & TIMER_MASK,
                     (next_update_delay & WIFI_REQUIRED) != 0);
@@ -192,14 +199,15 @@ static void do_wifi_update(uint64_t current_time, uint32_t *next_update_delay, b
         current = get_active_screen()->widget_display_list;
         while (current != NULL)
         {
-            if (current->widget->flag & WIFI_REQUIRED)
+            widget_t *widget = current->widget;
+            if ((widget->flag & WIFI_REQUIRED) && widget_schedule_is_in_window(widget))
             {
                 if (lvgl_lock(-1))
                 {
-                    current->widget->update_data_function();
+                    widget->update_data_function();
                     lvgl_unlock();
                 }
-                current->widget->update_data_timestamp = current_time;
+                widget->update_data_timestamp = current_time;
             }
             current = current->next;
         }

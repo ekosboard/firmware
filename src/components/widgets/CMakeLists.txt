@@ -5,6 +5,7 @@ idf_component_register(
     SRCS
         ${WIDGET_SOURCES}
         "widget_autogen.c"
+        "widget_schedule.c"
         "widget_utils/widget_json.c"
         "widget_utils/widget_list.c"
         "widget_utils/widget_list_json.c"

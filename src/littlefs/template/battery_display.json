@@ -10,6 +10,7 @@
         "y": 0
     },
     "update_interval": "5m",
+    "update_schedule": { "start": "00:00", "end": "01:00" },
     "flag": 0,
     "config": {
         "data_source": "battery",

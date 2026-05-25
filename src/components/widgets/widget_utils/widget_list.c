@@ -158,6 +158,8 @@ esp_err_t update_widget_info(const widget_update_t *update)
             widget_info_list[i].height = update->height;
             widget_info_list[i].flag = update->flag;
             widget_info_list[i].update_data_interval_ms = update->update_data_interval_ms;
+            widget_info_list[i].update_schedule_start = update->update_schedule_start;
+            widget_info_list[i].update_schedule_end   = update->update_schedule_end;
 
             if (update->config)
             {

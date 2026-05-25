@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "widget.h"
 #include "widget_config_list.h"
+#include "widget_schedule.h"
 #include "widget_template_interval.h"
 
 static const char *TAG = "api/ui/widgets";
@@ -100,6 +101,8 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
             .width = width,
             .flag = widget_info->flag,
             .update_data_interval_ms = widget_info->update_data_interval_ms,
+            .update_schedule_end = widget_info->update_schedule_end,
+            .update_schedule_start = widget_info->update_schedule_start,
             .config = NULL
         };
 
@@ -121,6 +124,23 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
                 {
                     widget.config = widget_config_list_create_node(widget.config, entry->string, entry->valuestring);
                     ESP_LOGI("HTTP/Widget", "key: %s\n value: %s", widget.config->key, widget.config->value);
+                }
+            }
+        }
+
+        cJSON *schedule = cJSON_GetObjectItem(item, "update_schedule");
+        if (cJSON_IsObject(schedule))
+        {
+            cJSON *start = cJSON_GetObjectItem(schedule, "start");
+            cJSON *end = cJSON_GetObjectItem(schedule, "end");
+            if (cJSON_IsString(start) && cJSON_IsString(end))
+            {
+                uint16_t s = 0, e = 0;
+                if (widget_schedule_parse_time(start->valuestring, &s) == ESP_OK &&
+                        widget_schedule_parse_time(end->valuestring,   &e) == ESP_OK)
+                {
+                    widget.update_schedule_start = s;
+                    widget.update_schedule_end = e;
                 }
             }
         }
