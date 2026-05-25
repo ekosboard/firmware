@@ -63,22 +63,13 @@ void update_manager_task(void *pvParameters)
                 bool interval_expired = (widget->update_data_timestamp == 0) ||
                     ((current_time - widget->update_data_timestamp) >= widget->update_data_interval_ms);
 
-                if (interval_expired)
+                bool first_boot = (widget->update_data_timestamp == 0);
+
+                if (first_boot || (interval_expired && widget_schedule_is_in_window(widget)))
                 {
-                    if (widget_schedule_is_in_window(widget))
-                    {
-                        // Interval expiré + dans la fenêtre → update normale
-                        do_update(widget, &wifi_required_for_update);
-                        widget->update_data_timestamp = current_time;
-                    }
-                    else
-                    {
-                        // Interval expiré mais hors fenêtre → on ne touche pas
-                        // au timestamp pour ne pas décaler l'interval interne.
-                        // Le prochain réveil sera calculé sur l'ouverture de fenêtre.
-                        ESP_LOGW("UPDATE MANAGER", "Widget %s out of schedule window — skipping",
-                                get_widget_type_to_string(widget->type));
-                    }
+                    // Interval expiré + dans la fenêtre → update normale
+                    do_update(widget, &wifi_required_for_update);
+                    widget->update_data_timestamp = current_time;
                 }
 
                 // Calcul du prochain réveil — délégué à widget_schedule qui combine
