@@ -22,6 +22,7 @@ idf_component_register(
     "api/system/wifi/wifi_status.c"
     "api/system/wifi/wifi_switch.c"
     "api/ui/widgets.c"
+    "api/ui/widgets/layout.c"
     "api/ui/widgets/available.c"
     "api/ui/widgets/{name}.c"
     "api/ui/widgets/widgets_dispatcher.c"

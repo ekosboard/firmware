@@ -16,9 +16,13 @@ esp_err_t widgets_dispatcher_handler(httpd_req_t *req)
         {
             return get_available_widgets_handler(req);
         }
+        else if (strcmp(req->uri, "/api/ui/widgets/layout") == 0)
+        {
+            return get_widgets_layout_handler(req);
+        }
         else if (strcmp(req->uri, "/api/ui/widgets/shown") == 0)
         {
-            return get_available_widgets_handler(req);
+            return get_available_widgets_handler(req); //XXX
         }
         else 
         {
