@@ -1,3 +1,4 @@
+#include "UI.h"
 #include "data_provider.h"
 #include "device_info.h"
 #include "HTTP_server.h"
@@ -68,6 +69,9 @@ esp_err_t device_info_get_handler(httpd_req_t *req)
     cJSON_AddStringToObject(root, "ip", ip);
     cJSON_AddNumberToObject(root, "uptime", uptime_s);
     cJSON_AddNumberToObject(root, "battery", get_battery_pct());
+
+    cJSON_AddNumberToObject(root, "screen_count", MAX_SCREEN);
+    cJSON_AddNumberToObject(root, "current_screen", get_main_display()->active_screen);
 
     /* cJSON_AddNumberToObject(root, "screen_width", lv_disp_get_hor_res(NULL)); */
     /* cJSON_AddNumberToObject(root, "screen_height", lv_disp_get_ver_res(NULL)); */
