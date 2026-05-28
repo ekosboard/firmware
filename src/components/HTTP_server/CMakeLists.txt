@@ -28,7 +28,6 @@ idf_component_register(
     "api/ui/screens/scr_refresh.c"
     "api/ui/widgets_dispatcher.c"
     "api/ui/widgets.c"
-    "api/ui/widgets/layout.c"
     "api/ui/widgets/available.c"
     "api/ui/widgets/{name}.c"
     "queue/widget_update.c"

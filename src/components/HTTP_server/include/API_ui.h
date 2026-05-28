@@ -52,7 +52,6 @@ extern "C" {
     esp_err_t       widgets_dispatcher_handler(httpd_req_t *req);
 
     esp_err_t       get_available_widgets_handler(httpd_req_t *req);
-    esp_err_t       get_widgets_layout_handler(httpd_req_t *req);
     esp_err_t       get_widget_template_handler(httpd_req_t *req);
 
 #ifdef __cplusplus
