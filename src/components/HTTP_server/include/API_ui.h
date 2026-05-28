@@ -9,6 +9,26 @@ extern "C" {
 #endif
 
     ////////////////////////////////////////////////////////////////////////////////
+    //  SCREENS
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    //  /api/ui/screen*
+    //
+    ////////////////////////////////////////////////////////////////////////////////
+    extern const    httpd_uri_t screens_dispatcher;
+    void            register_screens_dispatcher_uri(httpd_handle_t server);
+    void            unregister_screens_dispatcher_uri(httpd_handle_t server);
+    esp_err_t       screens_dispatcher_handler(httpd_req_t *req);
+
+    esp_err_t       get_screens_handler(httpd_req_t *req);
+    esp_err_t       get_active_screen_handler(httpd_req_t *req);
+    esp_err_t       get_screens_layout_handler(httpd_req_t *req);
+    esp_err_t       post_active_screen_handler(httpd_req_t *req);
+    esp_err_t       post_refresh_screen_handler(httpd_req_t *req);
+
+
+    ////////////////////////////////////////////////////////////////////////////////
     //  WIDGETS
     //  /api/ui/widgets
     ////////////////////////////////////////////////////////////////////////////////

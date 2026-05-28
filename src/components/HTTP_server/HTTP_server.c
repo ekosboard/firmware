@@ -47,6 +47,7 @@ static httpd_handle_t start_webserver(void)
         register_widgets_dispatcher_uri(server);
         register_config_dispatcher_uri(server);
         register_ota_dispatcher_uri(server);
+        register_screens_dispatcher_uri(server);
         return server;
     }
 
