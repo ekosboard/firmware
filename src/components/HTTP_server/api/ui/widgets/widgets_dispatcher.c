@@ -34,6 +34,11 @@ esp_err_t widgets_dispatcher_handler(httpd_req_t *req)
         ESP_LOGI(TAG, "DELETE METHODE HANDLER");
         return ESP_OK;
     }
+    else if (req->method == HTTP_PUT)
+    {
+        ESP_LOGI(TAG, "PUT METHODE ARE INTERCEPTED BY /api/ui/widget*");
+        return ESP_OK;
+    }
     else
     {
         // Si aucune route ne correspond
