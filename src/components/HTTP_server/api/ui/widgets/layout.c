@@ -1,9 +1,15 @@
 #include "API_ui.h"
+#include "UI.h"
+#include "esp_err.h"
 #include "widget.h"
 #include "widget_config_list.h"
 #include "widget_schedule.h"
 #include "widget_template_interval.h"
 #include "cJSON.h"
+#include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
 
 static const char *TAG = "api/ui/widgets/layout";
 
@@ -11,20 +17,34 @@ esp_err_t get_widgets_layout_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "GET /api/ui/widgets/layout");
 
-    //IF QUERRY
-    /* char screen_param[16] = {0}; */
-    /* bool all_screens = false; */
-    /* if (httpd_query_key_value(req->uri, "screen", screen_param, sizeof(screen_param)) == ESP_OK) { */
-    /*     all_screens = (strcmp(screen_param, "all") == 0); */
-    /* } */
-
-    screen_t *screen = get_active_screen();
-    if (screen == NULL)
+    char query[64] = {0};
+    char screen_param[16] = {0};
+    uint8_t screen_id = 0;
+    if (httpd_req_get_url_query_str(req, query, sizeof(query)) == ESP_OK)
     {
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "No active screen");
-        return ESP_FAIL;
+        if (httpd_query_key_value(query, "screen", screen_param, sizeof(screen_param)) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "?screen=%s", screen_param);
+
+            char *end = NULL;
+            screen_id = (uint8_t)strtoul(screen_param, &end, 10);
+            if (end == screen_param || errno == ERANGE || *end != '\0')
+            {
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid screen query");
+                return ESP_FAIL;
+            }
+
+            if (screen_id >= MAX_SCREEN)
+            {
+                char buff[50];
+                snprintf(buff, sizeof(buff), "Invalid screen query, device MAX_SCREEN: %d", MAX_SCREEN);
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, buff);
+                return ESP_FAIL;
+            }
+        }
     }
 
+    screen_t *screen = &get_main_display()->screen[screen_id];
     cJSON *root = cJSON_CreateArray();
     if (root == NULL)
     {
