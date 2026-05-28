@@ -11,11 +11,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static const char *TAG = "api/ui/widgets/layout";
+static const char *TAG = "/api/ui/widgets/layout";
 
 esp_err_t get_widgets_layout_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "GET /api/ui/widgets/layout");
+    ESP_LOGI(TAG, "GET");
 
     char query[64] = {0};
     char screen_param[16] = {0};
@@ -123,21 +123,4 @@ esp_err_t get_widgets_layout_handler(httpd_req_t *req)
     free(json_str);
 
     return ESP_OK;
-}
-
-const httpd_uri_t widgets_layout = {
-    .uri        = "/api/ui/widgets/layout",
-    .method     = HTTP_GET,
-    .handler    = get_widgets_layout_handler,
-    .user_ctx   = NULL
-};
-
-void register_widgets_layout_uri(httpd_handle_t server)
-{
-    httpd_register_uri_handler(server, &widgets_layout);
-}
-
-void unregister_widgets_layout_uri(httpd_handle_t server)
-{
-    httpd_unregister_uri_handler(server, widgets_layout.uri, HTTP_GET);
 }

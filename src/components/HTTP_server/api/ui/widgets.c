@@ -7,7 +7,7 @@
 #include "widget_schedule.h"
 #include "widget_template_interval.h"
 
-static const char *TAG = "api/ui/widgets";
+static const char *TAG = "/api/ui/widgets";
 
 /* Handles HTTP PUT requests to update widget */
 /* @Parameters: */
@@ -19,7 +19,7 @@ static const char *TAG = "api/ui/widgets";
 /*     - HTTPD_500_INTERNAL_SERVER_ERROR: Internal server error encountered. */
 esp_err_t widgets_put_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "Handling widgets PUT request");
+    ESP_LOGI(TAG, "PUT");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     char query[64] = {0};
