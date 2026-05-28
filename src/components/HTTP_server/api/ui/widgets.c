@@ -1,5 +1,6 @@
 #include "API_ui.h"
 #include "cJSON.h"
+#include "esp_http_server.h"
 #include "esp_log.h"
 #include "widget.h"
 #include "widget_config_list.h"
@@ -20,6 +21,33 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Handling widgets PUT request");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    char query[64] = {0};
+    char screen_param[16] = {0};
+    uint8_t screen_id = 0;
+    if (httpd_req_get_url_query_str(req, query, sizeof(query)) == ESP_OK)
+    {
+        if (httpd_query_key_value(query, "screen", screen_param, sizeof(screen_param)) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "?screen=%s", screen_param);
+
+            char *end = NULL;
+            screen_id = (uint8_t)strtoul(screen_param, &end, 10);
+            if (end == screen_param || errno == ERANGE || *end != '\0')
+            {
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid screen query");
+                return ESP_FAIL;
+            }
+
+            if (screen_id >= MAX_SCREEN)
+            {
+                char buff[50];
+                snprintf(buff, sizeof(buff), "Invalid screen query, device MAX_SCREEN: %d", MAX_SCREEN);
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, buff);
+                return ESP_FAIL;
+            }
+        }
+    }
 
     char *content = NULL;
     if (read_http_request_content(req, &content) != ESP_OK)
@@ -93,6 +121,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
         ESP_LOGI("HTTP/Widget", "\nWidth: %d\n Height: %d", width, height);
         ESP_LOGI("HTTP/Widget", "\nAction: %d", action);
         widget_update_t widget = {
+            .screen_id = screen_id,
             .type = widget_info->type,
             .action = action,
             .pos_x = pos_x,
@@ -171,7 +200,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
 }
 
 const httpd_uri_t widgets_uri = {
-    .uri        = "/api/ui/widgets",
+    .uri        = "/api/ui/widgets*",
     .method     = HTTP_PUT,
     .handler    = widgets_put_handler,
     .user_ctx   = NULL
