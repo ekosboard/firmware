@@ -45,6 +45,7 @@ typedef struct widget_s {
 } widget_t;
 
 typedef struct widget_update_s {
+    uint8_t         screen_id;
     widget_type_t   type;
     widget_action_t action;
     uint16_t        pos_x;
@@ -88,7 +89,32 @@ extern "C" {
     widget_node_t       *create_widget_display_list_node(widget_node_t *head, widget_t *widget);
 
     bool                check_widget_type_by_id(const char *id, widget_type_t type);
-    bool                check_widget_exists_in_display_list(widget_type_t type);
+
+    /** Checks if a widget of a specific type exists in any screen's widget list.
+     * Used as a singleton guard on register to prevent cross-screen duplicates.
+     *
+     * @Parameters:
+     *     - type: Type of the widget (widget_type_t) to check across all screens.
+     *
+     * @Return:
+     *     - true: A widget of the specified type exists in at least one screen list.
+     *     - false: No widget of the specified type exists in any screen list.
+     */
+    bool                check_widget_exists_in_any_display_list(const widget_type_t type);
+
+    /**
+     * Checks if a widget of a specific type exists in a given screen's widget list.
+     * Used for update and unregister operations targeting a specific screen.
+     *
+     * @Parameters:
+     *     - type: Type of the widget (widget_type_t) to check in the list.
+     *     - screen_id: ID of the screen to search in.
+     *
+     * @Return:
+     *     - true: A widget of the specified type exists in the given screen list.
+     *     - false: No widget of the specified type exists in the given screen list.
+     */
+    bool                check_widget_exists_in_display_list(const widget_type_t type, const uint8_t screen_id);
 
     /**
      * @brief Initializes a widget instance from its template.
