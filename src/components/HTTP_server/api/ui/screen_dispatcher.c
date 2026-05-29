@@ -23,6 +23,10 @@ esp_err_t screens_dispatcher_handler(httpd_req_t *req)
         {
             return get_active_screen_handler(req);
         }
+        else if (strcmp(req->uri, "/api/ui/screens/schedule") == 0)
+        {
+            return get_screen_schedule_handler(req);
+        }
         else
         {
             httpd_resp_send_err(req, HTTPD_501_METHOD_NOT_IMPLEMENTED, NULL);
@@ -43,6 +47,10 @@ esp_err_t screens_dispatcher_handler(httpd_req_t *req)
         {
             httpd_resp_send_err(req, HTTPD_501_METHOD_NOT_IMPLEMENTED, NULL);
             return ESP_FAIL;
+        }
+        else if (strcmp(req->uri, "/api/ui/screens/schedule") == 0)
+        {
+            return post_screen_schedule_handler(req);
         }
         else
         {

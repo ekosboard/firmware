@@ -26,6 +26,7 @@ idf_component_register(
     "api/ui/screens/scr_active.c"
     "api/ui/screens/scr_layout.c"
     "api/ui/screens/scr_refresh.c"
+    "api/ui/screens/scr_schedule.c"
     "api/ui/widgets_dispatcher.c"
     "api/ui/widgets.c"
     "api/ui/widgets/available.c"
@@ -47,4 +48,5 @@ idf_component_register(
     json
     UI
     ota
+    screen_scheduler
 )

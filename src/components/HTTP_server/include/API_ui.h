@@ -24,8 +24,11 @@ extern "C" {
     esp_err_t       get_screens_handler(httpd_req_t *req);
     esp_err_t       get_active_screen_handler(httpd_req_t *req);
     esp_err_t       get_screens_layout_handler(httpd_req_t *req);
+    esp_err_t       get_screen_schedule_handler(httpd_req_t *req);
+
     esp_err_t       post_active_screen_handler(httpd_req_t *req);
     esp_err_t       post_refresh_screen_handler(httpd_req_t *req);
+    esp_err_t       post_screen_schedule_handler(httpd_req_t *req);
 
 
     ////////////////////////////////////////////////////////////////////////////////
