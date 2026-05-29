@@ -37,6 +37,8 @@ typedef struct screen_s {
     lv_obj_t            *lv_screen;
     widget_container_t  containers[LAYOUT_TYPE];
     widget_node_t       *widget_display_list;
+    uint16_t            schedule_start;
+    uint16_t            schedule_end;
 } screen_t;
 
 typedef struct display_s {

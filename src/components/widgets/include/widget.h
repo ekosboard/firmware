@@ -15,6 +15,7 @@
 #include "widget_schedule.h"
 
 #define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
+#define TIMER_MASK       (~WIFI_REQUIRED)  // Masque pour isoler la valeur du timer
 
 typedef enum { 
     WIDGET_ACTION_DRAW,

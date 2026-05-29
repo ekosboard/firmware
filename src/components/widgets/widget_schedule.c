@@ -45,10 +45,6 @@ static uint16_t minutes_until(uint16_t now, uint16_t target)
         return (WIDGET_SCHEDULE_MINUTES_DAY - now) + target;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  API publique
-// ─────────────────────────────────────────────────────────────────────────────
-
 uint16_t widget_schedule_minutes_now(void)
 {
     struct timeval tv;
