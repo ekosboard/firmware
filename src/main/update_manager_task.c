@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "esp_timer.h"
 #include "screen_manager.h"
+#include "wake_coordinator.h"
 #include "widget.h"
 #include "widget_schedule.h"
 
@@ -153,7 +154,7 @@ void update_manager_task(void *pvParameters)
                     next_update_delay & TIMER_MASK,
                     (next_update_delay & WIFI_REQUIRED) != 0);
 
-            xTaskNotify(*power_manager_handle, next_update_delay, eSetValueWithOverwrite);
+            wake_coordinator_set(WAKE_SOURCE_UPDATE_MANAGER, next_update_delay);
         }
     }
 }

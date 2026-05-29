@@ -15,9 +15,6 @@
 #include "EPD.h"
 #include "filesystem_interface.h"
 
-// Bit mask for power manager notif
-#define TIMER_MASK       (~WIFI_REQUIRED)  // Masque pour isoler la valeur du timer
-
 // Default timeout value for setup_timeout_task
 #define DEFAULT_TIMEOUT_MS (60 * 60 * 1000) // 60 min par défaut
 
@@ -26,6 +23,7 @@ typedef enum {
     SETUP_TIMEOUT_TASK,
     POWER_MANAGER_TASK,
     UPDATE_MANAGER_TASK,
+    SCREEN_SCHEDULER_TASK,
     SETUP_TASK_COUNT // Nombre total de tâches
 } setup_task_index_t;
 

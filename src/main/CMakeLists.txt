@@ -28,6 +28,7 @@ idf_component_register(
     touch_gt911
     screen_manager
     data_providers
+    screen_scheduler
 )
 
 #littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)

@@ -76,7 +76,8 @@ static void disable_gpio_wakeup()
  */
 void power_manager_task(void *pvParameters)
 {
-    TaskHandle_t *update_manager_task_handle = (TaskHandle_t*)pvParameters;
+    TaskHandle_t *setup_task_handle = (TaskHandle_t*)pvParameters;
+
     uint32_t wakeup_time;
     static bool wifi_needed_to_stop = true;
     display_t *display = get_main_display();
@@ -142,7 +143,7 @@ void power_manager_task(void *pvParameters)
                     clean_start_wifi();
                     wifi_needed_to_stop = true;
                 }
-                xTaskNotifyGive(*update_manager_task_handle);
+                xTaskNotifyGive(setup_task_handle[SCREEN_SCHEDULER_TASK]);
             }
         }
     }

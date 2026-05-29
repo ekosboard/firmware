@@ -106,7 +106,7 @@ void state_config_handler(void* handler_arg, esp_event_base_t base, int32_t id, 
             gt911_enter_sleep(gt911_get());
 #endif
 
-            xTaskNotifyGive(setup_task_handle[UPDATE_MANAGER_TASK]);
+            xTaskNotifyGive(setup_task_handle[SCREEN_SCHEDULER_TASK]);
             ESP_LOGI("CONFIG_EXIT", "EXIT");
             break;
 
