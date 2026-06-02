@@ -7,6 +7,30 @@
         "icon":"󱨉",
         "codepoint":"U+F1A09"
     },
+    "play_md":{
+        "icon":"󰐊",
+        "codepoint":"U+F040A"
+    },
+    "play_outline_md":{
+        "icon":"󰼛",
+        "codepoint":"U+F0F1B"
+    },
+    "play_cod":{
+        "icon":"",
+        "codepoint":"U+EB2C"
+    },
+    "stop_md":{
+        "icon":"󰓛",
+        "codepoint":"U+F04DB"
+    },
+    "stop_circle_md":{
+        "icon":"󰙦",
+        "codepoint":"U+F0666"
+    },
+    "stop_circle_outline_md":{
+        "icon":"󰙧",
+        "codepoint":"U+F0667"
+    },
     "arrow_up":{
         "icon": "󰁝",
         "codepoint":"U+F005D"
@@ -182,6 +206,29 @@
     "layers_minus":{
         "icon":"󰹌",
         "codepoint":"U+F0E4C"
+    },
+    "led_off":{
+        "icon":"󰌫",
+        "codepoint":"U+F032B"
+    },
+    "led_outline":{
+        "icon":"󰌭",
+        "codepoint":"U+F032D"
+    },
+    "email_md":{
+        "icon":"󰇮",
+        "codepoint":"U+F01EE"
+    },
+    "email_outline_md":{
+        "icon":"󰇰",
+        "codepoint":"U+F01F0"
+    },
+    "duck_md":{
+        "icon":"󰇥",
+        "codepoint":"U+F01E5"
+    },
+    "note_edit_outline": {
+        "icon":"󱞂",
+        "codepoint":"U+F1782"
     }
-
 }

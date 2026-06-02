@@ -1,0 +1,38 @@
+{
+    "calendar":{
+        "icon": "󰃭",
+        "codepoint":"U+F00ED"
+    },
+    "calendar_blank":{
+        "icon": "󰃮",
+        "codepoint":"U+F00EE"
+    },
+    "calendar_alert":{
+        "icon": "󰨱",
+        "codepoint":"U+F0A31"
+    },
+    "calendar_check":{
+        "icon": "󰃯",
+        "codepoint":"U+F00EF"
+    },
+    "calendar_clock":{
+        "icon": "󰃰",
+        "codepoint":"U+F0AF0"
+    },
+    "calendar_edit":{
+        "icon": "󰢧",
+        "codepoint":"U+F08A7"
+    },
+    "calendar_refresh":{
+        "icon": "󰇡",
+        "codepoint":"U+F01E1"
+    },
+    "calendar_sync":{
+        "icon": "󰺎",
+        "codepoint":"U+F0E8E"
+    },
+    "calendar_account":{
+        "icon": "󰺎",
+        "codepoint":"U+F0ED7"
+    }
+}

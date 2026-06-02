@@ -1,0 +1,19 @@
+menu "EKOS — Data Providers"
+
+    config PROVIDER_BATTERY
+        bool "Enable Battery ADC Provider"
+        default y
+        help
+            Lit la tension batterie via ADC1_CH0 (GPIO1).
+            Pont diviseur 680kΩ/150kΩ, LiPo 1S (3.0V–4.2V).
+            Expose : battery_pct (float), battery_voltage (float).
+
+    config PROVIDER_BME680
+        bool "Enable BME680 Provider (I2C)"
+        default n
+        help
+            Capteur environnemental Bosch BME680 via I2C (GPIO14/GPIO21).
+            Expose : temperature (float), humidity (float),
+                     pressure (float), gas_resistance (float).
+
+endmenu

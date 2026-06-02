@@ -158,6 +158,8 @@ esp_err_t update_widget_info(const widget_update_t *update)
             widget_info_list[i].height = update->height;
             widget_info_list[i].flag = update->flag;
             widget_info_list[i].update_data_interval_ms = update->update_data_interval_ms;
+            widget_info_list[i].update_schedule_start = update->update_schedule_start;
+            widget_info_list[i].update_schedule_end   = update->update_schedule_end;
 
             if (update->config)
             {
@@ -221,27 +223,35 @@ widget_node_t *create_widget_display_list_node(widget_node_t *head, widget_t *wi
     return new_node;
 }
 
-/* Checks if a widget of a specific type exists in the active screen’s widget list */
-/* @Parameters: */
-/*     - type: Type of the widget (widget_type_t) to check in the list. */
-/* @Return: */
-/*     - true: A widget of the specified type exists in the active screen list. */
-/*     - false: No widget of the specified type exists in the active screen list. */
-bool check_widget_exists_in_display_list(const widget_type_t type)
-
+bool check_widget_exists_in_display_list(const widget_type_t type, const uint8_t screen_id)
 {
-    screen_t *screen = get_active_screen();
+    screen_t *screen = &get_main_display()->screen[screen_id];
     widget_node_t *current = screen->widget_display_list;
-
     while (current != NULL)
     {
         if (current->widget->type == type)
             return true;
         current = current->next;
     }
-
     return false;
 }
+
+bool check_widget_exists_in_any_display_list(const widget_type_t type)
+{
+    display_t *display = get_main_display();
+    for (uint8_t i = 0; i < MAX_SCREEN; i++)
+    {
+        widget_node_t *current = display->screen[i].widget_display_list;
+        while (current != NULL)
+        {
+            if (current->widget->type == type)
+                return true;
+            current = current->next;
+        }
+    }
+    return false;
+}
+
 
 /* Compares a widget ID string with a specific widget type */
 /* @Parameters: */

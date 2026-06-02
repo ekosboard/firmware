@@ -32,12 +32,13 @@
 #define WIDGET_INDEX_PATH_EXT   ".json"
 #define WIDGET_INDEX_PATH_LEN   30
 
-
 typedef struct screen_s {
     uint8_t             id;
     lv_obj_t            *lv_screen;
     widget_container_t  containers[LAYOUT_TYPE];
     widget_node_t       *widget_display_list;
+    uint16_t            schedule_start;
+    uint16_t            schedule_end;
 } screen_t;
 
 typedef struct display_s {
@@ -69,22 +70,8 @@ extern "C" {
     screen_t        *get_active_screen(void);
     esp_err_t       set_active_screen(uint8_t screen_id);
 
-    /* Waits for the e-paper display to complete its flush cycle.
-     * @Parameters:
-     *   - timeout_ticks: Maximum number of FreeRTOS ticks to wait before timing out.
-     * @Return:
-     *   - ESP_OK: Flush cycle completed successfully.
-     *   - ESP_ERR_TIMEOUT: The operation timed out before the flush cycle finished.
-     * @Details:
-     *   This function first waits until LVGL confirms that the last display flush
-     *   operation has been issued. It then waits for the e-paper driver to signal
-     *   that the flush is physically complete using the EPD_EVENT_FLUSH_COMPLETE
-     *   event. Useful to synchronize application logic with the actual refresh
-     *   state of the e-paper display and avoid screen tearing or premature
-     *   power-down.
-     */
-    esp_err_t epd_wait_flush_complete(TickType_t timeout_ticks);
 
+    uint8_t         *epd_get_basemap(void);
 
     ////////////////////////////////////////////////////////////////////////////////
     //  DRAW
@@ -99,6 +86,7 @@ extern "C" {
     void            draw_screen_wifi_config(const char *data);
     void            draw_screen_wifi_success(const char *data);
     void            draw_splash_screen(void);
+    void            splash_screen_set_wifi_state(const char *ssid);
 
 #ifdef __cplusplus
 } /*extern "C"*/

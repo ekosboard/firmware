@@ -1,22 +1,14 @@
 #include "EPD.h"
 #include "UI.h"
-#include "core/lv_obj_style.h"
-#include "epd_GDEY042T81.h"
-/* #include "epd_interface.h" */
 #include "display/lv_display.h"
 #include "display/lv_display_private.h"
 #include "esp_attr.h"
 #include "esp_log.h"
-#include "esp_timer.h"
+#include "lvgl_tick.h"
 #include "misc/lv_area.h"
 #include "misc/lv_color.h"
-#include "misc/lv_palette.h"
-#include "misc/lv_style.h"
-#include "misc/lv_style_gen.h"
 #include "misc/lv_types.h"
-#include "osal/lv_os.h"
 #include "portmacro.h"
-#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -28,6 +20,12 @@
 
 const static char *TAG = "INIT_LVGL";
 static SemaphoreHandle_t lvgl_mux = NULL;
+EXT_RAM_BSS_ATTR static uint8_t epd_basemap[EPD_WIDTH * EPD_HEIGHT / 8 + 8];
+
+uint8_t *epd_get_basemap(void)
+{
+    return epd_basemap;
+}
 
 static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
@@ -61,20 +59,34 @@ static void disp_flush_grayscale(lv_display_t *display, const lv_area_t *area, u
 
 static void disp_flush_monochrome(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
 {
-    static uint8_t i = 0;
-
     epd_interface_t *disp_driver = (epd_interface_t*)display->user_data;
-    if (i++ == 0)
-        disp_driver->display_image_partial((px_map + 8), true);
-    disp_driver->display_image_partial((px_map + 8), false);
-    /* disp_driver->display_image_fast((px_map + 8)); */
-    lv_disp_flush_ready(display);
-}
+    static uint8_t first_refresh = 0;
+    const uint8_t *fb = px_map + 8;  // skip header LVGL
 
-static void increase_lvgl_tick(void *arg)
-{
-    /* Tell LVGL how many milliseconds has elapsed */
-    lv_tick_inc(LVGL_TICK_PERIOD_MS);
+    uint32_t x = area->x1;
+    uint32_t y = area->y1;
+    uint32_t w = area->x2 - area->x1 + 1;
+    uint32_t h = area->y2 - area->y1 + 1;
+
+    bool is_last = lv_display_flush_is_last(display); // capture AVANT lv_disp_flush_ready
+
+
+    if (first_refresh == 0)
+    {
+        ESP_LOGW(TAG, "disp_flush_monochrome FIRST RENDER");
+        disp_driver->clear();
+        first_refresh++;
+    }
+
+    disp_driver->display_image_area(fb, x, y, w, h);
+    lv_disp_flush_ready(display);
+
+    if (is_last)
+    {
+        memcpy(epd_basemap, px_map, EPD_WIDTH * EPD_HEIGHT / 8 + 8);
+        set_epd_event(EPD_EVENT_FLUSH_COMPLETE);
+        ESP_LOGW(TAG, "disp_flush_monochrome LAST FLUSH");
+    }
 }
 
 static void lvgl_port_task(void *arg)
@@ -128,8 +140,8 @@ static void init_driver_monochrome(display_t *display)
     lv_display_set_user_data(display->lv_display, display->display_driver);
 
     EXT_RAM_BSS_ATTR static uint8_t buf_1[(EPD_WIDTH * EPD_HEIGHT / 8) + 8];
-    /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT); */
-    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL);
+    lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_DIRECT);
+    /* lv_display_set_buffers(display->lv_display, buf_1, NULL, (EPD_WIDTH * EPD_HEIGHT / 8) + 8, LV_DISPLAY_RENDER_MODE_FULL); */
 }
 
 /* @Brief Locks access to LVGL to prevent concurrent calls to LVGL functions. */
@@ -213,17 +225,9 @@ esp_err_t  init_lvgl(display_t *display)
 
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
-    const esp_timer_create_args_t lvgl_tick_timer_args = {
-        .callback = &increase_lvgl_tick,
-        .name = "lvgl_tick"
-    };
-    esp_timer_handle_t lvgl_tick_timer = NULL;
+    ESP_ERROR_CHECK(lvgl_tick_init());
 
-    err = esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer);
-    if (err != ESP_OK)
-        return ESP_FAIL;
-
-    err = esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000);
+    err = lvgl_tick_start();
     if (err != ESP_OK)
         return ESP_FAIL;
 

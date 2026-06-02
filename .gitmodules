@@ -1,0 +1,3 @@
+[submodule "ui_simulator/lv_port_linux"]
+	path = ui_simulator/lv_port_linux
+	url = https://github.com/lvgl/lv_port_linux.git

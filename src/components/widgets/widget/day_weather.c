@@ -10,6 +10,9 @@
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
 #include "icons.h"
+#include "layouts/flex/lv_flex.h"
+#include "misc/lv_area.h"
+#include "misc/lv_style.h"
 #include "widget.h"
 #include "wifi.h"
 
@@ -118,14 +121,13 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
             day_weather_child.weather_temp_label = lv_label_create(day_weather_child.container_weather);
             lv_obj_set_pos(day_weather_child.weather_temp_label, 0, 0);
             lv_obj_set_size(day_weather_child.weather_temp_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-            lv_label_set_text(day_weather_child.weather_temp_label, "18°");
-            lv_obj_set_style_text_font(day_weather_child.weather_temp_label, &roboto_bold_64, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(day_weather_child.weather_temp_label, "-°");
+            lv_obj_set_style_text_font(day_weather_child.weather_temp_label, &roboto_bold_48, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_margin_top(day_weather_child.weather_temp_label, 25, LV_PART_MAIN | LV_STATE_DEFAULT);
         }
 
         // temp range container
         day_weather_child.container_temp_range = lv_obj_create(widget->lv_obj);
-        lv_obj_set_pos(day_weather_child.container_temp_range, 0, 0);
         lv_obj_set_size(day_weather_child.container_temp_range, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
         lv_obj_set_style_pad_left(day_weather_child.container_temp_range, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_pad_top(day_weather_child.container_temp_range, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -139,7 +141,6 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
         {
             // max temp container
             day_weather_child.container_max_temp = lv_obj_create(day_weather_child.container_temp_range);
-            lv_obj_set_pos(day_weather_child.container_max_temp, 0, 0);
             lv_obj_set_size(day_weather_child.container_max_temp, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_pad_left(day_weather_child.container_max_temp, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_top(day_weather_child.container_max_temp, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -164,14 +165,13 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
                     day_weather_child.max_temp_label = lv_label_create(day_weather_child.container_max_temp);
                     lv_obj_set_pos(day_weather_child.max_temp_label, 0, 0);
                     lv_obj_set_size(day_weather_child.max_temp_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_label_set_text(day_weather_child.max_temp_label, "21°");
+                    lv_label_set_text(day_weather_child.max_temp_label, "-°");
                     lv_obj_set_style_text_font(day_weather_child.max_temp_label, &roboto_bold_22, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }
 
             // min temp container
             day_weather_child.container_min_temp = lv_obj_create(day_weather_child.container_temp_range);
-            lv_obj_set_pos(day_weather_child.container_min_temp, 0, 0);
             lv_obj_set_size(day_weather_child.container_min_temp, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
             lv_obj_set_style_pad_left(day_weather_child.container_min_temp, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_top(day_weather_child.container_min_temp, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -196,7 +196,7 @@ static void widget_day_weather(lv_obj_t *screen, widget_t *widget)
                     day_weather_child.min_temp_label = lv_label_create(day_weather_child.container_min_temp);
                     lv_obj_set_pos(day_weather_child.min_temp_label, 0, 0);
                     lv_obj_set_size(day_weather_child.min_temp_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_label_set_text(day_weather_child.min_temp_label, "8°");
+                    lv_label_set_text(day_weather_child.min_temp_label, "-°");
                     lv_obj_set_style_text_font(day_weather_child.min_temp_label, &roboto_bold_22, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }

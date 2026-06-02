@@ -2,6 +2,7 @@ idf_component_register(
     SRCS 
     "UI.c"
     "init_lvgl.c"
+    "lvgl_tick.c"
     "draw/qrcode.c"
     "draw/btn_bottom_left.c"
     "draw/btn_bottom_right.c"
@@ -40,8 +41,8 @@ idf_component_register(
     "font/font_icons/symbol_nerdfont_64.c"
     "font/font_icons/symbol_nerdfont_96.c"
     "font/font_icons/symbol_nerdfont_128.c"
-    "img/logo.c"
     "lvgl_utils/screen_manager.c"
+    "img/logo_ekos.c"
 
     INCLUDE_DIRS 
     "include"

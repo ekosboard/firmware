@@ -1,9 +1,10 @@
+#include "UI.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
-#include "esp_wifi.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
+#include "lvgl_tick.h"
 #include "main.h"
 #include "portmacro.h"
 #include "soc/gpio_num.h"
@@ -11,9 +12,6 @@
 #include "wifi.h"
 #include <stdint.h>
 
-#ifdef CONFIG_USE_GT911
-#include "gt911.h"
-#endif
 
 static void enable_gpio_wakeup()
 {
@@ -78,9 +76,11 @@ static void disable_gpio_wakeup()
  */
 void power_manager_task(void *pvParameters)
 {
-    TaskHandle_t *update_manager_task_handle = (TaskHandle_t*)pvParameters;
+    TaskHandle_t *setup_task_handle = (TaskHandle_t*)pvParameters;
+
     uint32_t wakeup_time;
     static bool wifi_needed_to_stop = true;
+    display_t *display = get_main_display();
 
     while (42)
     {
@@ -95,9 +95,8 @@ void power_manager_task(void *pvParameters)
                     timer_value,
                     wifi_needed_to_start);
 
-#ifdef CONFIG_USE_GT911
-            gt911_enter_sleep(gt911_get());
-#endif
+            if (lvgl_tick_stop() != ESP_OK)
+                ESP_LOGE("POWER MANAGER", "LVGL timer stop errorr");
 
             if (wifi_needed_to_stop == true)
             {
@@ -123,11 +122,13 @@ void power_manager_task(void *pvParameters)
             ESP_LOGW("POWER MANAGER", "Wakeup reason: %d", wakeup_reason);
             disable_gpio_wakeup();
 
+            if (lvgl_tick_start() != ESP_OK)
+                ESP_LOGE("POWER MANAGER", "LVGL timer start errorr");
+
+            display->display_driver->set_basemap(epd_get_basemap());
+
             if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
             {
-#ifdef CONFIG_USE_GT911
-                gt911_exit_sleep(gt911_get());
-#endif
                 ESP_LOGW("POWER MANAGER: ", "awake: GPIO");
                 clean_start_wifi();
                 wifi_needed_to_stop = true;
@@ -142,7 +143,7 @@ void power_manager_task(void *pvParameters)
                     clean_start_wifi();
                     wifi_needed_to_stop = true;
                 }
-                xTaskNotifyGive(*update_manager_task_handle);
+                xTaskNotifyGive(setup_task_handle[SCREEN_SCHEDULER_TASK]);
             }
         }
     }

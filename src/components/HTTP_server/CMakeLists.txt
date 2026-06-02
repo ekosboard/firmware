@@ -21,10 +21,16 @@ idf_component_register(
     "api/system/wifi/wifi_scan.c"
     "api/system/wifi/wifi_status.c"
     "api/system/wifi/wifi_switch.c"
+    "api/ui/screen_dispatcher.c"
+    "api/ui/screens.c"
+    "api/ui/screens/scr_active.c"
+    "api/ui/screens/scr_layout.c"
+    "api/ui/screens/scr_refresh.c"
+    "api/ui/screens/scr_schedule.c"
+    "api/ui/widgets_dispatcher.c"
     "api/ui/widgets.c"
     "api/ui/widgets/available.c"
     "api/ui/widgets/{name}.c"
-    "api/ui/widgets/widgets_dispatcher.c"
     "queue/widget_update.c"
     "utils/json.c"
     "utils/read_http_request_content.c"
@@ -42,4 +48,5 @@ idf_component_register(
     json
     UI
     ota
+    screen_scheduler
 )

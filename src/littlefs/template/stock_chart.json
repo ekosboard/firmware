@@ -10,13 +10,14 @@
         "y": 0
     },
     "update_interval": "1d",
+    "update_schedule": { "start": "06:00", "end": "20:00" },
     "flag": 2147483648,
     "config": {
-        "function":     "GOLD_SILVER_HISTORY",
-        "symbol":       "XAU",
-        "interval":     "daily",
-        "apikey":       "",
-        "units":        ""
+        "function": "GOLD_SILVER_HISTORY",
+        "symbol": "XAU",
+        "interval": "daily",
+        "apikey": "",
+        "units": ""
     },
     "layout": {
         "display": "flex",

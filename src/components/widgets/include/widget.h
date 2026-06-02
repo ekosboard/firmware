@@ -12,8 +12,10 @@
 #include "widget_autogen.h"
 #include "widget_config_list.h"
 #include "widget_template_interval.h"
+#include "widget_schedule.h"
 
 #define WIFI_REQUIRED    (1U << 31)  // Bit 31 à 1 pour activer le WiFi
+#define TIMER_MASK       (~WIFI_REQUIRED)  // Masque pour isoler la valeur du timer
 
 typedef enum { 
     WIDGET_ACTION_DRAW,
@@ -37,9 +39,14 @@ typedef struct widget_s {
     uint32_t        update_data_interval_ms;
     uint32_t        update_data_timestamp;
     widget_config_t *config;
+    // Update time range (minutes since midnight)
+    // update_schedule_end == 0 (WIDGET_SCHEDULE_DISABLED)
+    uint16_t        update_schedule_start;  // ex: 360 = 06:00
+    uint16_t        update_schedule_end;    // ex: 480 = 08:00
 } widget_t;
 
 typedef struct widget_update_s {
+    uint8_t         screen_id;
     widget_type_t   type;
     widget_action_t action;
     uint16_t        pos_x;
@@ -49,6 +56,8 @@ typedef struct widget_update_s {
     uint32_t        flag;
     uint32_t        update_data_interval_ms;
     widget_config_t *config;
+    uint16_t        update_schedule_start;
+    uint16_t        update_schedule_end;
 } widget_update_t;
 
 typedef struct widget_node_s {
@@ -81,7 +90,32 @@ extern "C" {
     widget_node_t       *create_widget_display_list_node(widget_node_t *head, widget_t *widget);
 
     bool                check_widget_type_by_id(const char *id, widget_type_t type);
-    bool                check_widget_exists_in_display_list(widget_type_t type);
+
+    /** Checks if a widget of a specific type exists in any screen's widget list.
+     * Used as a singleton guard on register to prevent cross-screen duplicates.
+     *
+     * @Parameters:
+     *     - type: Type of the widget (widget_type_t) to check across all screens.
+     *
+     * @Return:
+     *     - true: A widget of the specified type exists in at least one screen list.
+     *     - false: No widget of the specified type exists in any screen list.
+     */
+    bool                check_widget_exists_in_any_display_list(const widget_type_t type);
+
+    /**
+     * Checks if a widget of a specific type exists in a given screen's widget list.
+     * Used for update and unregister operations targeting a specific screen.
+     *
+     * @Parameters:
+     *     - type: Type of the widget (widget_type_t) to check in the list.
+     *     - screen_id: ID of the screen to search in.
+     *
+     * @Return:
+     *     - true: A widget of the specified type exists in the given screen list.
+     *     - false: No widget of the specified type exists in the given screen list.
+     */
+    bool                check_widget_exists_in_display_list(const widget_type_t type, const uint8_t screen_id);
 
     /**
      * @brief Initializes a widget instance from its template.

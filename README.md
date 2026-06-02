@@ -3,8 +3,14 @@
 > The open-source firmware powering EKOS.  
 > A calm, open, and long-lasting connected e-paper display — designed to respect your space and your time.
 
-![EKOS Device](https://ekosboard.com/assets/desktop_DSCF7619-CdRnGBlO.avif)
+---
+ 
+## 🌿 Now Live on Kickstarter
 
+> **[→ Support the campaign and be part of the first production run](https://www.kickstarter.com/projects/ekosboard/ekos-programmable-open-source-epaper-hub-in-solid-oak)**
+
+![EKOS Device](https://ekosboard.com/assets/readme_ks.avif)
+ 
 ---
 
 ## What is EKOS?

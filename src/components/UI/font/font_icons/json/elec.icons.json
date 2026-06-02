@@ -1,0 +1,14 @@
+{
+    "lightning_bolt":{
+        "icon":"󱐋",
+        "codepoint":"U+F140B"
+    },
+    "lightning_bolt_circle":{
+        "icon":"󰠠",
+        "codepoint":"U+F0820"
+    },
+    "bolt_fa":{
+        "icon":"",
+        "codepoint":"U+F0E7"
+    }
+}

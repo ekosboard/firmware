@@ -1,10 +1,10 @@
 #include "API_ui.h"
 
-static const char *TAG = "api/ui/widgets/available";
+static const char *TAG = "/api/ui/widgets/available";
 
 esp_err_t get_available_widgets_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG,);
+    ESP_LOGI(TAG, "GET");
 
     esp_err_t err = mount_lfs();
     if (err != ESP_OK)
@@ -40,21 +40,3 @@ esp_err_t get_available_widgets_handler(httpd_req_t *req)
 
     return ESP_OK;
 }
-
-const httpd_uri_t available_widgets = {
-    .uri        = "/api/ui/widgets/available",
-    .method     = HTTP_GET,
-    .handler    = get_available_widgets_handler,
-    .user_ctx   = NULL
-};
-
-void register_available_widgets_uri(httpd_handle_t server)
-{
-    httpd_register_uri_handler(server, &available_widgets);
-}
-
-void unregister_available_widgets_uri(httpd_handle_t server)
-{
-    httpd_unregister_uri_handler(server, available_widgets.uri, HTTP_GET);
-}
-

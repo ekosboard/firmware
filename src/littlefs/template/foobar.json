@@ -1,0 +1,33 @@
+{
+	"id": 3,
+	"widget_type": "foobar",
+	"label": "FooBar",
+    "iconType": "\uebf5",
+    "width": 300,
+    "height": 300,
+    "position": {
+        "x": 8,
+        "y": 8 
+    },
+    "update_interval": "1d",
+    "update_schedule": { "start": "00:00", "end": "00:00" },
+    "flag": 0,
+    "config": {
+        "units": ""
+    },
+    "layout": {
+        "display": "flex",
+        "flex_direction": "column",
+        "main_axis_alignment": "flex-start",
+        "cross_axis_alignment": "flex-start",
+        "flex_grow": 1,
+        "padding": 5
+    },
+    "elements": [
+        {
+            "label": "foobar_icon",
+            "element_type": "icon",
+            "mock_data": "\uebf5"
+        }
+    ]
+}

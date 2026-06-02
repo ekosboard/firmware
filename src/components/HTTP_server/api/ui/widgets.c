@@ -1,11 +1,13 @@
 #include "API_ui.h"
 #include "cJSON.h"
+#include "esp_http_server.h"
 #include "esp_log.h"
 #include "widget.h"
 #include "widget_config_list.h"
+#include "widget_schedule.h"
 #include "widget_template_interval.h"
 
-static const char *TAG = "api/ui/widgets";
+static const char *TAG = "/api/ui/widgets";
 
 /* Handles HTTP PUT requests to update widget */
 /* @Parameters: */
@@ -17,8 +19,35 @@ static const char *TAG = "api/ui/widgets";
 /*     - HTTPD_500_INTERNAL_SERVER_ERROR: Internal server error encountered. */
 esp_err_t widgets_put_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "Handling widgets PUT request");
+    ESP_LOGI(TAG, "PUT");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    char query[64] = {0};
+    char screen_param[16] = {0};
+    uint8_t screen_id = 0;
+    if (httpd_req_get_url_query_str(req, query, sizeof(query)) == ESP_OK)
+    {
+        if (httpd_query_key_value(query, "screen", screen_param, sizeof(screen_param)) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "?screen=%s", screen_param);
+
+            char *end = NULL;
+            screen_id = (uint8_t)strtoul(screen_param, &end, 10);
+            if (end == screen_param || errno == ERANGE || *end != '\0')
+            {
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid screen query");
+                return ESP_FAIL;
+            }
+
+            if (screen_id >= MAX_SCREEN)
+            {
+                char buff[50];
+                snprintf(buff, sizeof(buff), "Invalid screen query, device MAX_SCREEN: %d", MAX_SCREEN);
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, buff);
+                return ESP_FAIL;
+            }
+        }
+    }
 
     char *content = NULL;
     if (read_http_request_content(req, &content) != ESP_OK)
@@ -92,6 +121,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
         ESP_LOGI("HTTP/Widget", "\nWidth: %d\n Height: %d", width, height);
         ESP_LOGI("HTTP/Widget", "\nAction: %d", action);
         widget_update_t widget = {
+            .screen_id = screen_id,
             .type = widget_info->type,
             .action = action,
             .pos_x = pos_x,
@@ -100,6 +130,8 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
             .width = width,
             .flag = widget_info->flag,
             .update_data_interval_ms = widget_info->update_data_interval_ms,
+            .update_schedule_end = widget_info->update_schedule_end,
+            .update_schedule_start = widget_info->update_schedule_start,
             .config = NULL
         };
 
@@ -121,6 +153,23 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
                 {
                     widget.config = widget_config_list_create_node(widget.config, entry->string, entry->valuestring);
                     ESP_LOGI("HTTP/Widget", "key: %s\n value: %s", widget.config->key, widget.config->value);
+                }
+            }
+        }
+
+        cJSON *schedule = cJSON_GetObjectItem(item, "update_schedule");
+        if (cJSON_IsObject(schedule))
+        {
+            cJSON *start = cJSON_GetObjectItem(schedule, "start");
+            cJSON *end = cJSON_GetObjectItem(schedule, "end");
+            if (cJSON_IsString(start) && cJSON_IsString(end))
+            {
+                uint16_t s = 0, e = 0;
+                if (widget_schedule_parse_time(start->valuestring, &s) == ESP_OK &&
+                        widget_schedule_parse_time(end->valuestring,   &e) == ESP_OK)
+                {
+                    widget.update_schedule_start = s;
+                    widget.update_schedule_end = e;
                 }
             }
         }
@@ -151,7 +200,7 @@ esp_err_t widgets_put_handler(httpd_req_t *req)
 }
 
 const httpd_uri_t widgets_uri = {
-    .uri        = "/api/ui/widgets",
+    .uri        = "/api/ui/widgets*",
     .method     = HTTP_PUT,
     .handler    = widgets_put_handler,
     .user_ctx   = NULL

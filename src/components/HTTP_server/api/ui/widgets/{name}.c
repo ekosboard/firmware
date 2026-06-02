@@ -1,11 +1,10 @@
 #include "API_ui.h"
 
-static const char *TAG = "api/ui/widgets/{name}";
+static const char *TAG = "/api/ui/widgets/{name}";
 
 esp_err_t get_widget_template_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG,);
-
+    ESP_LOGI(TAG, "GET");
 
     esp_err_t err = mount_lfs();
     if (err != ESP_OK)
@@ -48,21 +47,4 @@ esp_err_t get_widget_template_handler(httpd_req_t *req)
     cJSON_Delete(widget_template_json);
 
     return ESP_OK;
-}
-
-const httpd_uri_t widget_template = {
-    .uri        = "/api/ui/widgets/*",
-    .method     = HTTP_GET,
-    .handler    = get_widget_template_handler,
-    .user_ctx   = NULL
-};
-
-void register_widget_template_uri(httpd_handle_t server)
-{
-    httpd_register_uri_handler(server, &widget_template);
-}
-
-void unregister_widget_template_uri(httpd_handle_t server)
-{
-    httpd_unregister_uri_handler(server, widget_template.uri, HTTP_GET);
 }

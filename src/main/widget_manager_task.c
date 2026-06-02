@@ -3,13 +3,11 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "freertos/projdefs.h"
-#include "hal/aes_types.h"
 #include "main.h"
 #include "widget.h"
-#include "widgets/label/lv_label.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 
 static const char *TAG = "main display_task";
@@ -21,12 +19,12 @@ static const char *TAG = "main display_task";
 /* @Return: */
     /* - ESP_OK if the widget was successfully registered*/
     /* - ESP_FAIL in all other cases */
-static esp_err_t register_widget(widget_update_t *widget_update)
+static esp_err_t register_widget(const widget_update_t *widget_update)
 {
     ESP_LOGI(TAG, "register widget: %s", get_widget_type_to_string(widget_update->type));
     widget_t *new_widget = NULL;
 
-    if (check_widget_exists_in_display_list(widget_update->type) == true)
+    if (check_widget_exists_in_any_display_list(widget_update->type) == true)
         return ESP_FAIL;
 
     if (get_widget_by_type(widget_update->type, &new_widget) != ESP_OK)
@@ -35,7 +33,7 @@ static esp_err_t register_widget(widget_update_t *widget_update)
     if (update_widget_info(widget_update) != ESP_OK)
         return ESP_FAIL;
 
-    screen_t *screen = get_active_screen();
+    screen_t *screen = &get_main_display()->screen[widget_update->screen_id];
     widget_node_t *new_node = create_widget_display_list_node(screen->widget_display_list, new_widget);
     if (new_node == NULL)
         return ESP_FAIL;
@@ -57,9 +55,9 @@ static esp_err_t register_widget(widget_update_t *widget_update)
 /* @Return: */
 /*     - ESP_OK if the widget was successfully updated and redrawn. */
 /*     - ESP_FAIL if the widget node is not found, or if any update or retrieval operation fails. */
-static esp_err_t update_registered_widget(widget_update_t *widget_update)
+static esp_err_t update_registered_widget(const widget_update_t *widget_update)
 {
-    if (check_widget_exists_in_display_list(widget_update->type) == false)
+    if (check_widget_exists_in_display_list(widget_update->type, widget_update->screen_id) == false)
         return ESP_FAIL;
 
     if (update_widget_info(widget_update) != ESP_OK)
@@ -83,9 +81,9 @@ static esp_err_t update_registered_widget(widget_update_t *widget_update)
 /* @Return: */
     /* - ESP_OK if the widget was successfully unregistered */
     /* - ESP_FAIL in all other cases */
-static esp_err_t unregister_widget(widget_type_t widget_type) 
+static esp_err_t unregister_widget(const widget_type_t widget_type, const uint8_t screen_id)
 {
-    screen_t *screen = get_active_screen();
+    screen_t *screen = &get_main_display()->screen[screen_id];
     widget_node_t *current = screen->widget_display_list;
     widget_node_t *previous = NULL;
 
@@ -152,7 +150,7 @@ void widget_manager_task(void *pvParameters)
             }
             else if (widget_update.action == WIDGET_ACTION_ERASE)
             {
-                err = unregister_widget(widget_update.type);
+                err = unregister_widget(widget_update.type, widget_update.screen_id);
                 if (err != ESP_OK)
                     continue;
             }
