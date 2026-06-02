@@ -10,6 +10,7 @@
         "y": 100
     },
     "update_interval": "1h",
+    "update_schedule": { "start": "06:00", "end": "22:00" },
     "flag": 2147483648,
     "config": {
         "exclude": "minutely,hourly,alert",

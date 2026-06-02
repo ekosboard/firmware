@@ -17,7 +17,7 @@
 #define LFS_INSTANCE_DIR    "instance"
 #define MAX_PATH_LEN        128
 
-typedef struct {
+typedef struct setup_state_s {
     int32_t magic_key;
     int8_t  setup_status;
     int8_t  network_status;

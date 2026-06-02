@@ -1,19 +1,18 @@
 {
-    "id": 8,
-    "widget_type": "seedbox_monitoring",
-    "label": "Seedbox monitoring",
-    "iconType": "\udb81\udc8b",
-    "width": 400,
-    "height": 200,
+	"id": 3,
+	"widget_type": "foobar",
+	"label": "FooBar",
+    "iconType": "\uebf5",
+    "width": 300,
+    "height": 300,
     "position": {
-        "x": 200,
-        "y": 0
+        "x": 8,
+        "y": 8 
     },
-    "update_interval": "6h",
+    "update_interval": "1d",
     "update_schedule": { "start": "00:00", "end": "00:00" },
-    "flag": 2147483648,
+    "flag": 0,
     "config": {
-        "api_key": "",
         "units": ""
     },
     "layout": {
@@ -22,13 +21,13 @@
         "main_axis_alignment": "flex-start",
         "cross_axis_alignment": "flex-start",
         "flex_grow": 1,
-        "padding": 8
+        "padding": 5
     },
     "elements": [
         {
-            "label": "title_label",
+            "label": "foobar_icon",
             "element_type": "icon",
-            "mock_data": "\udb81\udc8b"
+            "mock_data": "\uebf5"
         }
     ]
 }
