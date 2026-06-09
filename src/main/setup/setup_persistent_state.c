@@ -1,7 +1,11 @@
 #include "device_info.h"
+#include "esp_app_desc.h"
 #include "esp_err.h"
+#include "lwip/err.h"
 #include "main.h"
 
+static const char *TAG = "SETUP_PERSISTANT_STATE";
+static esp_err_t sync_firmware_version(void);
 
 /* Initializes the system state, including storage and default configuration. */
 /* @Parameters: */
@@ -24,6 +28,10 @@ esp_err_t setup_persistent_state(void)
         return ret;
 
     ret = nvs_init_interface();
+    if (ret != ESP_OK)
+        return ret;
+
+    ret = sync_firmware_version();
     if (ret != ESP_OK)
         return ret;
 
@@ -58,14 +66,40 @@ esp_err_t setup_persistent_state(void)
         uint8_t mac[6];
         esp_read_mac(mac, ESP_MAC_WIFI_STA);
         snprintf(device_info.serial, sizeof(device_info.serial),
-                 "S3-%02X%02X%02X%02X%02X%02X",
-                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                "S3-%02X%02X%02X%02X%02X%02X",
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
         snprintf(device_info.device_name, sizeof(device_info.device_name),
-                 "EKOS-%02X%02X%02X%02X%02X%02X",
-                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                "EKOS-%02X%02X%02X%02X%02X%02X",
+                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
         device_info_save(&device_info);
     }
     return ESP_OK;
 }
+
+static esp_err_t sync_firmware_version(void)
+{
+    const esp_app_desc_t *app_desc = esp_app_get_description();
+    if (app_desc == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to read app description");
+        return ESP_FAIL;
+    }
+
+    device_info_t device_info;
+    device_info_load(&device_info);
+
+    /* Always overwrite — ensures version is correct after OTA */
+    strncpy(device_info.firmware_version,app_desc->version,sizeof(device_info.firmware_version) - 1);
+    device_info.firmware_version[sizeof(device_info.firmware_version) - 1] = '\0';
+
+    esp_err_t ret = device_info_save(&device_info);
+    if (ret != ESP_OK)
+        ESP_LOGE(TAG, "Failed to save firmware version to NVS: %s", esp_err_to_name(ret));
+    else
+        ESP_LOGI(TAG, "Firmware version synced: %s", device_info.firmware_version);
+
+    return ret;
+}
+

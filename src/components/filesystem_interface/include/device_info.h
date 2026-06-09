@@ -7,7 +7,7 @@
 typedef struct {
     char device_name[32];
     char hostname[32];
-    char firmware_version[16];
+    char firmware_version[32];
     char serial[32];
 } device_info_t;
 
