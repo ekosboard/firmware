@@ -5,7 +5,7 @@
 
 #define BATTERY_ADC_UNIT        ADC_UNIT_1
 #define BATTERY_ADC_CHANNEL     ADC_CHANNEL_0       // GPIO1
-#define BATTERY_ADC_ATTEN       ADC_ATTEN_DB_0      // Plage 0–0.95V
+#define BATTERY_ADC_ATTEN       ADC_ATTEN_DB_2_5    // Plage 0–1.25V
 
 // Pont diviseur : 680kΩ / 150kΩ → ratio = 150 / (680 + 150)
 #define BATTERY_DIVIDER_RATIO   (150.0f / (680.0f + 150.0f))   // ≈ 0.1807
