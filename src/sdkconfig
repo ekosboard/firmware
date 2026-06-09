@@ -545,27 +545,28 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Smart Paper -- E-Paper Display
+# EKOS -- E-Paper Display
 #
 # CONFIG_EPD_GDEY042T81 is not set
 CONFIG_EPD_GDEY075T7=y
-# end of Smart Paper -- E-Paper Display
+# end of EKOS -- E-Paper Display
 
 #
-# EKOS — Data Providers
+# EKOS -- Data Providers
 #
 CONFIG_PROVIDER_BATTERY=y
+# CONFIG_PROVIDER_BME280 is not set
 # CONFIG_PROVIDER_BME680 is not set
-# end of EKOS — Data Providers
+# end of EKOS -- Data Providers
 
 #
-# Smart Paper -- Touch Controller
+# EKOS -- Touch Controller
 #
-# CONFIG_USE_GT911 is not set
-# end of Smart Paper -- Touch Controller
+CONFIG_USE_GT911=y
+# end of EKOS -- Touch Controller
 
 #
-# Smart Paper -- Widgets
+# EKOS -- Widgets
 #
 CONFIG_WIDGET_DAY_WEATHER=y
 CONFIG_WIDGET_FOOBAR=y
@@ -574,7 +575,7 @@ CONFIG_WIDGET_BATTERY_DISPLAY=y
 CONFIG_WIDGET_STOCK_CHART=y
 CONFIG_WIDGET_SEEDBOX_MONITORING=y
 CONFIG_WIDGET_SIDE_BAR=y
-# end of Smart Paper -- Widgets
+# end of EKOS -- Widgets
 
 #
 # Compiler options
