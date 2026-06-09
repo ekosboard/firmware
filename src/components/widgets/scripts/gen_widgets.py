@@ -4,107 +4,77 @@ import sys
 import glob
 import json
 
-# Base = dossier où se trouve le script lui-même
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# On remonte jusqu’au dossier du composant
+BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
 COMPONENT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+WIDGET_DIR    = os.path.join(COMPONENT_DIR, "widget")
+TEMPLATE_DIR  = os.path.abspath(os.path.join(COMPONENT_DIR, "../../littlefs/template"))
+HEADER_PATH   = os.path.join(COMPONENT_DIR, "include", "widget_autogen.h")
+SOURCE_PATH   = os.path.join(COMPONENT_DIR, "widget_autogen.c")
+KCONFIG_PATH  = os.path.join(COMPONENT_DIR, "Kconfig.projbuild")
 
-# Dossier contenant les fichiers de widgets
-WIDGET_DIR = os.path.join(COMPONENT_DIR, "widget")
+KCONFIG_ONLY = "--kconfig-only" in sys.argv
+CODEGEN_ONLY = "--codegen-only" in sys.argv
 
-# Dossier contenant les templates (adapté à ton arborescence)
-TEMPLATE_DIR = os.path.abspath(os.path.join(COMPONENT_DIR, "../../littlefs/template"))
+# ── Widget discovery ──────────────────────────────────────────────────────────
 
-# Dossier de sortie
-OUTPUT_DIR = COMPONENT_DIR
-
-# Fichiers de sortie
-HEADER_PATH = os.path.join(OUTPUT_DIR, "include", "widget_autogen.h")
-SOURCE_PATH = os.path.join(OUTPUT_DIR, "widget_autogen.c")
-KCONFIG_PATH = os.path.join(OUTPUT_DIR, "Kconfig.projbuild")
-
-print("=== DEBUG PATHS ===")
-print("Current working directory :", os.getcwd())
-print("Script file location      :", os.path.abspath(__file__))
-print("BASE_DIR                  :", BASE_DIR)
-print("COMPONENT_DIR             :", COMPONENT_DIR)
-print("WIDGET_DIR                :", WIDGET_DIR)
-print("TEMPLATE_DIR              :", TEMPLATE_DIR)
-print("OUTPUT_DIR                :", OUTPUT_DIR)
-print("====================\n")
-
-# --------------------------------------------------------------------
-#  Chargement des IDs depuis les templates JSON
-# --------------------------------------------------------------------
 def load_template_ids():
     template_map = {}
     if not os.path.exists(TEMPLATE_DIR):
-        print("⚠️ Aucun dossier de templates trouvé :", TEMPLATE_DIR)
+        print(f"⚠️  Template dir not found: {TEMPLATE_DIR}")
         return template_map
-
     for filename in os.listdir(TEMPLATE_DIR):
         if not filename.endswith(".json"):
             continue
-        path = os.path.join(TEMPLATE_DIR, filename)
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(os.path.join(TEMPLATE_DIR, filename), "r", encoding="utf-8") as f:
                 data = json.load(f)
             name = data.get("widget_type")
-            wid = data.get("id")
+            wid  = data.get("id")
             if name and wid is not None:
                 template_map[name] = wid
         except Exception as e:
-            print(f"Erreur lecture template {filename}: {e}")
-
+            print(f"Error reading template {filename}: {e}")
     return template_map
 
+def sorted_widgets():
+    widgets = sorted([
+        os.path.splitext(os.path.basename(f))[0]
+        for f in glob.glob(os.path.join(WIDGET_DIR, "*.c"))
+    ])
+    if not widgets:
+        raise RuntimeError("No widgets found in widget/")
 
-# --------------------------------------------------------------------
-#  Découverte des widgets existants dans le code
-# --------------------------------------------------------------------
-widgets = sorted([
-    os.path.splitext(os.path.basename(f))[0]
-    for f in glob.glob(os.path.join(WIDGET_DIR, "*.c"))
-])
+    template_ids = load_template_ids()
+    for w in widgets:
+        if w not in template_ids:
+            raise ValueError(f"No template ID found for widget '{w}'")
 
-if not widgets:
-    raise RuntimeError("Aucun widget trouvé dans le dossier widget/")
+    return sorted(widgets, key=lambda w: template_ids[w])
 
-print(f"Widgets détectés : {', '.join(widgets)}")
+# ── Kconfig generation ────────────────────────────────────────────────────────
 
-# --------------------------------------------------------------------
-#  Tri des widgets selon les templates JSON (par ID)
-# --------------------------------------------------------------------
-template_ids = load_template_ids()
+def gen_kconfig(widgets):
+    with open(KCONFIG_PATH, "w") as f:
+        f.write('menu "EKOS -- Widgets"\n\n')
+        for w in widgets:
+            f.write(f'    config WIDGET_{w.upper()}\n')
+            f.write(f'        bool "Enable {w.replace("_", " ").title()} Widget"\n')
+            f.write(f'        default y\n\n')
+        f.write("endmenu\n")
+    print(f"✅ Generated: {KCONFIG_PATH}")
 
-widgets_sorted = []
-for w in widgets:
-    if w not in template_ids:
-        raise ValueError(f"❌ Aucun ID trouvé pour le widget '{w}' dans les templates.")
-    widgets_sorted.append(w)
+# ── Header + source generation ────────────────────────────────────────────────
 
-# Tri selon l'ID (ordre croissant)
-widgets_sorted.sort(key=lambda w: template_ids[w])
-
-print(f"Ordre final des widgets : {', '.join(widgets_sorted)}")
-
-# --------------------------------------------------------------------
-#  Génération du header autogen
-# --------------------------------------------------------------------
-HEADER_TOP = """#ifndef WIDGET_AUTOGEN_H
-#define WIDGET_AUTOGEN_H
-
-"""
-
-SOURCE_TOP = """#include "widget.h"
+SOURCE_TOP = """\
+#include "widget.h"
 #include "filesystem_interface.h"
 
 widget_t widget_info_list[WIDGET_COUNT];
 uint8_t size_widget_info_list;
 """
 
-INIT_TOP = """
+INIT_TOP = """\
+
 /* Initializes the widget information list with predefined widgets */
 void init_widget_list(void)
 {
@@ -112,119 +82,95 @@ void init_widget_list(void)
     mount_lfs();
 """
 
-INIT_BOTTOM = """
+INIT_BOTTOM = """\
+
     unmount_lfs();
     for (uint8_t i = index; i < WIDGET_COUNT; i++) {
         widget_info_list[i] = (widget_t){0};
     }
-
     size_widget_info_list = index;
 }
 """
 
-# HEADER
-with open(HEADER_PATH, "w") as header:
-    header.write(HEADER_TOP)
-    header.write("// Includes des widgets activés\n")
+def gen_header(widgets):
+    with open(HEADER_PATH, "w") as f:
+        f.write("#ifndef WIDGET_AUTOGEN_H\n#define WIDGET_AUTOGEN_H\n\n")
 
-    for w in widgets_sorted:
-        macro = f"CONFIG_WIDGET_{w.upper()}"
-        header.write(f"#ifdef {macro}\n")
-        header.write(f'    #include "widget/{w}.h"\n')
-        header.write(f"#endif\n")
+        f.write("// Enabled widget includes\n")
+        for w in widgets:
+            f.write(f"#ifdef CONFIG_WIDGET_{w.upper()}\n")
+            f.write(f'    #include "widget/{w}.h"\n')
+            f.write(f"#endif\n")
 
-    header.write("\n// Nombre total de widgets activés\n")
-    header.write("#define WIDGET_COUNT ( \\\n")
+        f.write("\n// Total enabled widget count\n")
+        f.write("#define WIDGET_COUNT_0 0\n")
+        for i, w in enumerate(widgets):
+            f.write(f"#ifdef CONFIG_WIDGET_{w.upper()}\n")
+            f.write(f"    #define WIDGET_COUNT_{i+1} (WIDGET_COUNT_{i} + 1)\n")
+            f.write(f"#else\n")
+            f.write(f"    #define WIDGET_COUNT_{i+1} WIDGET_COUNT_{i}\n")
+            f.write(f"#endif\n")
+        f.write(f"#define WIDGET_COUNT WIDGET_COUNT_{len(widgets)}\n\n")
 
-    for i, w in enumerate(widgets_sorted):
-        macro = f"CONFIG_WIDGET_{w.upper()}"
-        if i < len(widgets_sorted) - 1:
-            header.write(f"    ({macro} ? 1 : 0) + \\\n")
-        else:
-            header.write(f"    ({macro} ? 1 : 0) \\\n")
-    header.write(")\n\n")
+        f.write("// Widget type enum\n")
+        f.write("typedef enum {\n")
+        for w in widgets:
+            f.write(f"#ifdef CONFIG_WIDGET_{w.upper()}\n")
+            f.write(f"    WIDGET_TYPE_{w.upper()},\n")
+            f.write(f"#endif\n")
+        f.write("    WIDGET_TYPE_COUNT\n} widget_type_t;\n\n")
 
-    header.write("// Type des widgets\n")
-    header.write("typedef enum {\n")
-    for w in widgets_sorted:
-        macro = f"CONFIG_WIDGET_{w.upper()}"
-        header.write(f"#ifdef {macro}\n")
-        header.write(f"    WIDGET_TYPE_{w.upper()},\n")
-        header.write(f"#endif\n")
-    header.write("    WIDGET_TYPE_COUNT\n} widget_type_t;\n\n")
+        f.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n")
+        f.write("    void        init_widget_list(void);\n")
+        f.write("    const char *get_widget_type_to_string(widget_type_t type);\n\n")
+        f.write("#ifdef __cplusplus\n} /* extern \"C\" */\n#endif\n\n")
+        f.write("#endif /* WIDGET_AUTOGEN_H */\n")
+    print(f"✅ Generated: {HEADER_PATH}")
 
-    header.write("// Fonctions exposées\n")
-    header.write("#ifdef __cplusplus\n")
-    header.write("extern \"C\" {\n")
-    header.write("#endif\n\n")
+def gen_source(widgets):
+    with open(SOURCE_PATH, "w") as f:
+        f.write(SOURCE_TOP)
 
-    header.write("    void        init_widget_list(void);\n")
-    header.write("    const char *get_widget_type_to_string(widget_type_t type);\n\n")
+        f.write("\nconst char *get_widget_type_to_string(widget_type_t type)\n{\n")
+        f.write("    switch (type)\n    {\n")
+        for w in widgets:
+            f.write(f"#ifdef CONFIG_WIDGET_{w.upper()}\n")
+            f.write(f'        case WIDGET_TYPE_{w.upper()}: return "{w}";\n')
+            f.write(f"#endif\n")
+        f.write('        default: return "Unknown Widget";\n')
+        f.write("    }\n}\n")
 
-    header.write("#ifdef __cplusplus\n")
-    header.write("} /*extern \"C\"*/\n")
-    header.write("#endif\n")
-    header.write("#endif")
+        f.write(INIT_TOP)
+        for w in widgets:
+            struct_name    = f"widget_{w}"
+            filepath_macro = f"{w.upper()}_FILE_PATH"
+            f.write(f"\n#ifdef CONFIG_WIDGET_{w.upper()}\n")
+            f.write(f"    widget_info_list[index] = (widget_t){{\n")
+            f.write(f"        .type                  = WIDGET_TYPE_{w.upper()},\n")
+            f.write(f"        .lv_obj                = NULL,\n")
+            f.write(f"        .child                 = NULL,\n")
+            f.write(f"        .draw_function         = {struct_name}_draw,\n")
+            f.write(f"        .erase_function        = {struct_name}_erase,\n")
+            f.write(f"        .update_function       = {struct_name}_update,\n")
+            f.write(f"        .update_data_function  = {struct_name}_update_data,\n")
+            f.write(f"        .update_data_timestamp = 0,\n")
+            f.write(f"        .update_schedule_start = 0,\n")
+            f.write(f"        .update_schedule_end   = WIDGET_SCHEDULE_DISABLED,\n")
+            f.write(f"        .config                = NULL\n")
+            f.write(f"    }};\n")
+            f.write(f"    init_widget_from_template(&widget_info_list[index++], {filepath_macro});\n")
+            f.write(f"#endif\n")
+        f.write(INIT_BOTTOM)
+    print(f"✅ Generated: {SOURCE_PATH}")
 
-print(f"✅ Généré : {HEADER_PATH}")
+# ── Entry point ───────────────────────────────────────────────────────────────
 
-# --------------------------------------------------------------------
-#  Génération du fichier source autogen
-# --------------------------------------------------------------------
-with open(SOURCE_PATH, "w") as source:
-    source.write(SOURCE_TOP)
+widgets = sorted_widgets()
+print(f"Widgets detected: {', '.join(widgets)}")
 
-    # get_widget_type_to_string()
-    source.write("\nconst char *get_widget_type_to_string(widget_type_t type)\n{\n")
-    source.write("    switch (type)\n    {\n")
-    for w in widgets_sorted:
-        macro = f"CONFIG_WIDGET_{w.upper()}"
-        source.write(f"#ifdef {macro}\n")
-        source.write(f'        case WIDGET_TYPE_{w.upper()}: return "{w}";\n')
-        source.write(f"#endif\n")
-    source.write('        default: return "Unknown Widget";\n')
-    source.write("    }\n}\n")
+if not CODEGEN_ONLY:
+    gen_kconfig(widgets)
 
-    # init_widget_list()
-    source.write(INIT_TOP)
-
-    for w in widgets_sorted:
-        macro = f"CONFIG_WIDGET_{w.upper()}"
-        struct_name = f"widget_{w}"
-        filepath_macro = f"{w.upper()}_FILE_PATH"
-
-        source.write(f"\n#ifdef {macro}\n")
-        source.write(f"    widget_info_list[index] = (widget_t){{\n")
-        source.write(f"        .type = WIDGET_TYPE_{w.upper()},\n")
-        source.write(f"        .lv_obj = NULL,\n")
-        source.write(f"        .child = NULL,\n")
-        source.write(f"        .draw_function = {struct_name}_draw,\n")
-        source.write(f"        .erase_function = {struct_name}_erase,\n")
-        source.write(f"        .update_function = {struct_name}_update,\n")
-        source.write(f"        .update_data_function = {struct_name}_update_data,\n")
-        source.write(f"        .update_data_timestamp = 0,\n")
-        source.write(f"        .update_schedule_start = 0,\n")
-        source.write(f"        .update_schedule_end = WIDGET_SCHEDULE_DISABLED,\n")
-        source.write(f"        .config = NULL\n")
-        source.write(f"    }};\n")
-        source.write(f"    init_widget_from_template(&widget_info_list[index++], {filepath_macro});\n")
-        source.write(f"#endif\n")
-
-    source.write(INIT_BOTTOM)
-
-print(f"✅ Généré : {SOURCE_PATH}")
-
-# --------------------------------------------------------------------
-#  Génération du Kconfig
-# --------------------------------------------------------------------
-with open(KCONFIG_PATH, "w") as kconfig:
-    kconfig.write('menu "EKOS -- Widgets"\n\n')
-
-    for w in widgets_sorted:
-        kconfig.write(f"    config WIDGET_{w.upper()}\n")
-        kconfig.write(f'        bool "Enable {w.replace("_", " ").title()} Widget"\n')
-        kconfig.write(f"        default y\n\n")
-
-    kconfig.write("endmenu\n")
-
-print(f"✅ Généré : {KCONFIG_PATH}")
+if not KCONFIG_ONLY:
+    gen_header(widgets)
+    gen_source(widgets)
