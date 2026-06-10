@@ -10,11 +10,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #ifdef CONFIG_PROVIDER_BATTERY
-#include "providers/battery_adc.h"
+#include "battery_adc.h"
+#endif
+
+#ifdef CONFIG_PROVIDER_BME280
+#include "bme280_provider.h"
 #endif
 
 #ifdef CONFIG_PROVIDER_BME680
-#include "providers/bme680.h"
+#include "bme680.h"
 #endif
 
 static const char *TAG = "PROVIDER_MANAGER";
@@ -65,6 +69,10 @@ void provider_manager_init(void)
     // Enregistrement des providers activés par Kconfig
 #ifdef CONFIG_PROVIDER_BATTERY
     provider_register(battery_adc_get_provider());
+#endif
+
+#ifdef CONFIG_PROVIDER_BME280
+    provider_register(bme280_get_provider());
 #endif
 
 #ifdef CONFIG_PROVIDER_BME680

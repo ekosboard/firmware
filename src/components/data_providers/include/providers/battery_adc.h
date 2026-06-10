@@ -5,40 +5,40 @@
 
 #define BATTERY_ADC_UNIT        ADC_UNIT_1
 #define BATTERY_ADC_CHANNEL     ADC_CHANNEL_0       // GPIO1
-#define BATTERY_ADC_ATTEN       ADC_ATTEN_DB_2_5    // Plage 0–1.25V
+#define BATTERY_ADC_ATTEN       ADC_ATTEN_DB_2_5    // Range 0–1.25V
 
-// Pont diviseur : 680kΩ / 150kΩ → ratio = 150 / (680 + 150)
+// Voltage divider : 680kΩ / 150kΩ → ratio = 150 / (680 + 150)
 #define BATTERY_DIVIDER_RATIO   (150.0f / (680.0f + 150.0f))   // ≈ 0.1807
 
 // LiPo 1S
-#define BATTERY_V_MIN           3.0f    // Tension vide (0%)
-#define BATTERY_V_MAX           4.2f    // Tension pleine (100%)
+#define BATTERY_V_MIN           3.0f    // Empty voltage (0%)
+#define BATTERY_V_MAX           4.2f    // Full voltage (100%)
 
-// Nombre de lectures moyennées pour réduire le bruit ADC
+// Number of averaged ADC readings to reduce noise
 #define BATTERY_ADC_SAMPLES     8
 
 // Cache TTL
-#define BATTERY_CACHE_TTL_MS    (30 * 1000)   // 30 secondes
+#define BATTERY_CACHE_TTL_MS    (30 * 1000)   // 30 seconds
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
     /**
-     * @brief Retourne le pointeur vers le provider batterie statique.
+     * @brief Return the battery ADC data provider instance.
+     *        To be registered via provider_register() in provider_manager_init().
+     *        Do not call directly from a widget - use provider_get("battery") instead.
      *
-     * Appelé par provider_manager_init() si CONFIG_PROVIDER_BATTERY est activé.
-     * Ne pas appeler directement depuis un widget — passer par provider_get("battery").
+     * Exposed keys:
+     *   "battery_pct"     (float)  Charge percentage (0.0 – 100.0)
+     *   "battery_voltage" (float)  Measured battery voltage in Volts (e.g. 3.85)
      *
-     * Valeurs exposées :
-     *   - "battery_pct"     (FLOAT)  : pourcentage de charge (0.0 – 100.0)
-     *   - "battery_voltage" (FLOAT)  : tension mesurée en Volts (ex: 3.85)
+     * Hardware:
+     *   GPIO1 / ADC1_CH0
+     *   Voltage divider: 680kΩ (series BAT+) / 150kΩ (to GND), ratio ≈ 0.1807
+     *   LiPo 1S: 3.0V (empty) → 4.2V (full)
      *
-     * Matériel :
-     *   - GPIO1 / ADC1_CH0
-     *   - Pont diviseur : 680kΩ (série BAT+) / 150kΩ (série GND)
-     *   - Ratio : 150 / (680 + 150) ≈ 0.1807
-     *   - LiPo 1S : 3.0V (vide) → 4.2V (plein)
+     * @return Pointer to the static data_provider_t for the battery.
      */
     data_provider_t *battery_adc_get_provider(void);
 
