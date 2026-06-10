@@ -10,6 +10,7 @@
 #include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "hal/gpio_types.h"
+#include "i2c_manager.h"
 
 #ifdef CONFIG_USE_GT911
 
@@ -254,19 +255,7 @@ static esp_err_t gt911_i2c_read(gt911_t *dev, uint16_t reg, uint8_t *data, size_
         (uint8_t)(reg & 0xFF),
     };
 
-    esp_err_t ret = i2c_master_transmit(dev->dev, addr_buf, 2, -1);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "I2C TX failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-
-    ret = i2c_master_receive(dev->dev, data, len, -1);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "I2C RX failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-
-    return ESP_OK;
+    return i2c_manager_write_read(dev->dev, addr_buf, sizeof(addr_buf), data, len);
 }
 
 
@@ -277,12 +266,7 @@ static esp_err_t gt911_i2c_write(gt911_t *dev, uint16_t reg, const uint8_t *data
     buf[1] = (uint8_t)(reg & 0xFF);
     memcpy(&buf[2], data, len);
 
-    esp_err_t ret = i2c_master_transmit(dev->dev, buf, sizeof(buf), -1);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "I2C write failed: %s", esp_err_to_name(ret));
-    }
-
-    return ret;
+    return i2c_manager_write(dev->dev, buf, sizeof(buf));
 }
 
 

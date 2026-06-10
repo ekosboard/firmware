@@ -5,7 +5,6 @@ idf_component_register(
     "widget_manager_task.c"
     "power_manager_task.c"
     "update_manager_task.c"
-    "setup/setup_i2c_bus.c"
     "setup/setup_persistent_state.c"
     "setup/setup_ui_tasks.c"
     "setup/state_manager.c"
@@ -29,6 +28,7 @@ idf_component_register(
     screen_manager
     data_providers
     screen_scheduler
+    i2c_manager
 )
 
 #littlefs_create_partition_image(littlefs ../littlefs FLASH_IN_PROJECT)
