@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CONFIG_PROVIDER_BME680
-#include "bme680.h"
+#include "bme680_provider.h"
 #endif
 
 static const char *TAG = "PROVIDER_MANAGER";

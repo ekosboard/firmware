@@ -24,4 +24,24 @@ menu "EKOS -- Data Providers"
             Exposes: temperature (float), humidity (float),
                      pressure (float), gas_resistance (float).
 
+    if PROVIDER_BME680
+        config PROVIDER_BME680_HEATER_TEMP
+            int "BME680 heater target temperature (°C)"
+            default 320
+            range 200 400
+            help
+                Target heater temperature in degrees Celsius for gas measurement.
+                Typical value: 320°C. Higher values increase sensitivity but
+                also power consumption and sensor wear.
+
+        config PROVIDER_BME680_HEATER_DUR
+            int "BME680 heater duration (ms)"
+            default 150
+            range 1 4032
+            help
+                Heater on-time in milliseconds for each gas measurement.
+                Typical value: 150ms. Longer durations improve stability
+                but increase measurement time and power consumption.
+    endif
+
 endmenu
