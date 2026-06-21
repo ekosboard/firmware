@@ -1,6 +1,7 @@
 idf_component_register(
     SRCS
     "HTTPS_request.c"
+    "HTTPS_request_raw.c"
 
     INCLUDE_DIRS
     "include"
