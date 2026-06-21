@@ -13,26 +13,27 @@
 esp_err_t nvs_wifi_write_credential(char *ssid, char *password)
 {
     nvs_handle_t nvs_wifi;
-    esp_err_t ret;
+    esp_err_t err;
 
-    ret = nvs_open("wifi_info", NVS_READWRITE, &nvs_wifi);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_open("wifi_info", NVS_READWRITE, &nvs_wifi);
+    if (err != ESP_OK)
+        return err;
 
-    ret = nvs_set_str(nvs_wifi, "ssid", ssid);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_set_str(nvs_wifi, "ssid", ssid);
+    if (err != ESP_OK)
+        goto cleanup;
 
-    ret = nvs_set_str(nvs_wifi, "password", password);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_set_str(nvs_wifi, "password", password);
+    if (err != ESP_OK)
+        goto cleanup;
 
-    ret = nvs_commit(nvs_wifi);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_commit(nvs_wifi);
+    if (err != ESP_OK)
+        goto cleanup;
 
+cleanup:
     nvs_close(nvs_wifi);
-    return ret;
+    return err;
 }
 
 /* Reads Wi-Fi credentials (SSID and password) from the NVS (Non-Volatile Storage). */
@@ -47,20 +48,21 @@ esp_err_t nvs_wifi_write_credential(char *ssid, char *password)
 esp_err_t nvs_wifi_read_credential(char *ssid_buf, size_t ssid_buf_size, char *password_buf, size_t password_buf_size)
 {
     nvs_handle_t nvs_wifi;
-    esp_err_t ret;
+    esp_err_t err;
 
-    ret = nvs_open("wifi_info", NVS_READONLY, &nvs_wifi);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_open("wifi_info", NVS_READONLY, &nvs_wifi);
+    if (err != ESP_OK)
+        return err;
 
-    ret = nvs_get_str(nvs_wifi, "ssid", ssid_buf, &ssid_buf_size);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_get_str(nvs_wifi, "ssid", ssid_buf, &ssid_buf_size);
+    if (err != ESP_OK)
+        goto cleanup;
 
-    ret = nvs_get_str(nvs_wifi, "password", password_buf, &password_buf_size);
-    if (ret != ESP_OK)
-        return ret;
+    err = nvs_get_str(nvs_wifi, "password", password_buf, &password_buf_size);
+    if (err != ESP_OK)
+        goto cleanup;
 
+cleanup:
     nvs_close(nvs_wifi);
-    return ret;
+    return err;
 }
