@@ -1,0 +1,5 @@
+## IDF Component Manager Manifest File
+dependencies:
+  ## Required IDF version
+  idf: ">=5.1.4"
+  espressif/expat: "^2.8.1"
