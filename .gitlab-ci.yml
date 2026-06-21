@@ -5,7 +5,6 @@
 #  Variables à configurer dans GitLab → Settings → CI/CD → Variables :
 #    GITHUB_TOKEN      — Personal Access Token GitHub (scope: repo)
 #    GITHUB_REPO       — ex: ekosboard/firmware
-#    GITLAB_TOKEN      — Project Access Token GitLab (scope: api)
 #    VPS_HOST          — hostname ou IP du VPS
 #    VPS_USER          — user SSH
 #    VPS_SSH_KEY       — clé privée SSH (type: File)
