@@ -28,4 +28,8 @@ menu "EKOS -- Widgets"
         bool "Enable Side Bar Widget"
         default y
 
+    config WIDGET_APPLE_CALENDAR
+        bool "Enable Apple Calendar Widget"
+        default y
+
 endmenu

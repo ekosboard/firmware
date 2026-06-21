@@ -62,6 +62,7 @@ idf_component_register(
     json
     screen_manager
     data_providers
+    caldav
 )
 
 add_custom_command(
