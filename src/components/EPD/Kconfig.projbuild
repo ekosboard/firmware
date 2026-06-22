@@ -1,4 +1,4 @@
-menu "Smart Paper -- E-Paper Display"
+menu "EKOS -- E-Paper Display"
 
 choice
     prompt "Select E-Paper Display"

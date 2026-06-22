@@ -1,4 +1,4 @@
-menu "Smart Paper -- Touch Controller"
+menu "EKOS -- Touch Controller"
 
 config USE_GT911
     bool "Enable GT911 touch controller"

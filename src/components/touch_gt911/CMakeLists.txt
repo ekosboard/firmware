@@ -6,6 +6,7 @@ idf_component_register(
     "include"
 
     REQUIRES
-    driver
+    esp_driver_gpio
     esp_timer
+    i2c_manager
 )

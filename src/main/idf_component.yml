@@ -1,10 +1,9 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  joltwallet/littlefs: "==1.18.1"
-  espressif/mdns: "*"
   ## Required IDF version
-  idf:
-    version: ">=4.1.0"
+  idf: ">=6.0.1"
+  joltwallet/littlefs: ">=1.22.1"
+  espressif/mdns: "*"
   # # Put list of dependencies here
   # # For components maintained by Espressif:
   # component: "~1.0.0"

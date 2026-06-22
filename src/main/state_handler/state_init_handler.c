@@ -9,6 +9,7 @@
 #include "filesystem_interface.h"
 #include "freertos/idf_additions.h"
 #include "freertos/projdefs.h"
+#include "i2c_manager.h"
 #include "input_manager.h"
 #include "main.h"
 #include "ota_context.h"
@@ -16,7 +17,6 @@
 #include "state_manager.h"
 #include "wifi.h"
 #include <stdbool.h>
-#include "setup_i2c_bus.h"
 #include "screen_manager.h"
 #include "wifi_switch.h"
 #include "provider_manager.h"
@@ -24,6 +24,8 @@
 #ifdef CONFIG_USE_GT911
 #include "gt911.h"
 #endif
+
+static const char *TAG = "STATE_INIT_HANDLER";
 
 /* This function handles the initialization state of the system.
  * It is triggered by events posted to the state_manager_loop
@@ -51,17 +53,25 @@ void state_init_handler(void *handler_arg, esp_event_base_t base, int32_t id, vo
         case INIT_SETUP_HW:
             if (setup_persistent_state() == ESP_OK)
             {
+                // I2C toujours initialisé - utilisé par touch, providers, et pogo
+                if (i2c_manager_init() != ESP_OK)
+                {
+                    ESP_LOGE(TAG, "I2C init failed — aborting HW setup");
+                    break;
+                }
 #ifdef CONFIG_USE_GT911
                 gpio_install_isr_service(0);
-                if (setup_i2c_bus() == ESP_OK && gt911_init(get_i2c_bus()) == ESP_OK)
+                if (gt911_init(i2c_manager_get_bus()) != ESP_OK)
+                {
+                    ESP_LOGW(TAG, "GT911 init failed — touch unavailable");
+                }
 #endif
-                    // Init des data providers - non bloquant, les erreurs sont log
-                    provider_manager_init();
-
-                    esp_event_post_to(state_manager_loop,
-                            INIT_EVENT,
-                            INIT_SETUP_UI,
-                            NULL,
+                // Init des data providers - non bloquant, les erreurs sont log
+                provider_manager_init();
+                esp_event_post_to(state_manager_loop,
+                        INIT_EVENT,
+                        INIT_SETUP_UI,
+                        NULL,
                         0,
                         portMAX_DELAY);
             }

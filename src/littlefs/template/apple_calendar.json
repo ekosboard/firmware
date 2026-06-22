@@ -1,0 +1,26 @@
+{
+    "id": 10,
+    "widget_type": "apple_calendar",
+    "label": "Apple Calendar",
+    "iconType": "\udb80\udc35",
+    "width": 780,
+    "height": 464,
+    "position": {
+        "x": 8,
+        "y": 8
+    },
+    "update_interval": "1d",
+    "update_schedule": { "start": "00:00", "end": "00:00" },
+    "flag": 2147483648,
+    "config": {
+        "caldav_url": "",
+        "username": "",
+        "password_or_asp": "",
+        "days_ahead": "",
+        "max_events": ""
+    },
+    "layout": {
+        "display": "flex"
+    },
+    "elements": []
+}

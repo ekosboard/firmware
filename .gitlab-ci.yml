@@ -1,0 +1,253 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  EKOS Firmware — GitLab CI/CD
+#  Déclenché sur tag v* uniquement
+#
+#  Variables à configurer dans GitLab → Settings → CI/CD → Variables :
+#    GITHUB_TOKEN      — Personal Access Token GitHub (scope: repo)
+#    GITHUB_REPO       — ex: ekosboard/firmware
+#    VPS_HOST          — hostname ou IP du VPS
+#    VPS_USER          — user SSH
+#    VPS_SSH_KEY       — clé privée SSH (type: File)
+# ─────────────────────────────────────────────────────────────────────────────
+
+stages:
+  - build
+  - release_github
+  - release_gitlab
+  - deploy_docs
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  TEMPLATE BUILD
+# ─────────────────────────────────────────────────────────────────────────────
+
+.build_template:
+  stage: build
+  image: espressif/idf:v5.3.5
+  only:
+    - /^v\d+\.\d+\.\d+(-.*)?$/
+  before_script:
+    - pip install idf-component-manager --quiet
+    - idf.py --version
+  artifacts:
+    expire_in: 1 hour
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  BUILD — Standard (sans GT911)
+# ─────────────────────────────────────────────────────────────────────────────
+
+build:standard:
+  extends: .build_template
+  script:
+    - echo "→ Building standard target..."
+    - idf.py set-target esp32s3
+    - idf.py build
+    # Renommage avec convention + version
+    - cp build/ekos.bin          "build/ekos_ota_${CI_COMMIT_TAG}.bin"
+    - cp build/merged-binary.bin "build/ekos_merge_${CI_COMMIT_TAG}.bin"
+    # SHA256
+    - sha256sum "build/ekos_ota_${CI_COMMIT_TAG}.bin"   > "build/ekos_ota_${CI_COMMIT_TAG}.bin.sha256"
+    - sha256sum "build/ekos_merge_${CI_COMMIT_TAG}.bin" > "build/ekos_merge_${CI_COMMIT_TAG}.bin.sha256"
+    - echo "✓ Standard build complete"
+  artifacts:
+    paths:
+      - build/ekos_ota_${CI_COMMIT_TAG}.bin
+      - build/ekos_merge_${CI_COMMIT_TAG}.bin
+      - build/ekos_ota_${CI_COMMIT_TAG}.bin.sha256
+      - build/ekos_merge_${CI_COMMIT_TAG}.bin.sha256
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  BUILD — GT911
+# ─────────────────────────────────────────────────────────────────────────────
+
+build:gt911:
+  extends: .build_template
+  script:
+    - echo "→ Building GT911 target..."
+    - idf.py set-target esp32s3
+    # Override de la config pour activer le GT911
+    - echo "CONFIG_USE_GT911=y" >> sdkconfig.defaults
+    - idf.py build
+    # Renommage
+    - cp build/ekos.bin          "build/ekos_ota_${CI_COMMIT_TAG}_gt911.bin"
+    - cp build/merged-binary.bin "build/ekos_merge_${CI_COMMIT_TAG}_gt911.bin"
+    # SHA256
+    - sha256sum "build/ekos_ota_${CI_COMMIT_TAG}_gt911.bin"   > "build/ekos_ota_${CI_COMMIT_TAG}_gt911.bin.sha256"
+    - sha256sum "build/ekos_merge_${CI_COMMIT_TAG}_gt911.bin" > "build/ekos_merge_${CI_COMMIT_TAG}_gt911.bin.sha256"
+    - echo "✓ GT911 build complete"
+  artifacts:
+    paths:
+      - build/ekos_ota_${CI_COMMIT_TAG}_gt911.bin
+      - build/ekos_merge_${CI_COMMIT_TAG}_gt911.bin
+      - build/ekos_ota_${CI_COMMIT_TAG}_gt911.bin.sha256
+      - build/ekos_merge_${CI_COMMIT_TAG}_gt911.bin.sha256
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  RELEASE GITHUB
+#  Crée la release + upload les 4 .bin comme assets
+#  Les URLs GitHub seront ensuite utilisées dans la release GitLab
+# ─────────────────────────────────────────────────────────────────────────────
+
+release:github:
+  stage: release_github
+  image: alpine:latest
+  only:
+    - /^v\d+\.\d+\.\d+(-.*)?$/
+  needs:
+    - job: build:standard
+      artifacts: true
+    - job: build:gt911
+      artifacts: true
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - VERSION="${CI_COMMIT_TAG}"
+    - REPO="${GITHUB_REPO}"
+
+    # ── Récupération des SHA256 ──────────────────────────────────────────────
+    - SHA_OTA=$(cat      "build/ekos_ota_${VERSION}.bin.sha256"         | awk '{print $1}')
+    - SHA_MERGE=$(cat    "build/ekos_merge_${VERSION}.bin.sha256"       | awk '{print $1}')
+    - SHA_OTA_GT=$(cat   "build/ekos_ota_${VERSION}_gt911.bin.sha256"   | awk '{print $1}')
+    - SHA_MERGE_GT=$(cat "build/ekos_merge_${VERSION}_gt911.bin.sha256" | awk '{print $1}')
+
+    # ── Création de la release GitHub ───────────────────────────────────────
+    - |
+      RELEASE_PAYLOAD=$(jq -n \
+        --arg tag "$VERSION" \
+        --arg name "EKOS Firmware $VERSION" \
+        --arg sha_ota      "$SHA_OTA" \
+        --arg sha_merge    "$SHA_MERGE" \
+        --arg sha_ota_gt   "$SHA_OTA_GT" \
+        --arg sha_merge_gt "$SHA_MERGE_GT" \
+        '{
+          tag_name: $tag,
+          name: $name,
+          draft: false,
+          prerelease: false,
+          body: (
+            "## EKOS Firmware " + $tag + "\n\n" +
+            "### Assets\n\n" +
+            "| File | SHA256 |\n" +
+            "| ---- | ------ |\n" +
+            "| `ekos_ota_"      + $tag + ".bin` | `"      + $sha_ota      + "` |\n" +
+            "| `ekos_merge_"    + $tag + ".bin` | `"      + $sha_merge    + "` |\n" +
+            "| `ekos_ota_"      + $tag + "_gt911.bin` | `" + $sha_ota_gt  + "` |\n" +
+            "| `ekos_merge_"    + $tag + "_gt911.bin` | `" + $sha_merge_gt + "` |\n\n" +
+            "---\n\n" +
+            "📖 [Documentation](https://doc.ekosboard.com)  \n" +
+            "🌐 [ekosboard.com](https://ekosboard.com)"
+          )
+        }')
+
+      RELEASE_RESPONSE=$(curl -sf -X POST \
+        -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "$RELEASE_PAYLOAD" \
+        "https://api.github.com/repos/${REPO}/releases")
+
+      UPLOAD_URL=$(echo "$RELEASE_RESPONSE" | jq -r '.upload_url' | sed 's/{?name,label}//')
+      RELEASE_ID=$(echo "$RELEASE_RESPONSE" | jq -r '.id')
+      echo "GitHub release created — id: $RELEASE_ID"
+
+    # ── Upload des 4 .bin ───────────────────────────────────────────────────
+    - |
+      for FILE in \
+        "build/ekos_ota_${VERSION}.bin" \
+        "build/ekos_merge_${VERSION}.bin" \
+        "build/ekos_ota_${VERSION}_gt911.bin" \
+        "build/ekos_merge_${VERSION}_gt911.bin"; do
+        FILENAME=$(basename "$FILE")
+        echo "→ Uploading $FILENAME..."
+        curl -sf -X POST \
+          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"$FILE" \
+          "${UPLOAD_URL}?name=${FILENAME}" > /dev/null
+        echo "✓ $FILENAME uploaded"
+      done
+
+    # ── Export des URLs pour le job GitLab ──────────────────────────────────
+    - |
+      BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+      echo "GITHUB_RELEASE_BASE_URL=${BASE_URL}" >> github_release.env
+      echo "SHA_OTA=${SHA_OTA}"                   >> github_release.env
+      echo "SHA_MERGE=${SHA_MERGE}"               >> github_release.env
+      echo "SHA_OTA_GT=${SHA_OTA_GT}"             >> github_release.env
+      echo "SHA_MERGE_GT=${SHA_MERGE_GT}"         >> github_release.env
+
+  artifacts:
+    reports:
+      dotenv: github_release.env
+    expire_in: 1 hour
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  RELEASE GITLAB
+#  Crée la release GitLab en linkant les assets hébergés sur GitHub
+# ─────────────────────────────────────────────────────────────────────────────
+
+release:gitlab:
+  stage: release_gitlab
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  only:
+    - /^v\d+\.\d+\.\d+(-.*)?$/
+  needs:
+    - job: release:github
+      artifacts: true
+  script:
+    - echo "→ Creating GitLab release ${CI_COMMIT_TAG}..."
+    - VERSION="${CI_COMMIT_TAG}"
+    - BASE="${GITHUB_RELEASE_BASE_URL}"
+  release:
+    tag_name: "${CI_COMMIT_TAG}"
+    name: "EKOS Firmware ${CI_COMMIT_TAG}"
+    description: |
+      ## EKOS Firmware ${CI_COMMIT_TAG}
+
+      | File | SHA256 |
+      | ---- | ------ |
+      | `ekos_ota_${CI_COMMIT_TAG}.bin`         | `${SHA_OTA}`      |
+      | `ekos_merge_${CI_COMMIT_TAG}.bin`       | `${SHA_MERGE}`    |
+      | `ekos_ota_${CI_COMMIT_TAG}_gt911.bin`   | `${SHA_OTA_GT}`   |
+      | `ekos_merge_${CI_COMMIT_TAG}_gt911.bin` | `${SHA_MERGE_GT}` |
+
+      ---
+
+      📖 [Documentation](https://doc.ekosboard.com)
+      🌐 [ekosboard.com](https://ekosboard.com)
+    assets:
+      links:
+        - name: "ekos_ota_${CI_COMMIT_TAG}.bin"
+          url: "${GITHUB_RELEASE_BASE_URL}/ekos_ota_${CI_COMMIT_TAG}.bin"
+          link_type: package
+        - name: "ekos_merge_${CI_COMMIT_TAG}.bin"
+          url: "${GITHUB_RELEASE_BASE_URL}/ekos_merge_${CI_COMMIT_TAG}.bin"
+          link_type: package
+        - name: "ekos_ota_${CI_COMMIT_TAG}_gt911.bin"
+          url: "${GITHUB_RELEASE_BASE_URL}/ekos_ota_${CI_COMMIT_TAG}_gt911.bin"
+          link_type: package
+        - name: "ekos_merge_${CI_COMMIT_TAG}_gt911.bin"
+          url: "${GITHUB_RELEASE_BASE_URL}/ekos_merge_${CI_COMMIT_TAG}_gt911.bin"
+          link_type: package
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  DEPLOY DOCS — Doxygen
+#  Génère et déploie la doc code sur docs.ekosboard.com/code/
+# ─────────────────────────────────────────────────────────────────────────────
+
+deploy:doxygen:
+  stage: deploy_docs
+  image: ubuntu:22.04
+  only:
+    - /^v\d+\.\d+\.\d+(-.*)?$/
+  needs: []
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq doxygen graphviz rsync openssh-client
+    - mkdir -p ~/.ssh
+    - echo "${VPS_SSH_KEY}" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -p 51122 ${VPS_HOST} >> ~/.ssh/known_hosts
+  script:
+    - echo "→ Generating Doxygen..."
+    - doxygen Doxyfile
+    - echo "→ Deploying to VPS..."
+    - rsync -az --delete -e "ssh -p 51122 -i ~/.ssh/id_rsa" docs_doxy/html/ ${VPS_USER}@${VPS_HOST}:/var/www/ekos_doxy/
+    - echo "✓ Doxygen deployed"

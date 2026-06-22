@@ -1,5 +1,6 @@
 #include "UI.h"
 #include "driver/gpio.h"
+#include "esp_bit_defs.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
 #include "freertos/idf_additions.h"
@@ -113,12 +114,12 @@ void power_manager_task(void *pvParameters)
             enable_gpio_wakeup();
 
             esp_light_sleep_start();
-            while (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_UNDEFINED)
+            while (esp_sleep_get_wakeup_causes() & BIT(ESP_SLEEP_WAKEUP_UNDEFINED))
             {
                 __asm__("nop");
             }
 
-            esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+            uint32_t wakeup_reason = esp_sleep_get_wakeup_causes();
             ESP_LOGW("POWER MANAGER", "Wakeup reason: %d", wakeup_reason);
             disable_gpio_wakeup();
 
@@ -127,7 +128,7 @@ void power_manager_task(void *pvParameters)
 
             display->display_driver->set_basemap(epd_get_basemap());
 
-            if (wakeup_reason == ESP_SLEEP_WAKEUP_GPIO) // ISR
+            if (wakeup_reason & BIT(ESP_SLEEP_WAKEUP_GPIO)) // ISR
             {
                 ESP_LOGW("POWER MANAGER: ", "awake: GPIO");
                 clean_start_wifi();
@@ -135,7 +136,7 @@ void power_manager_task(void *pvParameters)
                 esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
                 esp_event_post_to(state_manager_loop, CONFIG_EVENT, CONFIG_BEGIN_ISR, NULL, 0, portMAX_DELAY);
             }
-            else if (wakeup_reason == ESP_SLEEP_WAKEUP_TIMER)
+            else if (wakeup_reason & BIT(ESP_SLEEP_WAKEUP_TIMER))
             {
                 ESP_LOGW("POWER MANAGER: ", "awake: TIMER");
                 if (wifi_needed_to_start == true)

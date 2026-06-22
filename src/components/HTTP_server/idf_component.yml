@@ -1,0 +1,5 @@
+## IDF Component Manager Manifest File
+dependencies:
+  ## Required IDF version
+  idf: ">=6.0.1"
+  espressif/cjson: "^1.7.19"

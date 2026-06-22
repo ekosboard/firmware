@@ -1,8 +1,4 @@
-menu "Smart Paper -- Widgets"
-
-    config WIDGET_STATUS_BAR
-        bool "Enable Status Bar Widget"
-        default y
+menu "EKOS -- Widgets"
 
     config WIDGET_DAY_WEATHER
         bool "Enable Day Weather Widget"
@@ -16,8 +12,8 @@ menu "Smart Paper -- Widgets"
         bool "Enable Simple Date Widget"
         default y
 
-    config WIDGET_REMINDER
-        bool "Enable Reminder Widget"
+    config WIDGET_BATTERY_DISPLAY
+        bool "Enable Battery Display Widget"
         default y
 
     config WIDGET_STOCK_CHART
@@ -30,6 +26,10 @@ menu "Smart Paper -- Widgets"
 
     config WIDGET_SIDE_BAR
         bool "Enable Side Bar Widget"
+        default y
+
+    config WIDGET_APPLE_CALENDAR
+        bool "Enable Apple Calendar Widget"
         default y
 
 endmenu
