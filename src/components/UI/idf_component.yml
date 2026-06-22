@@ -1,5 +1,6 @@
 ## IDF Component Manager Manifest File
 dependencies:
   ## Required IDF version
-  idf: ">=5.1.4"
+  idf: ">=6.0.1"
   lvgl/lvgl: "9.2.2"
+  espressif/cjson: "^1.7.19"

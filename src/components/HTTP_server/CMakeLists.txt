@@ -45,7 +45,6 @@ idf_component_register(
     esp-tls 
     esp_http_server 
     esp_wifi
-    json
     UI
     ota
     screen_scheduler

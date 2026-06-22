@@ -59,7 +59,6 @@ idf_component_register(
     UI
     lvgl
     filesystem_interface
-    json
     screen_manager
     data_providers
     caldav

@@ -1,7 +1,7 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "filesystem_interface.h"
-#include "sys/dirent.h"
+#include "dirent.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>

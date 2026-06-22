@@ -2,4 +2,4 @@
 dependencies:
   ## Required IDF version
   idf: ">=6.0.1"
-  espressif/expat: "^2.8.1"
+  espressif/cjson: "^1.7.19"

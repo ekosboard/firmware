@@ -52,7 +52,6 @@ idf_component_register(
     EPD
     touch_gt911
     filesystem_interface
-    json
     HTTPS_request
     wifi
     widgets

@@ -6,6 +6,6 @@ idf_component_register(
     "include"
 
     REQUIRES
-    driver
+    esp_driver_i2c
     freertos
 )
